@@ -43,7 +43,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
   reconstructed_event result{};
 
   result.wgt = evt[0].Weight;
-  //std::cout<<wgt<<std::endl;
+  // std::cout<<wgt<<std::endl;
 
   std::vector<OxJet> all_jets =
       view::zip_with(make_jet, jet) | view::filter([](const auto &jet) {
@@ -54,7 +54,6 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
   ranges::sort(all_jets, ranges::ordered_less{},
                [](auto &&jet) { return jet.p4.Pt(); }); // sorting for pT
   ranges::reverse(all_jets);
-
 
   const int ntag =
       ranges::count(all_jets, true, [](auto &&jet) { return jet.tagged; });
@@ -67,12 +66,12 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
   other_jets |= (action::sort(ranges::ordered_less{},
                               [](auto &&jet) { return jet.p4.Pt(); }) |
                  action::reverse);
- // if (other_jets.size() < 4) {
+  // if (other_jets.size() < 4) {
   //  std::cout << "OTHER JETS SIZE LESS THAN" << std::endl;
- // }
- // for (auto &&j : other_jets) {
+  // }
+  // for (auto &&j : other_jets) {
   //  std::cout << "other_jets pt" << j.p4.Pt() << std::endl;
- // }
+  // }
 
   if (ntag < 4) {
     //        // need to choose "pseudo-tagged" jets so we have four total
@@ -91,14 +90,13 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
     // Add pseudo_jets
     ranges::copy(other_jets | view::take(n_jets_to_choose),
                  ranges::back_inserter(jets));
-   // for (auto &&j : jets) {
+    // for (auto &&j : jets) {
     //  if (j.p4.Pt() == 0.) {
-      //  std::cout << "Jet pt equals 0" << std::endl;
-     // }
-      // fmt::print("Flag 1");
-    }
-  
- 
+    //  std::cout << "Jet pt equals 0" << std::endl;
+    // }
+    // fmt::print("Flag 1");
+  }
+
   if (jets.size() > 4) {
     jets |= (action::sort(ranges::ordered_less{},
                           [](auto &&jet) { return jet.p4.Pt(); }) |
@@ -356,7 +354,8 @@ int main(int argc, char *argv[]) {
   using vec_string = std::vector<std::string>;
 
   ROOT::EnableImplicitMT();
-  RDataFrame frame("Delphes", "/data/atlas/atlasdata/micheli/4b/Events/run_02/tag_1_delphes_events.root");
+  RDataFrame frame("Delphes", "/data/atlas/atlasdata/micheli/4b/Events/run_02/"
+                              "tag_1_delphes_events.root");
   // TODO Do something about btag_name since Delphes provides no score.
 
   auto four_jets =

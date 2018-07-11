@@ -142,19 +142,19 @@ jet_indices_comb(int n_jets */ /**< [in] Number of jets to choose from */ //,
 */
 /// Output format for writing TTrees
 struct out_format {
-   double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
+  double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
 
-   double m_h1; ///< Leading Higgs mass
-  // double E_h1;   ///< Leading Higgs energy
-   double pT_h1;  ///< Leading Higgs p<SUB>T</SUB>
-   double eta_h1; ///< Leading Higgs &eta;
-   double phi_h1; ///< Leading Higgs &Phi;
+  double m_h1;   ///< Leading Higgs mass
+                 // double E_h1;   ///< Leading Higgs energy
+  double pT_h1;  ///< Leading Higgs p<SUB>T</SUB>
+  double eta_h1; ///< Leading Higgs &eta;
+  double phi_h1; ///< Leading Higgs &Phi;
 
-   double m_h2; ///< Subleading Higgs mass
-  // double E_h2;   ///< Subleading Higgs energy
-   double pT_h2;  ///< Subleading Higgs p<SUB>T</SUB>
-   double eta_h2; ///< Subleading Higgs &eta;
-   double phi_h2; ///< Subleading Higgs &Phi;
+  double m_h2;   ///< Subleading Higgs mass
+                 // double E_h2;   ///< Subleading Higgs energy
+  double pT_h2;  ///< Subleading Higgs p<SUB>T</SUB>
+  double eta_h2; ///< Subleading Higgs &eta;
+  double phi_h2; ///< Subleading Higgs &Phi;
 
   double m_h1_j1; ///< Leading Higgs leading jet mass
   // double E_h1_j1;   ///< Leading Higgs leading jet energy
@@ -179,7 +179,6 @@ struct out_format {
   double pT_h2_j2;  ///< Subleading Higgs subleading jet p<SUB>T</SUB>
   double eta_h2_j2; ///< Subleading Higgs subleading jet &eta;
   double phi_h2_j2; ///< Subleading Higgs subleading jet &Phi;
-
 };
 
 /// Output format with reweighting variables
@@ -222,13 +221,12 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
         "m_h2_j1:E_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
         "m_h2_j2:E_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2";*/
 
-   const char *out_format_leaflist = "m_hh/D:m_h1/D:pT_h1:eta_h1:phi_h1:"
-                                     "m_h2/D:pT_h2:eta_h2:phi_h2:"
-                                     "m_h1_j1:pT_h1_j1:eta_h1_j1:phi_h1_j1:"
-                                     "m_h1_j2:pT_h1_j2:eta_h1_j2:phi_h1_j2:"
-                                     "m_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
-                                     "m_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2";
-
+  const char *out_format_leaflist = "m_hh/D:m_h1/D:pT_h1:eta_h1:phi_h1:"
+                                    "m_h2/D:pT_h2:eta_h2:phi_h2:"
+                                    "m_h1_j1:pT_h1_j1:eta_h1_j1:phi_h1_j1:"
+                                    "m_h1_j2:pT_h1_j2:eta_h1_j2:phi_h1_j2:"
+                                    "m_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
+                                    "m_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2";
 
   const char *rwgt_leaflist = "pT_4/D:pT_2:eta_i:dRjj_1:dRjj_2";
 
@@ -264,9 +262,9 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
     first_tree = false;
   }
   result.ForeachSlot(
-      [&out_trees, &out_vars, &ntag_var, &njets_var, &rwgt_vars
-       ,&mc_sf_var](unsigned slot, const reconstructed_event &event
-                        /*,double mc_sf*/) {
+      [&out_trees, &out_vars, &ntag_var, &njets_var, &rwgt_vars,
+       &mc_sf_var](unsigned slot, const reconstructed_event &event
+                   /*,double mc_sf*/) {
         auto &&tree = out_trees[slot];
         auto &&vars = out_vars[slot];
         auto &&rwgt = rwgt_vars[slot];
@@ -274,26 +272,26 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
         // run_numbers[slot] = run_number;
         // event_numbers[slot] = event_number;
 
-         vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
+        vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
         /*if (vars->m_hh< 0.){
          std::cout<<"Negative Di-Higgs Mass"<<endl;
          std::cout<< event.higgs.p4.M
       }*/
         ntag_var[slot] = event.ntag;
         njets_var[slot] = event.njets;
-         mc_sf_var[slot] = event.wgt;
+        mc_sf_var[slot] = event.wgt;
 
-         vars->m_h1 = event.higgs1.p4.M();
+        vars->m_h1 = event.higgs1.p4.M();
         // vars->E_h1 = event.higgs1.p4.E();
-         vars->pT_h1 = event.higgs1.p4.Pt();
-         vars->eta_h1 = event.higgs1.p4.Eta();
-         vars->phi_h1 = event.higgs1.p4.Phi();
+        vars->pT_h1 = event.higgs1.p4.Pt();
+        vars->eta_h1 = event.higgs1.p4.Eta();
+        vars->phi_h1 = event.higgs1.p4.Phi();
 
-         vars->m_h2 = event.higgs2.p4.M();
+        vars->m_h2 = event.higgs2.p4.M();
         // vars->E_h2 = event.higgs2.p4.E();
-         vars->pT_h2 = event.higgs2.p4.Pt();
-         vars->eta_h2 = event.higgs2.p4.Eta();
-         vars->phi_h2 = event.higgs2.p4.Phi();
+        vars->pT_h2 = event.higgs2.p4.Pt();
+        vars->eta_h2 = event.higgs2.p4.Eta();
+        vars->phi_h2 = event.higgs2.p4.Phi();
 
         vars->m_h1_j1 = event.jets[event.higgs1.jet1].p4.M();
         // vars->E_h1_j1 = event.jets[event.higgs1.jet1].p4.E();
