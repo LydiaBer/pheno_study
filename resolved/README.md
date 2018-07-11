@@ -8,7 +8,7 @@ It is made of 3 files:
 3) ```Cutflow.h```: the file where the structure for the Cutflow is determined.
 
 
-I suggest to have the latest ROOT version running ( at the moment of writing ROOT 6.14) otherwise there might be some issues where with the RDataframes production or when reading the output file.
+I suggest to have the latest ROOT version running ( at the moment of writing ROOT 6.14) otherwise there might be some issues  with the RDataframes production or when reading the output file.
 
 **MAIN SETTINGS**
 
@@ -18,16 +18,16 @@ The input file is defined in the initialisation of the RDataframe in the main fu
 
 ```RDataFrame frame("Delphes", "/data/atlas/atlasdata/micheli/4b/Events/run_02/tag_1_delphes_events.root");```
 
-** TO COMPILE AND RUN THE CODE**
+**TO COMPILE AND RUN THE CODE**
 
-You will need CMake running on your machine. Then
+You will need CMake running on your machine. Then inside the ```resolved``` folder, type:
 
 ```
 rm -rf build; mkdir build; cd build
 ```
 
 We made the folder ```build``` where CMake will output the ```pheno_resolved.root``` file. 
-In the ```build`` folder type,
+In the ```build``` folder type,
 ```
 cmake ..; make
 ```
@@ -38,3 +38,5 @@ If it compiles without error then you should be able to run
 ./resolved-recon
 ```
 This will generate the output file ```pheno_resolved.root``` in the ```build``` folder.
+
+
