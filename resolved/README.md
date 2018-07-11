@@ -1,14 +1,16 @@
 In this folder we have the main code for the resolved Analysis
 
+I would suggest to source the following file in order to have any software need for this analysis :
 
+```source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh```
 
 It is made of 3 files:
 1) ```resolved-recon.cpp``` : the file where the actual analysis take place.
 2) ```utils.h``` : the file where classes and utility functions used in the "resolved-recon.cpp" are defined and specified.
-3) ```Cutflow.h```: the file where the structure for the Cutflow is determined.
+3) ```Cutflow.cpp```: the file where the structure for the Cutflow is determined.
 
 
-I suggest to have the latest ROOT version running ( at the moment of writing ROOT 6.14) otherwise there might be some issues  with the RDataframes production or when reading the output file.
+I suggest to have the latest ROOT version running, which can be retrieved using the setup file and which at the moment of writing corresponds to ROOT 6.14. Otherwise there might be some issues  with the RDataframes production or when reading the output file.
 
 **MAIN SETTINGS**
 
