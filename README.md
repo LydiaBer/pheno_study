@@ -1,7 +1,7 @@
 # Phenomenology Study
 **Based on previous Oxford hh->4b Code**
 
-The original code is available at [HERE](https://github.com/beojan/oxford-hh4b-pheno-code)
+The original code is available [HERE](https://github.com/beojan/oxford-hh4b-pheno-code)
 
 There are 3 folders for each analysis done by this code: that is __Resolved__, __Intermediate__, __Boosted__.
 
