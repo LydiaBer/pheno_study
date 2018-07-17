@@ -22,5 +22,5 @@ which has been reported to the authors in the following [ticket](https://cp3.irm
 
 To run the detector simulation using an ```hepmc``` file use teh following command from the shell :
 
-```$./DelphesHEPMC cards/delphes_card_CMS.tcl output_filename.root input_filename.hepmc ```
+```$./DelphesHepMC cards/delphes_card_CMS.tcl output_filename.root input_filename.hepmc ```
 
