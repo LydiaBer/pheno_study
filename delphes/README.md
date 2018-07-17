@@ -18,7 +18,7 @@ make
 This new addition displays the Error : 
 ```Error in <TList::Clear>: A list is accessing an object (0x2467bd0) already deleted (list name = TList)```
 
-which has been reported to the authors in the following [ticket}(https://cp3.irmp.ucl.ac.be/projects/delphes/ticket/1320#ticket).
+which has been reported to the authors in the following [ticket](https://cp3.irmp.ucl.ac.be/projects/delphes/ticket/1320#ticket).
 
 To run the detector simulation using an ```hepmc``` file use teh following command from the shell :
 
