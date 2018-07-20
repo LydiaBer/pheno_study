@@ -112,10 +112,6 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,VecOps::RVec<Jet> &l
 	ranges::count(sj_vec, true, [](auto &&jet) {return jet.tagged;});
 	const int n_large_tag = 
 	ranges::count(lj_vec, true, [](auto &&jet){return jet.tagged;});
-	
-
-//	std::cout<<"Small_tagged"<<n_small_tag<<std::endl;
-//	std::cout<<"Large_tagged"<<n_large_tag<<std::endl;
 
 	
 	OxJet large_jet = lj_vec[0];
@@ -210,13 +206,44 @@ bool valid_check(const reconstructed_event &evt){return evt.valid;}
 bool signal(const reconstructed_event &evt) {
   double m_h1 = evt.higgs1.p4.M();
   double m_h2 = evt.higgs2.p4.M();
+
   // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
   bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 40.) ? true : false;
   bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 40.) ? true : false;
   return (higgs1_flag && higgs2_flag);
 }
 
+bool control(const reconstructed_event &evt) {
+  double m_h1 = evt.higgs1.p4.M();
+  double m_h2 = evt.higgs2.p4.M();
+ 
 
+  // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
+  bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 45.) ? true : false;
+  bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 45.) ? true : false;
+  return (higgs1_flag && higgs2_flag);
+ }
+  
+  
+
+bool sideband(const reconstructed_event &evt) {
+  double m_h1 = evt.higgs1.p4.M();
+  double m_h2 = evt.higgs2.p4.M();
+  
+
+// Cut in a mass window of 80 GeV around 125 GeV for both Higgs  
+  bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.) ? true : false;
+  bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
+return (higgs1_flag && higgs2_flag);
+}  
+std::vector<string> files(const string &path,const int &nfiles){
+
+std::vector<string> file_names;
+for (int i=0; i< nfiles; i++){
+file_names.pushback(fmt::format("{}/delphes_{}.root", path, i));
+}
+return file_names;
+}
 
 int main( int arc, char *argv[]){
 
@@ -227,29 +254,27 @@ using vec_string= std::vector<std::string>;
 ROOT::EnableImplicitMT();
 
 //RDataFrame frame("Delphes","/data/atlas/atlasdata/micheli/4b/Events/run_02/tag_1_delphes_events.root");
-RDataFrame frame("Delphes","/data/atlas/atlasdata/micheli/delphes_out.root");
-
-//std::cout<<"Flag 1"<<std::endl;
+//RDataFrame frame("Delphes","/data/atlas/atlasdata/micheli/delphes_out.root");
+RDataFrame frame("Delphes", files("path",number of files));
  
 auto three_jets = frame.Filter(one_b_large_two_b_small_cuts,{"Jet","FatJet"},u8"Intermediate analysis cuts");
 
-//std::cout<<"flag 2"<<std::endl;
 auto reconstructed = three_jets.Define("event", reconstruct,{"Jet","FatJet","Event"});
 
 auto valid_evt = reconstructed.Filter(valid_check,{"event"},"valid events");
 
-//auto signal_result = reconstructed.Filter(signal, {"event"}, "signal");
-/*auto control_result = deltaRjj_cut.Filter(
+auto signal_result = reconstructed.Filter(signal, {"event"}, "signal");
+auto control_result = deltaRjj_cut.Filter(
       [](const reconstructed_event &event) {
         return control(event) && (!signal(event));
       },
       {"event"}, "control");
-  auto sideband_result = deltaRjj_cut.Filter(
+auto sideband_result = deltaRjj_cut.Filter(
       [](const reconstructed_event &event) {
         return sideband(event) && !control(event);
       },
       {"event"}, "sideband");
-*/
+
 
  std::string output_filename = "pheno_intermediate.root";
 
@@ -264,16 +289,12 @@ start_events_proxy.OnPartialResult(
 TFile output_file(output_filename.c_str(), "RECREATE");
 
 
-write_tree(valid_evt, "signal", output_file);
-//write_tree(control_result, "control", output_file);
-//write_tree(sideband_result, "sideband", output_file);
+write_tree(signal_result, "signal", output_file);
+write_tree(control_result, "control", output_file);
+write_tree(sideband_result, "sideband", output_file);
 
 start_events_proxy.GetValue(); // For printing progress
 
- // Write cutflows
-//   auto intermediate_tag_filter = [](const reconstructed_event &evt) {
-  //      return evt.n_small_tag == 2 and evt.n_large_tag == 1;
-    //      };
 
 Cutflow intermediate_cutflow("Intermediate Cutflow", output_file);
   	intermediate_cutflow.add(u8"2 small good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 2 tagged, 1 large good jet",
@@ -282,9 +303,12 @@ Cutflow intermediate_cutflow("Intermediate Cutflow", output_file);
                       reconstructed.Count());
  	intermediate_cutflow.add(u8"1 large jet  and 2 small jets Tagged",
                       valid_evt.Count());
- 	//intermediate_cutflow.add(u8"Signal",
-          //            signal_result.Count());
-
+ 	intermediate_cutflow.add(u8"Signal",
+                      signal_result.Count());
+ 	intermediate_cutflow.add(u8"Signal",
+                      control_result.Count());
+ 	intermediate_cutflow.add(u8"Signal",
+                      sideband_result.Count());
 	intermediate_cutflow.write();
 
 
