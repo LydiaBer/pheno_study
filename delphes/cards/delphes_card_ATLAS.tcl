@@ -1,4 +1,4 @@
-#######################################
+################################################
 # Order of execution of various modules
 #######################################
 
@@ -47,6 +47,7 @@ set ExecutionPath {
   JetFlavorAssociation
 
   BTagging
+  BTaggingFat
   TauTagging
 
   UniqueObjectFinder
@@ -623,7 +624,7 @@ module FastJetFinder FastJetFinder {
 
   # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
   set JetAlgorithm 6
-  set ParameterR 0.6
+  set ParameterR 0.3
 
   set JetPTMin 20.0
 }
@@ -639,6 +640,40 @@ module EnergyScale JetEnergyScale {
   # scale formula for jets
   set ScaleFormula {  sqrt( (3.0 - 0.2*(abs(eta)))^2 / pt + 1.0 )  }
 }
+
+
+module FastJetFinder FatJetFinder {
+  set InputArray EFlowMerger/eflow
+
+  set OutputArray fatjets
+
+  # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
+  set JetAlgorithm 6
+  set ParameterR 1.0
+  
+  set ComputeNsubjettiness 1
+  set Beta 1.0
+  set AxisMode 4
+  
+  set ComputeTrimming 1
+  set RTrim 0.2
+  set PtFracTrim 0.05
+  
+  set ComputePruning 1
+  set ZcutPrun 0.1
+  set RcutPrun 0.5
+  set RPrun 0.8
+  
+  set ComputeSoftDrop 1
+  set BetaSoftDrop 0.0
+  set SymmetryCutSoftDrop 0.1
+  set R0SoftDrop 0.8
+
+  set JetPTMin 20.0
+}
+
+
+
 
 ########################
 # Jet Flavor Association
@@ -681,6 +716,36 @@ module BTagging BTagging {
   # efficiency formula for b-jets
   add EfficiencyFormula {5} {0.80*tanh(0.003*pt)*(30/(1+0.086*pt))}
 }
+
+
+
+##############
+#BTagging Fatjet
+##############
+
+
+
+module BTaggingFat BTaggingFat {
+  set JetInputArray FatJetFinder/fatjets
+
+  set BitNumber 0
+
+  #   # PDG code = the highest PDG code of a quark or gluon inside DeltaR cone around jet axis
+  #     # gluon's PDG code has the lowest priority
+  #
+  #       # based on arXiv:1211.4462
+  #
+  #         # default efficiency formula (misidentification rate)
+  add EfficiencyFormula {0} {-0.0001*pt + 0.8532 }
+
+}
+
+
+
+
+
+
+
 
 #############
 # tau-tagging
@@ -757,6 +822,9 @@ module TreeWriter TreeWriter {
   add Branch UniqueObjectFinder/electrons Electron Electron
   add Branch UniqueObjectFinder/photons Photon Photon
   add Branch UniqueObjectFinder/muons Muon Muon
+ 
+  add Branch FatJetFinder/fatjets FatJet Jet
+  
   add Branch MissingET/momentum MissingET MissingET
   add Branch ScalarHT/energy ScalarHT ScalarHT
 }
