@@ -1,0 +1,10 @@
+#!/bin/zsh
+#PBS -l nodes=1:ppn=8
+#PBS -l cput=11:59:59
+#PBS -l walltime=11:59:59
+#PBS -l mem=16gb
+
+source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh
+/home/micheli/Delphes/Delphes-3.4.1/DelphesHepMC /home/micheli/Delphes/Delphes-3.4.1/cards/delphes_card_CMS.tcl /home/micheli/output/4b/4b_out_${inum}.root /data/atlas/atlasdata/micheli/py_run/4b/4b_split${inum}.hepmc  
+
+
