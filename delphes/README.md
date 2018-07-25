@@ -1,9 +1,14 @@
 This is a complete Delphes Installation. Download the content of this folder.
 
+First source the following file :
+```
+$ source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh
+```
+
 To recompile, type:
 
 ```
-make -j 4
+$ make -j 4
 ``` 
 
 (CMAKE needs to be already installed)
