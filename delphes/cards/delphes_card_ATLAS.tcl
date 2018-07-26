@@ -41,6 +41,7 @@ set ExecutionPath {
   GenMissingET
 
   FastJetFinder
+  FatJetFinder
 
   JetEnergyScale
 
@@ -624,7 +625,7 @@ module FastJetFinder FastJetFinder {
 
   # algorithm: 1 CDFJetClu, 2 MidPoint, 3 SIScone, 4 kt, 5 Cambridge/Aachen, 6 antikt
   set JetAlgorithm 6
-  set ParameterR 0.3
+  set ParameterR 0.4
 
   set JetPTMin 20.0
 }
@@ -708,13 +709,19 @@ module BTagging BTagging {
   # based on ATL-PHYS-PUB-2015-022
 
   # default efficiency formula (misidentification rate)
-  add EfficiencyFormula {0} {0.002+7.3e-06*pt}
+  #add EfficiencyFormula {0} {0.002+7.3e-06*pt}
 
   # efficiency formula for c-jets (misidentification rate)
-  add EfficiencyFormula {4} {0.20*tanh(0.02*pt)*(1/(1+0.0034*pt))}
+  #add EfficiencyFormula {4} {0.20*tanh(0.02*pt)*(1/(1+0.0034*pt))}
 
   # efficiency formula for b-jets
-  add EfficiencyFormula {5} {0.80*tanh(0.003*pt)*(30/(1+0.086*pt))}
+  #add EfficiencyFormula {5} {0.80*tanh(0.003*pt)*(30/(1+0.086*pt))}
+  add EfficiencyFormula {5} {0.8}
+  add EfficiencyFormula {4} {0.1}
+  add EfficiencyFormula {22} {0.1}
+
+
+
 }
 
 
@@ -736,8 +743,10 @@ module BTaggingFat BTaggingFat {
   #       # based on arXiv:1211.4462
   #
   #         # default efficiency formula (misidentification rate)
-  add EfficiencyFormula {0} {-0.0001*pt + 0.8532 }
-
+  #add EfficiencyFormula {0} {-0.0001*pt + 0.8532 } 
+  add EfficiencyFormula {5} {0.8}
+  add EfficiencyFormula {4} {0.1}
+  add EfficiencyFormula {22} {0.1}
 }
 
 

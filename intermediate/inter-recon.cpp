@@ -235,15 +235,19 @@ bool sideband(const reconstructed_event &evt) {
   bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.) ? true : false;
   bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
 return (higgs1_flag && higgs2_flag);
-}  
+}
+
+
+  
 std::vector<string> files(const string &path,const int &nfiles){
 
 std::vector<string> file_names;
 for (int i=0; i< nfiles; i++){
-file_names.pushback(fmt::format("{}/delphes_{}.root", path, i));
+file_names.pushback(fmt::format("{}/sherpa_{}.root", path, i));
 }
 return file_names;
 }
+
 
 int main( int arc, char *argv[]){
 
@@ -253,9 +257,8 @@ using vec_string= std::vector<std::string>;
 
 ROOT::EnableImplicitMT();
 
-//RDataFrame frame("Delphes","/data/atlas/atlasdata/micheli/4b/Events/run_02/tag_1_delphes_events.root");
 //RDataFrame frame("Delphes","/data/atlas/atlasdata/micheli/delphes_out.root");
-RDataFrame frame("Delphes", files("path",number of files));
+RDataFrame frame("Delphes",files(std::string(argv),arc));
  
 auto three_jets = frame.Filter(one_b_large_two_b_small_cuts,{"Jet","FatJet"},u8"Intermediate analysis cuts");
 

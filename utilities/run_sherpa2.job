@@ -1,0 +1,11 @@
+#!/bin/zsh
+#PBS -l nodes=1:ppn=8
+#PBS -l cput=11:59:59
+#PBS -l walltime=11:59:59
+#PBS -l mem=16gb
+
+
+
+source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh
+#Third File
+/home/micheli/pheno_study/delphes/DelphesHepMC /home/micheli/pheno_study/delphes/cards/delphes_card_ATLAS.tcl /data/atlas/atlasdata/micheli/delphes_out/sherpa_2.root /data/atlas/atlasdata2/DiHiggsSharedSamples/arxiv-v1/SHERPA_QCD_4b.hepmc

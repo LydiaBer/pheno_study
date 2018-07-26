@@ -149,7 +149,7 @@ bool sideband(const reconstructed_event &evt) {
  	return (higgs1_flag && higgs2_flag); //Return Type boolean: if both Higgs fall in the window then accept
 }
 
-std::vector<string> files(const string &path //Path to the input files
+std::vector<std::string> files(const std::string &path //Path to the input files
 			,const int &nfiles   //Number of input files
 			){
 /**
@@ -158,9 +158,9 @@ std::vector<string> files(const string &path //Path to the input files
  * such that the input path is the same
  */
 
-std::vector<string> file_names; // Vector including all files paths and addresses
+std::vector<std::string> file_names; // Vector including all files paths and addresses
 for (int i=0; i< nfiles; i++){
-file_names.pushback(fmt::format("{}/delphes_{}.root", path, i));
+file_names.push_back(fmt::format("{}/sherpa_{}.root", path, i));
 }
 return file_names; //Returns the vector with files to be read by RDF
 }
@@ -173,7 +173,12 @@ using vec_string= std::vector<std::string>;
 
 ROOT::EnableImplicitMT();
 
-RDataFrame frame("Delphes", files("path",number of files)); //Input file for RDF
+const std::string file_path = argv[1];
+const int file_numb= atoi(argv[2]);
+
+
+RDataFrame frame("Delphes", files(file_path,file_numb)); //Input file for RDF
+
 
 auto two_b_jets = frame.Filter(two_large_b_jets,{"FatJet"},u8"Resolved analysis cuts"); //Apply Boosted Filter
 
@@ -181,13 +186,13 @@ auto reconstructed = two_b_jets.Define("event", reconstruct, {"FatJet","Event"})
 
 auto valid_evt = reconstructed.Filter(valid_check,{"event"},"valid events"); //Filter only valid Events
 
-auto signal_result = reconstructed.Filter(signal,{"event"},"signal"); //Filter Signal Events
-auto control_result = deltaRjj_cut.Filter(
+auto signal_result = valid_evt.Filter(signal,{"event"},"signal"); //Filter Signal Events
+auto control_result = valid_evt.Filter(
       [](const reconstructed_event &event) {
         return control(event) && (!signal(event));
       },
       {"event"}, "control"); // Filter Events in the Control Region 
-auto sideband_result = deltaRjj_cut.Filter(
+auto sideband_result = valid_evt.Filter(
       [](const reconstructed_event &event) {
         return sideband(event) && !control(event);
       },
@@ -213,7 +218,7 @@ start_events_proxy.GetValue();
 
 Cutflow boosted_cutflow("Intermediate Cutflow", output_file); //Define Cutflow for the Boosted Analysis
         boosted_cutflow.add(u8"2 small good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 2 tagged, 1 large good jet",
-                      three_jets.Count());
+                      two_b_jets.Count());
         boosted_cutflow.add(u8"Reconstructed events",
                       reconstructed.Count());
         boosted_cutflow.add(u8"1 large jet  and 2 small jets Tagged",
