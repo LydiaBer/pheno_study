@@ -151,6 +151,7 @@ bool sideband(const reconstructed_event &evt) {
 
 std::vector<std::string> files(const std::string &path //Path to the input files
 			,const int &nfiles   //Number of input files
+			,const std::string &tag
 			){
 /**
  * Function to import the input file
@@ -160,7 +161,7 @@ std::vector<std::string> files(const std::string &path //Path to the input files
 
 std::vector<std::string> file_names; // Vector including all files paths and addresses
 for (int i=0; i< nfiles; i++){
-file_names.push_back(fmt::format("{}/sherpa_{}.root", path, i));
+file_names.push_back(fmt::format("{}/{}_{}.root", path,tag, i));
 }
 return file_names; //Returns the vector with files to be read by RDF
 }
@@ -174,10 +175,11 @@ using vec_string= std::vector<std::string>;
 ROOT::EnableImplicitMT();
 
 const std::string file_path = argv[1];
-const int file_numb= atoi(argv[2]);
+const std::string file_tag = argv[2];
+const int file_numb= atoi(argv[3]);
 
 
-RDataFrame frame("Delphes", files(file_path,file_numb)); //Input file for RDF
+RDataFrame frame("Delphes", files(file_path,file_numb,file_tag)); //Input file for RDF
 
 
 auto two_b_jets = frame.Filter(two_large_b_jets,{"FatJet"},u8"Resolved analysis cuts"); //Apply Boosted Filter

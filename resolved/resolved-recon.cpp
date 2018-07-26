@@ -229,7 +229,7 @@ bool control(const reconstructed_event &evt) {
 
 std::vector<std::string> files(const std::string &path //Path to the input files
                         ,const int &nfiles   //Number of input files
-                        ){
+                        ,const std::string &tag){
 /**
  * Function to import the input file
  * The file should be in the same folder 
@@ -240,7 +240,7 @@ std::vector<std::string> files(const std::string &path //Path to the input files
 ///Vector of Files for RDF
 std::vector<std::string> file_names; // Vector including all files paths and addresses
 for (int i=0; i< nfiles; i++){
-file_names.push_back(fmt::format("{}/sherpa_{}.root", path, i));
+file_names.push_back(fmt::format("{}/{}_{}.root", path,tag, i));
 }
 return file_names; //Returns the vector with files to be read by RDF
 }
@@ -254,11 +254,11 @@ int main(int argc, char *argv[]) {
   using vec_string = std::vector<std::string>;
   
   const std::string file_path=argv[1];
-  const int file_numb = atoi(argv[2]);
- 
+  const int file_numb = atoi(argv[3]);
+  const std::string file_tag = argv[2];
   ROOT::EnableImplicitMT();
   // TODO Do something about btag_name since Delphes provides no score.
-  RDataFrame frame("Delphes", files(file_path,file_numb));
+  RDataFrame frame("Delphes", files(file_path,file_numb,file_tag));
   auto four_jets =
       frame.Filter(four_b_jets_pT_40_eta_25, {"Jet"},
                    u8"4 good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 4 tagged");
