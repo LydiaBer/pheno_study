@@ -47,6 +47,8 @@ class Muon {
     float eloss;       ///< E<SUB>loss</SUB> for muon-in-jet correction
 };
 */
+
+
 /// Jet
 class OxJet {
 public:
@@ -60,7 +62,8 @@ public:
     p4.SetPtEtaPhiM(pT, eta, phi, M);
   }
 };
-/// Check the Jet above
+
+
 /// Wrapper around Jet constructor
 inline OxJet make_jet(Jet &jet) {
   double M = jet.Mass;
@@ -213,13 +216,6 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
   namespace action = ranges::action;
   static bool first_tree = true;
 
-  /*const char* out_format_leaflist =
-        "m_hh/D:m_h1/D:E_h1:pT_h1:eta_h1:phi_h1:"
-        "m_h2:E_h2:pT_h2:eta_h2:phi_h2:"
-        "m_h1_j1:E_h1_j1:pT_h1_j1:eta_h1_j1:phi_h1_j1:"
-        "m_h1_j2:E_h1_j2:pT_h1_j2:eta_h1_j2:phi_h1_j2:"
-        "m_h2_j1:E_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
-        "m_h2_j2:E_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2";*/
 
   const char *out_format_leaflist = "m_hh/D:m_h1/D:pT_h1:eta_h1:phi_h1:"
                                     "m_h2/D:pT_h2:eta_h2:phi_h2:"
@@ -232,8 +228,6 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
 
   int num_threads = ROOT::GetImplicitMTPoolSize();
   vector<unique_ptr<TTree>> out_trees{};
-  // vector<int> run_numbers(num_threads);
-  // vector<long long> event_numbers(num_threads);
   vector<int> ntag_var(num_threads);
   vector<int> njets_var(num_threads);
   vector<double> mc_sf_var(num_threads);
@@ -246,8 +240,6 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
     out_trees.push_back(make_unique<TTree>(treename, treename));
 
     out_trees[i]->SetDirectory(nullptr);
-    // out_trees[i]->Branch("run_number", &run_numbers[i]);
-    // out_trees[i]->Branch("event_number", &event_numbers[i]);
     out_trees[i]->Branch("ntag", &ntag_var[i]);
     out_trees[i]->Branch("njets", &njets_var[i]);
     out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
@@ -263,56 +255,43 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
   }
   result.ForeachSlot(
       [&out_trees, &out_vars, &ntag_var, &njets_var, &rwgt_vars,
-       &mc_sf_var](unsigned slot, const reconstructed_event &event
-                   /*,double mc_sf*/) {
+       &mc_sf_var](unsigned slot, const reconstructed_event &event){
         auto &&tree = out_trees[slot];
         auto &&vars = out_vars[slot];
         auto &&rwgt = rwgt_vars[slot];
 
-        // run_numbers[slot] = run_number;
-        // event_numbers[slot] = event_number;
 
         vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
-        /*if (vars->m_hh< 0.){
-         std::cout<<"Negative Di-Higgs Mass"<<endl;
-         std::cout<< event.higgs.p4.M
-      }*/
         ntag_var[slot] = event.ntag;
         njets_var[slot] = event.njets;
         mc_sf_var[slot] = event.wgt;
 
         vars->m_h1 = event.higgs1.p4.M();
-        // vars->E_h1 = event.higgs1.p4.E();
         vars->pT_h1 = event.higgs1.p4.Pt();
         vars->eta_h1 = event.higgs1.p4.Eta();
         vars->phi_h1 = event.higgs1.p4.Phi();
 
         vars->m_h2 = event.higgs2.p4.M();
-        // vars->E_h2 = event.higgs2.p4.E();
         vars->pT_h2 = event.higgs2.p4.Pt();
         vars->eta_h2 = event.higgs2.p4.Eta();
         vars->phi_h2 = event.higgs2.p4.Phi();
 
         vars->m_h1_j1 = event.jets[event.higgs1.jet1].p4.M();
-        // vars->E_h1_j1 = event.jets[event.higgs1.jet1].p4.E();
         vars->pT_h1_j1 = event.jets[event.higgs1.jet1].p4.Pt();
         vars->eta_h1_j1 = event.jets[event.higgs1.jet1].p4.Eta();
         vars->phi_h1_j1 = event.jets[event.higgs1.jet1].p4.Phi();
 
         vars->m_h1_j2 = event.jets[event.higgs1.jet2].p4.M();
-        // vars->E_h1_j2 = event.jets[event.higgs1.jet2].p4.E();
         vars->pT_h1_j2 = event.jets[event.higgs1.jet2].p4.Pt();
         vars->eta_h1_j2 = event.jets[event.higgs1.jet2].p4.Eta();
         vars->phi_h1_j2 = event.jets[event.higgs1.jet2].p4.Phi();
 
         vars->m_h2_j1 = event.jets[event.higgs2.jet1].p4.M();
-        // vars->E_h2_j1 = event.jets[event.higgs2.jet1].p4.E();
         vars->pT_h2_j1 = event.jets[event.higgs2.jet1].p4.Pt();
         vars->eta_h2_j1 = event.jets[event.higgs2.jet1].p4.Eta();
         vars->phi_h2_j1 = event.jets[event.higgs2.jet1].p4.Phi();
 
         vars->m_h2_j2 = event.jets[event.higgs2.jet2].p4.M();
-        // vars->E_h2_j2 = event.jets[event.higgs2.jet2].p4.E();
         vars->pT_h2_j2 = event.jets[event.higgs2.jet2].p4.Pt();
         vars->eta_h2_j2 = event.jets[event.higgs2.jet2].p4.Eta();
         vars->phi_h2_j2 = event.jets[event.higgs2.jet2].p4.Phi();
@@ -356,8 +335,7 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
 
         tree->Fill();
       },
-      {"event" /*, "mc_sf"*/});
-  // TODO: Use event weight as mc_sf, remove run / event number
+      {"event"});
 
   fmt::print("Writing TTree - {}...", treename);
   TList temp_list;

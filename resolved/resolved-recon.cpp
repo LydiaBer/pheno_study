@@ -37,35 +37,39 @@ namespace action = ranges::action;
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 constexpr double pi = 3.13;
 
-
-
-
-
 /// Reconstruct event in the resolved regime
 reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
                                 VecOps::RVec<HepMCEvent> &evt) {
   reconstructed_event result{};
 
   result.wgt = evt[0].Weight;
+  
+
+  //Moving jet from Jet type to OxJet type
+  //Selection for resolved regime
 
   std::vector<OxJet> all_jets =
       view::zip_with(make_jet, jet) | view::filter([](const auto &jet) {
         return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 2.5;
       });
-  
 
-
+  //Sorting Jets by pT
   ranges::sort(all_jets, ranges::ordered_less{},
                [](auto &&jet) { return jet.p4.Pt(); }); // sorting for pT
-  ranges::reverse(all_jets);
-
-  const int ntag =
-      ranges::count(all_jets, true, [](auto &&jet) { return jet.tagged; });
   
 
+  //Decreasing order in pT
+  ranges::reverse(all_jets);
+
+  
+
+  //Count number of btag small R jets
+  const int ntag =
+      ranges::count(all_jets, true, [](auto &&jet) { return jet.tagged; });
 
 
- // split tagged jets and others
+
+  // split tagged jets and others
   std::vector<OxJet> jets =
       all_jets | view::filter([](auto &&jet) { return jet.tagged; });
   std::vector<OxJet> other_jets =
@@ -74,13 +78,9 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
   other_jets |= (action::sort(ranges::ordered_less{},
                               [](auto &&jet) { return jet.p4.Pt(); }) |
                  action::reverse);
-  // if (other_jets.size() < 4) {
-  //  std::cout << "OTHER JETS SIZE LESS THAN" << std::endl;
-  // }
-  // for (auto &&j : other_jets) {
-  //  std::cout << "other_jets pt" << j.p4.Pt() << std::endl;
-  // }
 
+
+  
   if (ntag < 4) {
     //        // need to choose "pseudo-tagged" jets so we have four total
     int n_jets_to_choose = 4 - ntag;
@@ -95,13 +95,12 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
     if (other_jets.size() < 4) {
       result.valid = false;
     }
-    // Add pseudo_jets
+ 
+
+
+   // Add pseudo_jets
     ranges::copy(other_jets | view::take(n_jets_to_choose),
                  ranges::back_inserter(jets));
-    // for (auto &&j : jets) {
-    //  if (j.p4.Pt() == 0.) {
-    //  std::cout << "Jet pt equals 0" << std::endl;
-    // }
   }
 
   if (jets.size() > 4) {
@@ -138,7 +137,6 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
       std::swap(higgs1_2, higgs2_2);
     }
 
-
     pair_candidates.push_back(std::make_pair(
         higgs(higgs1, higgs1_1, higgs1_2), higgs(higgs2, higgs2_1, higgs2_2)));
   }
@@ -171,8 +169,10 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
   return result;
 }
 
-/// ## Selection functions
-///
+
+//******************
+// Selection functions
+//********************
 
 /// \brief Require four jets with p<SUB>T</SUB> > 40 GeV, |&eta;| < 2.5
 /// with at least 2 being b-tagged.
@@ -180,23 +180,26 @@ bool four_b_jets_pT_40_eta_25(VecOps::RVec<Jet> &jets) {
   // Filter jets with 4 pT > 40 GeV, |eta| < 2.5 jets with >= 2 b tagged]
   int count = 0;
   int b_count = 0;
+  
+  
   for (auto &&j : jets) {
-    // fmt::print("{} {:.4f} {:.4f}\n", tagged[i], pT[i], eta[i]);
     if (j.PT >= 40. * GeV and std::abs(j.Eta) < 2.5) {
       count++;
       if (j.BTag)
         b_count++;
     }
-    if (count >= 4 and b_count >= 2 /* 4 */)
-      return true;
-    // we want to keep the 2 tag events too
+  
+  if (count >= 4 and b_count >= 2)
+      return true; // we want to keep the 2 tag events too
   }
+
+
   return false;
 }
 
-/// \brief Require &Delta;R<SUB>jj</SUB> condition is satisfied. Implemented by
-/// requiring event be marked as valid by reconstruct().
-bool deltaRjj(const reconstructed_event &evt) { return evt.valid; }
+///Checkpoint requiring event be marked as valid by reconstruct().
+bool valid_check(const reconstructed_event &evt) { return evt.valid; }
+
 
 /// Select m<SUB>hh</SUB> signal region
 bool signal(const reconstructed_event &evt) {
@@ -207,6 +210,9 @@ bool signal(const reconstructed_event &evt) {
   bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 40.) ? true : false;
   return (higgs1_flag && higgs2_flag);
 }
+
+
+
 // Select m<SUB>hh</SUB> sideband region
 bool sideband(const reconstructed_event &evt) {
   double m_h1 = evt.higgs1.p4.M();
@@ -216,6 +222,9 @@ bool sideband(const reconstructed_event &evt) {
   bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
   return (higgs1_flag && higgs2_flag);
 }
+
+
+
 /// Select m<SUB>hh</SUB> control region
 bool control(const reconstructed_event &evt) {
   double m_h1 = evt.higgs1.p4.M();
@@ -227,57 +236,92 @@ bool control(const reconstructed_event &evt) {
 }
 
 
-std::vector<std::string> files(const std::string &path //Path to the input files
-                        ,const int &nfiles   //Number of input files
-                        ,const std::string &tag){
-/**
- * Function to import the input file
- * The file should be in the same folder 
- * such that the input path is the same
- */
 
 
-///Vector of Files for RDF
-std::vector<std::string> file_names; // Vector including all files paths and addresses
-for (int i=0; i< nfiles; i++){
-file_names.push_back(fmt::format("{}/{}_{}.root", path,tag, i));
+//****************
+//Function to read multiple input files
+//****************
+
+
+std::vector<std::string>
+files(const std::string &path // Path to the input files
+      ,
+      const int &nfiles // Number of input files
+      ,
+      const std::string &tag) {
+  /**
+   * Function to import the input file
+   * The file should be in the same folder
+   * such that the input path is the same
+   */
+
+  /// Vector of Files for RDF
+  std::vector<std::string>
+      file_names; // Vector including all files paths and addresses
+  for (int i = 0; i < nfiles; i++) {
+    file_names.push_back(fmt::format("{}/{}_{}.root", path, tag, i));
+  }
+  return file_names; // Returns the vector with files to be read by RDF
 }
-return file_names; //Returns the vector with files to be read by RDF
-}
 
 
 
-///Main Analysis
+//***************
+//Main Analysis Code
+//**************
+
+
 int main(int argc, char *argv[]) {
   // Use iostreams for input only and fmt::print for output only, so fine
   std::ios::sync_with_stdio(false); // Needed for fast iostreams
   using vec_string = std::vector<std::string>;
-  
-  const std::string file_path=argv[1];
+
+  const std::string file_path = argv[1];
   const int file_numb = atoi(argv[3]);
   const std::string file_tag = argv[2];
+ 
+
   ROOT::EnableImplicitMT();
-  // TODO Do something about btag_name since Delphes provides no score.
-  RDataFrame frame("Delphes", files(file_path,file_numb,file_tag));
+  
+  //*******************
+  //Importing Input File
+  //*******************
+
+  RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
+  //RDataFrame frame("Delphes","path/file.root");
+
+  //****************************
+  //Run Resolved Analysis Code
+  //***************************
+  
+  
   auto four_jets =
       frame.Filter(four_b_jets_pT_40_eta_25, {"Jet"},
                    u8"4 good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 4 tagged");
 
   auto reconstructed = four_jets.Define("event", reconstruct, {"Jet", "Event"});
-  auto deltaRjj_cut = reconstructed.Filter(deltaRjj, {"event"}, u8"ΔR_jj");
-  auto signal_result = deltaRjj_cut.Filter(signal, {"event"}, "signal");
+  
+  auto valid_evt = reconstructed.Filter(valid_check, {"event"}, u8"ΔR_jj");
+  
+  auto signal_result = valid_evt.Filter(signal, {"event"}, "signal");
+  
   auto control_result = deltaRjj_cut.Filter(
       [](const reconstructed_event &event) {
         return control(event) && (!signal(event));
       },
       {"event"}, "control");
+  
   auto sideband_result = deltaRjj_cut.Filter(
       [](const reconstructed_event &event) {
         return sideband(event) && !control(event);
       },
       {"event"}, "sideband");
-  // std::string output_filename = parsed_options["output"].as<std::string>();
-  // //?
+  
+
+  //**************************
+  //Writing Output Ntuples
+  //*************************
+
   std::string output_filename = "pheno_resolved.root";
 
   fmt::print("Writing to {}\n", output_filename);
@@ -287,7 +331,9 @@ int main(int argc, char *argv[]) {
       10000, [](const unsigned long long &num_events) {
         fmt::print("Processed {} events\n", num_events);
       });
-  // Write trees
+
+
+  
   TFile output_file(output_filename.c_str(), "RECREATE");
   write_tree(signal_result, "signal", output_file);
 
@@ -296,7 +342,12 @@ int main(int argc, char *argv[]) {
   write_tree(control_result, "control", output_file);
   write_tree(sideband_result, "sideband", output_file);
 
-  // Write cutflows
+
+  //*********************
+  // Writing Cutflows
+  // ********************
+  
+
   auto two_tag_filter = [](const reconstructed_event &evt) {
     return evt.ntag == 2;
   };
