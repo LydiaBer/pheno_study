@@ -1,0 +1,38 @@
+# Branch structure produced after reconstruction
+
+- `ntag` (`int`)
+- `njets` (`int`)
+- `mc_sf` (`double`) -- Monte Carlo event weight
+- `event` (all `double`s)
+    - `m_hh`
+    - `m_h1`
+    - `pT_h1`
+    - `eta_h1`
+    - `phi_h1`
+    - `m_h2`
+    - `pT_h2`
+    - `eta_h2`
+    - `phi_h2`
+    - `m_h1_j1`
+    - `pT_h1_j1`
+    - `eta_h1_j1`
+    - `phi_h1_j1`
+    - `m_h1_j2`
+    - `pT_h1_j2`
+   - `eta_h1_j2`
+   - `phi_h1_j2`
+   - `m_h2_j1`
+   - `pT_h2_j1`
+   - `eta_h2_j1`
+   - `phi_h2_j1`
+   - `m_h2_j2`
+   - `pT_h2_j2`
+   - `eta_h2_j2`
+   - `phi_h2_j2`
+
+- `rwgt` (all `doubles`) -- Can set to dummy value if not using kinematic reweighting
+   - `pT_4`
+   - `pT_2`
+   - `eta_i`
+   - `dRjj_1`
+   - `dRjj_2`

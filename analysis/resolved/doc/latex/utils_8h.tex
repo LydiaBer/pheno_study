@@ -1,0 +1,93 @@
+\hypertarget{utils_8h}{}\section{utils.\+h File Reference}
+\label{utils_8h}\index{utils.\+h@{utils.\+h}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structhiggs}{higgs}}
+\begin{DoxyCompactList}\small\item\em Higgs boson. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classMuon}{Muon}}
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classMuon}{Muon}}. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classJet}{Jet}}
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classJet}{Jet}}. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structreconstructed__event}{reconstructed\+\_\+event}}
+\begin{DoxyCompactList}\small\item\em Reconstructed event information. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structout__format}{out\+\_\+format}}
+\begin{DoxyCompactList}\small\item\em Output format for writing T\+Trees. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structreweight__format}{reweight\+\_\+format}}
+\begin{DoxyCompactList}\small\item\em Output format with reweighting variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{utils_8h_a7ae20e3c2525e13df2072fe0a973e026}\label{utils_8h_a7ae20e3c2525e13df2072fe0a973e026}} 
+\mbox{\hyperlink{classJet}{Jet}} \mbox{\hyperlink{utils_8h_a7ae20e3c2525e13df2072fe0a973e026}{make\+\_\+jet}} (float E, float pT, float eta, float phi, float btag, bool tagged)
+\begin{DoxyCompactList}\small\item\em Wrapper around \mbox{\hyperlink{classJet}{Jet}} constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{utils_8h_adb680bb999e125d9dfdace74906d7c3f}\label{utils_8h_adb680bb999e125d9dfdace74906d7c3f}} 
+bool \mbox{\hyperlink{utils_8h_adb680bb999e125d9dfdace74906d7c3f}{operator$<$}} (const \mbox{\hyperlink{classJet}{Jet}} \&lhs, const \mbox{\hyperlink{classJet}{Jet}} \&rhs)
+\begin{DoxyCompactList}\small\item\em Compare jets by B-\/tagging score then p\textsubscript{T} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{utils_8h_a93dc69a69d7406834fb4a1c9e6b68a3e}\label{utils_8h_a93dc69a69d7406834fb4a1c9e6b68a3e}} 
+bool {\bfseries operator==} (const \mbox{\hyperlink{classJet}{Jet}} \&lhs, const \mbox{\hyperlink{classJet}{Jet}} \&rhs)
+\item 
+\mbox{\Hypertarget{utils_8h_a6c587ec0b3f56ccec2bcacbcbb12e919}\label{utils_8h_a6c587ec0b3f56ccec2bcacbcbb12e919}} 
+bool {\bfseries operator!=} (const \mbox{\hyperlink{classJet}{Jet}} \&lhs, const \mbox{\hyperlink{classJet}{Jet}} \&rhs)
+\item 
+\mbox{\Hypertarget{utils_8h_a63fbdca0eff327d0589ffc829a1b67eb}\label{utils_8h_a63fbdca0eff327d0589ffc829a1b67eb}} 
+bool {\bfseries operator$>$} (const \mbox{\hyperlink{classJet}{Jet}} \&lhs, const \mbox{\hyperlink{classJet}{Jet}} \&rhs)
+\item 
+\mbox{\Hypertarget{utils_8h_a8405c1f4c11b9bd3b3ab7edc89677a55}\label{utils_8h_a8405c1f4c11b9bd3b3ab7edc89677a55}} 
+bool {\bfseries operator$<$=} (const \mbox{\hyperlink{classJet}{Jet}} \&lhs, const \mbox{\hyperlink{classJet}{Jet}} \&rhs)
+\item 
+\mbox{\Hypertarget{utils_8h_adc321de552931f65972a5aee52b71671}\label{utils_8h_adc321de552931f65972a5aee52b71671}} 
+bool {\bfseries operator$>$=} (const \mbox{\hyperlink{classJet}{Jet}} \&lhs, const \mbox{\hyperlink{classJet}{Jet}} \&rhs)
+\item 
+std\+::vector$<$ int $>$ \mbox{\hyperlink{utils_8h_a0c5ee72c1e82393ca607074a62ade43e}{jet\+\_\+indices\+\_\+comb}} (int n\+\_\+jets, int n\+\_\+to\+\_\+choose)
+\begin{DoxyCompactList}\small\item\em Return indices of {\ttfamily n\+\_\+to\+\_\+choose} jets chosen from {\ttfamily n\+\_\+jets} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{utils_8h_a6a955943c50346802cddc9ade8ed1af6}\label{utils_8h_a6a955943c50346802cddc9ade8ed1af6}} 
+{\footnotesize template$<$typename T $>$ }\\bool \mbox{\hyperlink{utils_8h_a6a955943c50346802cddc9ade8ed1af6}{between}} (T a, T b, T c)
+\begin{DoxyCompactList}\small\item\em Check if b is between a and c. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename Proxied $>$ }\\void \mbox{\hyperlink{utils_8h_a8b8c8228b7976ce67976c906ccfd5c67}{write\+\_\+tree}} (R\+O\+O\+T\+::\+Experimental\+::\+T\+D\+F\+::\+T\+Interface$<$ Proxied $>$ \&result, const char $\ast$treename, T\+File \&output\+\_\+file)
+\begin{DoxyCompactList}\small\item\em Write result T\+Tree. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{utils_8h_a2e13cbaaba1951fdfe9e83d8b031e802}\label{utils_8h_a2e13cbaaba1951fdfe9e83d8b031e802}} 
+double \mbox{\hyperlink{utils_8h_a2e13cbaaba1951fdfe9e83d8b031e802}{f}}
+\begin{DoxyCompactList}\small\item\em Untagged to tagged normalization set from command-\/line. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General utilities 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{utils_8h_a0c5ee72c1e82393ca607074a62ade43e}\label{utils_8h_a0c5ee72c1e82393ca607074a62ade43e}} 
+\index{utils.\+h@{utils.\+h}!jet\+\_\+indices\+\_\+comb@{jet\+\_\+indices\+\_\+comb}}
+\index{jet\+\_\+indices\+\_\+comb@{jet\+\_\+indices\+\_\+comb}!utils.\+h@{utils.\+h}}
+\subsubsection{\texorpdfstring{jet\+\_\+indices\+\_\+comb()}{jet\_indices\_comb()}}
+{\footnotesize\ttfamily std\+::vector$<$int$>$ jet\+\_\+indices\+\_\+comb (\begin{DoxyParamCaption}\item[{int}]{n\+\_\+jets,  }\item[{int}]{n\+\_\+to\+\_\+choose }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return indices of {\ttfamily n\+\_\+to\+\_\+choose} jets chosen from {\ttfamily n\+\_\+jets} 
+
+Used for $<$ 4-\/tag events to choose additional jets 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em n\+\_\+jets} & Number of jets to choose from \\
+\hline
+\mbox{\tt in}  & {\em n\+\_\+to\+\_\+choose} & Number of jets to choose \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{utils_8h_a8b8c8228b7976ce67976c906ccfd5c67}\label{utils_8h_a8b8c8228b7976ce67976c906ccfd5c67}} 
+\index{utils.\+h@{utils.\+h}!write\+\_\+tree@{write\+\_\+tree}}
+\index{write\+\_\+tree@{write\+\_\+tree}!utils.\+h@{utils.\+h}}
+\subsubsection{\texorpdfstring{write\+\_\+tree()}{write\_tree()}}
+{\footnotesize\ttfamily template$<$typename Proxied $>$ \\
+void write\+\_\+tree (\begin{DoxyParamCaption}\item[{R\+O\+O\+T\+::\+Experimental\+::\+T\+D\+F\+::\+T\+Interface$<$ Proxied $>$ \&}]{result,  }\item[{const char $\ast$}]{treename,  }\item[{T\+File \&}]{output\+\_\+file }\end{DoxyParamCaption})}
+
+
+
+Write result T\+Tree. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em output\+\_\+file} & Tree to write to \\
+\hline
+\end{DoxyParams}
