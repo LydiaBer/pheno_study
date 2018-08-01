@@ -76,7 +76,7 @@ inline void tagging_algo(      const fastjet::PseudoJet& calojet,
 
                 const std::vector<int> b_tag = {0,0};
                 const std::vector<int> c_tag = {0,0};
-                const std::vector<int> ph_tag = {0,0};
+                const std::vector<int> light_tag = {0,0};
 
                 for(const auto& trk : lead_trks) {
                         //Following PDGId number convention
@@ -84,7 +84,7 @@ inline void tagging_algo(      const fastjet::PseudoJet& calojet,
 
                         if (PID::hasBottom(trk.user_index())) b_tag.at(0)++;
                         if (PID::hasCharm(trk.user_index())) c_tag.at(0)++;
-                        if (PID::isPhoton(pid)) ph_taga.at(0)++;
+                        if (PID::isLightParton(pid)) light_taga.at(0)++;
                 }
 
                 for(const auto& trk : sublead_trks) {
@@ -93,11 +93,11 @@ inline void tagging_algo(      const fastjet::PseudoJet& calojet,
 
                         if (PID::hasBottom(trk.user_index())) b_tag.at(1)++;
                         if (PID::hasCharm(trk.user_index()))  c_tag.at(1)++;
-                        if (PID::isPhoton(pid)) ph_tag.at(1)++;
+                        if (PID::isLightParton(pid)) light_tag.at(1)++;
                 }
 
 
-                flavour_algo(b_tag,c_tag,ph_tag,switch_tag);
+                flavour_algo(b_tag,c_tag,light_tag,switch_tag);
 
                 if (switch_tag.at(0) !=0) calojet.set_user_index(5);
                 if (switch_tag.at(1) !=0) calojet.set_user_index(4);

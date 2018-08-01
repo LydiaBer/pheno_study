@@ -40,6 +40,8 @@ set ExecutionPath {
   GenJetFinder
   GenMissingET
 
+  GenJetFlavorAssociation
+ 
   FastJetFinder
   FatJetFinder
 
@@ -718,9 +720,9 @@ module BTagging BTagging {
   #add EfficiencyFormula {5} {0.80*tanh(0.003*pt)*(30/(1+0.086*pt))}
   add EfficiencyFormula {5} {0.8}
   add EfficiencyFormula {4} {0.1}
-  add EfficiencyFormula {22} {0.1}
-
-
+  add EfficiencyFormula {1} {0.01}
+  add EfficiencyFormula {2} {0.01}
+  add EfficiencyFormula {3} {0.01}
 
 }
 
@@ -746,7 +748,9 @@ module BTaggingFat BTaggingFat {
   #add EfficiencyFormula {0} {-0.0001*pt + 0.8532 } 
   add EfficiencyFormula {5} {0.8}
   add EfficiencyFormula {4} {0.1}
-  add EfficiencyFormula {22} {0.1}
+  add EfficiencyFormula {1} {0.01}
+  add EfficiencyFormula {2} {0.01}
+  add EfficiencyFormula {3} {0.01}
 }
 
 

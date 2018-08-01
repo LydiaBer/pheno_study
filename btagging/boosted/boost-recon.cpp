@@ -188,7 +188,7 @@ const int file_numb= atoi(argv[3]);
 
 RDataFrame frame("Delphes", files(file_path,file_numb,file_tag)); //Input file for RDF
 
-auto two_b_jets = frame.Filter(two_large_b_jets,{"FatJet"},u8"Resolved analysis cuts"); //Apply Boosted Filter
+//auto two_b_jets = frame.Filter(two_large_b_jets,{"FatJet"},u8"Resolved analysis cuts"); //Apply Boosted Filter
 
 auto reconstructed = two_b_jets.Define("event", reconstruct, {"FatJet","Jet","Event"}); //Reconstruct Events
 
