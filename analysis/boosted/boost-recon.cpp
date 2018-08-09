@@ -45,6 +45,7 @@ bool two_large_b_jets(
     if (count >= 2 and b_count >= 2)
       return true; // Return Good Events
   }
+return false;
 }
 
 reconstructed_event reconstruct(
