@@ -1,2 +1,0 @@
-/cvmfs/sft.cern.ch/lcg/contrib/binutils/2.28/x86_64-slc6/bin/ar qc libfmt.a  CMakeFiles/fmt.dir/format.cc.o CMakeFiles/fmt.dir/ostream.cc.o CMakeFiles/fmt.dir/printf.cc.o
-/cvmfs/sft.cern.ch/lcg/contrib/binutils/2.28/x86_64-slc6/bin/ranlib libfmt.a
