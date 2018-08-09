@@ -97,7 +97,7 @@ inline JetPair make_pair(OxJet &jet1, OxJet &jet2) {
   double m_2 = jet2.p4.M();
   OxJet j_1 = jet1;
   OxJet j_2 = jet2;
-
+  if (jet1.p4 = jet2.p4) continue;
   return JetPair(m_1, m_2, j_1, j_2);
 }
 

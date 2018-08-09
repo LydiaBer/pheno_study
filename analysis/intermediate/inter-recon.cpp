@@ -64,7 +64,7 @@ bool one_b_large_two_b_small_cuts(VecOps::RVec<Jet> &jets,
 
   // Filter large R jet 1 pT>200 and |eta|<2. & btagged  for (auto &&j : fatjets) {
   for (auto &&j : fatjets) {
-    if (j.PT > 20. * GeV and std::abs(j.Eta) < 2.0) {
+    if (j.PT > 200. * GeV and std::abs(j.Eta) < 2.0) {
       count_fat++;
       if (j.BTag)
         b_count_fat++;
@@ -197,14 +197,25 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
   // Cut on DeltaR<1.2 between small R jets and Large R jet
 
   std::vector<OxJet> bjets_separated;
+  std::vector<OxJet> bjets_notseparated;
   for (auto &&j : small_jets) {
     if (deltaR(large_jet, j) < 1.2)
       continue;
+    if (deltaR(large_jet,j) >1.2) bjets_separated.push_back(j);
+    if (!(deltaR(large_jet,j) >1.2)) bjets_notseparated.push_back(j);}
 
     if (bjets_separated.size() < 2) {
-      bjets_separated.push_back(j);
+      int available = bjets_notseparated.size();
+      int already_there = bjets_separated.size();
+      int to_push = 2 - already_there;
+      if (to_push > available){
+        result.valid = false;
+        return result;
+        }
+      for (int i =0; i<to_push; i++){
+      bjets_separated.push_back(bjets_notseparated.at(i));
+      }
     }
-  }
 
   //Store only small R jets separated enough by Large r Jet
   if (bjets_separated.size() < 2) {
@@ -300,13 +311,24 @@ bool sideband(const reconstructed_event &evt) {
 
 
 //Function to read multiple files in RDF
-std::vector<std::string> files(const std::string &path, const int &nfiles) {
+std::vector<std::string> files(const std::string &path // Path to the input files
+      ,
+      const int &nfiles // Number of input files
+      ,
+      const std::string &tag) {
+ /**
+   * Function to import the input file
+   * The file should be in the same folder
+   * such that the input path is the same
+   */
 
-  std::vector<string> file_names;
+  /// Vector of Files for RDF
+  std::vector<std::string>
+      file_names; // Vector including all files paths and addresses
   for (int i = 0; i < nfiles; i++) {
-    file_names.pushback(fmt::format("{}/sherpa_{}.root", path, i));
+    file_names.push_back(fmt::format("{}/{}_{}.root", path, tag, i));
   }
-  return file_names;
+  return file_names; // Returns the vector with files to be read by RDF
 }
 
 
