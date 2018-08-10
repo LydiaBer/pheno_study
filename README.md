@@ -17,5 +17,5 @@ The __delphes__ folder contains the full installation of Delphes. Inside ```delp
 
 Before running any of the analysis, code I encourage you to check whether the analysis is using the right input file with the right path.
 
-Specific information on each analysis code can be found in the README file inside the each of the analysis folder.
+Specific information on each analysis code can be found in the README file inside the corresponding analysis folder.
 
