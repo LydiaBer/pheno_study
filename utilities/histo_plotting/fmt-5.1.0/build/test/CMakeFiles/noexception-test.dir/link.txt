@@ -1,0 +1,1 @@
+/cvmfs/sft-nightlies.cern.ch/lcg/contrib/gcc/7binutils/x86_64-slc6/bin/g++ -fPIC -O3 -DNDEBUG  -shared -Wl,-soname,libnoexception-test.so -o libnoexception-test.so CMakeFiles/noexception-test.dir/__/src/format.cc.o 

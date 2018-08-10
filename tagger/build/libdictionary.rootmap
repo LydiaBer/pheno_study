@@ -1,0 +1,10 @@
+[ libdictionary.so ]
+# List of selected classes
+class Cutflow
+class Jet
+class Muon
+class higgs
+class out_format
+class reconstructed_event
+class reweight_format
+header classes/DelphesClasses.h

@@ -1,0 +1,51 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_3ee58/fast"
+/usr/bin/gmake -f CMakeFiles/cmTC_3ee58.dir/build.make CMakeFiles/cmTC_3ee58.dir/build
+gmake[1]: Entering directory `/data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3ee58.dir/CheckSymbolExists.c.o
+/cvmfs/sft-nightlies.cern.ch/lcg/contrib/gcc/7binutils/x86_64-slc6/bin/gcc    -o CMakeFiles/cmTC_3ee58.dir/CheckSymbolExists.c.o   -c /data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_3ee58
+/cvmfs/sft.cern.ch/lcg/releases/CMake/3.11.1-daf3a/x86_64-slc6-gcc7-opt/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3ee58.dir/link.txt --verbose=1
+/cvmfs/sft-nightlies.cern.ch/lcg/contrib/gcc/7binutils/x86_64-slc6/bin/gcc      -rdynamic CMakeFiles/cmTC_3ee58.dir/CheckSymbolExists.c.o  -o cmTC_3ee58 
+CMakeFiles/cmTC_3ee58.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [cmTC_3ee58] Error 1
+gmake[1]: Leaving directory `/data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_3ee58/fast] Error 2
+
+File /data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_2deae/fast"
+/usr/bin/gmake -f CMakeFiles/cmTC_2deae.dir/build.make CMakeFiles/cmTC_2deae.dir/build
+gmake[1]: Entering directory `/data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2deae.dir/CheckFunctionExists.c.o
+/cvmfs/sft-nightlies.cern.ch/lcg/contrib/gcc/7binutils/x86_64-slc6/bin/gcc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_2deae.dir/CheckFunctionExists.c.o   -c /cvmfs/sft.cern.ch/lcg/releases/CMake/3.11.1-daf3a/x86_64-slc6-gcc7-opt/share/cmake-3.11/Modules/CheckFunctionExists.c
+Linking C executable cmTC_2deae
+/cvmfs/sft.cern.ch/lcg/releases/CMake/3.11.1-daf3a/x86_64-slc6-gcc7-opt/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2deae.dir/link.txt --verbose=1
+/cvmfs/sft-nightlies.cern.ch/lcg/contrib/gcc/7binutils/x86_64-slc6/bin/gcc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_2deae.dir/CheckFunctionExists.c.o  -o cmTC_2deae -lpthreads 
+/cvmfs/sft.cern.ch/lcg/contrib/bintuils/2.28/x86_64-slc6/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [cmTC_2deae] Error 1
+gmake[1]: Leaving directory `/data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build/CMakeFiles/CMakeTmp'
+gmake: *** [cmTC_2deae/fast] Error 2
+
+

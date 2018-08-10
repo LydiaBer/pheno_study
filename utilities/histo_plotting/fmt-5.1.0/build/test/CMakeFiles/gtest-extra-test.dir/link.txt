@@ -1,0 +1,1 @@
+/cvmfs/sft-nightlies.cern.ch/lcg/contrib/gcc/7binutils/x86_64-slc6/bin/g++  -O3 -DNDEBUG  -rdynamic CMakeFiles/gtest-extra-test.dir/gtest-extra-test.cc.o  -o ../bin/gtest-extra-test -Wl,-rpath,/data/atlas/atlasdata/micheli/validation/histos/histo_all/fmt-5.1.0/build libtest-main.a libgmock.a -lpthread ../libfmt.so.5.1.0 -Wl,--as-needed 

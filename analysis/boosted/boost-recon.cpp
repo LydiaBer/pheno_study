@@ -45,11 +45,11 @@ bool two_large_b_jets(
     if (count >= 2 and b_count >= 2)
       return true; // Return Good Events
   }
-return false;
+  return false;
 }
 
 reconstructed_event reconstruct(
-    VecOps::RVec<Jet> &jet, // Input Jet of FastJet <Jet> type
+    VecOps::RVec<Jet> &jet,       // Input Jet of FastJet <Jet> type
     VecOps::RVec<HepMCEvent> &evt // Input Event of Delphes <HepMCEvent> type
     ) {
   /**
@@ -59,10 +59,9 @@ reconstructed_event reconstruct(
   *Take the top two in pT
   *Reconstruct the Higgs from leading and subleading Jets
   */
-  reconstructed_event result{}; // Initialise result of event type <reconstructed_event>
+  reconstructed_event
+      result{}; // Initialise result of event type <reconstructed_event>
   result.wgt = evt[0].Weight; // Store MC weight
- 
-
 
   std::vector<OxJet> lj_vec =
       view::zip_with(make_jet, jet) |
@@ -71,26 +70,17 @@ reconstructed_event reconstruct(
                std::abs(jet.p4.Eta()) < 2.5; // Apply Boosted Filter
       });
 
-
-
-  //Sort Large R Jets in pT
+  // Sort Large R Jets in pT
   ranges::sort(lj_vec, ranges::ordered_less{},
                [](auto &&jet) { return jet.p4.Pt(); });
   ranges::reverse(lj_vec);
-
-
-
 
   const int count = lj_vec.size(); // Number of Boosted Jets
   const int ntag =                 // Number of B-tagged Boosted Jets
       ranges::count(lj_vec, true, [](auto &&jet) { return jet.tagged; });
 
-
-
-  OxJet leading = lj_vec[0];  //Leading Large R Jet
-  OxJet subleading = lj_vec[1];  //SubLeading Large R Jet
-
-
+  OxJet leading = lj_vec[0];    // Leading Large R Jet
+  OxJet subleading = lj_vec[1]; // SubLeading Large R Jet
 
   if (leading.tagged == false or subleading.tagged == false) {
     result.valid = false; // If ANY of Leading and SubLeading jets is not tagged
@@ -109,16 +99,9 @@ reconstructed_event reconstruct(
   return result; // Return type <reconstructed_event>
 }
 
-
-
-
-
 bool valid_check(const reconstructed_event &evt) {
   return evt.valid;
 } // Filter Only Valid Events
-
-
-
 
 bool signal(const reconstructed_event &evt) {
   /*
@@ -136,10 +119,6 @@ bool signal(const reconstructed_event &evt) {
                                        // fall in the window then accept
 }
 
-
-
-
-
 bool control(const reconstructed_event &evt) {
   /*
   *Filter reconstructed events
@@ -156,10 +135,6 @@ bool control(const reconstructed_event &evt) {
   return (higgs1_flag && higgs2_flag); // Return Type boolean: if both Higgs
                                        // fall in the window then accept
 }
-
-
-
-
 
 bool sideband(const reconstructed_event &evt) {
 
@@ -179,9 +154,8 @@ bool sideband(const reconstructed_event &evt) {
                                        // fall in the window then accept
 }
 
-
 //************
-//Function to add multiple file
+// Function to add multiple file
 //************
 std::vector<std::string>
 files(const std::string &path // Path to the input files
@@ -203,12 +177,6 @@ files(const std::string &path // Path to the input files
   return file_names; // Returns the vector with files to be read by RDF
 }
 
-
-
-
-
-
-
 int main(int arc, char *argv[]) {
 
   std::ios::sync_with_stdio(false);
@@ -220,21 +188,18 @@ int main(int arc, char *argv[]) {
   const std::string file_tag = argv[2];
   const int file_numb = atoi(argv[3]);
   //********************
-  //Importing Input file
+  // Importing Input file
   //********************
-  
-  
 
   RDataFrame frame("Delphes",
                    files(file_path, file_numb, file_tag)); // Input file for RDF
-  
-  //To add 1 input file
-  //RDataFrame frame("Delphes","path/file.root"); 
-  
-  
+
+  // To add 1 input file
+  // RDataFrame frame("Delphes","path/file.root");
+
   //***********************
-  //Boosted Analysis
-  //Applying Filters
+  // Boosted Analysis
+  // Applying Filters
   //**********************
   auto two_b_jets =
       frame.Filter(two_large_b_jets, {"FatJet"},
@@ -258,9 +223,9 @@ int main(int arc, char *argv[]) {
         return sideband(event) && !control(event);
       },
       {"event"}, "sideband"); // Filter Events int the Sideband Region
-  
+
   //*********************
-  //Storing Output
+  // Storing Output
   //********************
 
   std::string output_filename = "pheno_boosted.root"; // Name Output File
@@ -274,28 +239,25 @@ int main(int arc, char *argv[]) {
       });
 
   TFile output_file(output_filename.c_str(), "RECREATE"); // Opening Ouput File
-  write_tree(signal_result, "signal", output_file);   // Writing the Signal Tree
-  write_tree(control_result, "control", output_file); // Writing the Control Tree
+  write_tree(signal_result, "signal", output_file); // Writing the Signal Tree
+  write_tree(control_result, "control",
+             output_file); // Writing the Control Tree
   write_tree(sideband_result, "sideband",
              output_file); // Writing the Sideband Tree
 
   start_events_proxy.GetValue();
-  
+
   //**********************
-  //Writing Cutflows
+  // Writing Cutflows
   //************************
-
-
 
   Cutflow boosted_cutflow(
       "Boosted Cutflow",
       output_file); // Define Cutflow for the Boosted Analysis
-  boosted_cutflow.add(
-      u8"2 large good jets(pT ≥ 200 GeV, η ≤ 2.0), ≥ 2 tagged",
-      two_b_jets.Count());
+  boosted_cutflow.add(u8"2 large good jets(pT ≥ 200 GeV, η ≤ 2.0), ≥ 2 tagged",
+                      two_b_jets.Count());
   boosted_cutflow.add(u8"Reconstructed events", reconstructed.Count());
-  boosted_cutflow.add(u8"2 large jet Tagged",
-                      valid_evt.Count());
+  boosted_cutflow.add(u8"2 large jet Tagged", valid_evt.Count());
   boosted_cutflow.add(u8"Signal", signal_result.Count());
   boosted_cutflow.add(u8"Control", control_result.Count());
   boosted_cutflow.add(u8"Sideband", sideband_result.Count());

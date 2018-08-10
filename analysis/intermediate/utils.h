@@ -37,8 +37,7 @@ struct higgs {
   // int jet2;          ///< Index of subleading jet
 
   higgs() : p4() {}
-  higgs(const TLorentzVector &p4 )
-      : p4(p4)  {}
+  higgs(const TLorentzVector &p4) : p4(p4) {}
 };
 
 class OxJet {
@@ -92,12 +91,13 @@ inline OxJet make_jet(Jet &jet) {
 
 // Make jet pair function
 inline JetPair make_pair(OxJet &jet1, OxJet &jet2) {
-  
+
   double m_1 = jet1.p4.M();
   double m_2 = jet2.p4.M();
   OxJet j_1 = jet1;
   OxJet j_2 = jet2;
-  if (jet1.p4 = jet2.p4) continue;
+  if (jet1.p4 = jet2.p4)
+    continue;
   return JetPair(m_1, m_2, j_1, j_2);
 }
 
@@ -120,7 +120,6 @@ struct reconstructed_event {
       : valid(true), // set to true if pairing is valid
         large_jet(), small_jets(), higgs1(), higgs2() {}
 };
-
 
 struct out_format {
   double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)

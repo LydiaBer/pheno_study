@@ -48,7 +48,6 @@ class Muon {
 };
 */
 
-
 /// Jet
 class OxJet {
 public:
@@ -62,7 +61,6 @@ public:
     p4.SetPtEtaPhiM(pT, eta, phi, M);
   }
 };
-
 
 /// Wrapper around Jet constructor
 inline OxJet make_jet(Jet &jet) {
@@ -216,7 +214,6 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
   namespace action = ranges::action;
   static bool first_tree = true;
 
-
   const char *out_format_leaflist = "m_hh/D:m_h1/D:pT_h1:eta_h1:phi_h1:"
                                     "m_h2/D:pT_h2:eta_h2:phi_h2:"
                                     "m_h1_j1:pT_h1_j1:eta_h1_j1:phi_h1_j1:"
@@ -255,11 +252,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied> &result, const char *treename,
   }
   result.ForeachSlot(
       [&out_trees, &out_vars, &ntag_var, &njets_var, &rwgt_vars,
-       &mc_sf_var](unsigned slot, const reconstructed_event &event){
+       &mc_sf_var](unsigned slot, const reconstructed_event &event) {
         auto &&tree = out_trees[slot];
         auto &&vars = out_vars[slot];
         auto &&rwgt = rwgt_vars[slot];
-
 
         vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
         ntag_var[slot] = event.ntag;
