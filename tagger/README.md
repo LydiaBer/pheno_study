@@ -32,4 +32,4 @@ If it compiles without error then you should be able to run
 $ ./boosted-recon
 ```
 
-
+Although the ```tagger``` function is called inside the ```boosted-recon.cpp``` file, most of the algorithm sits in the ```utils.h``` file.

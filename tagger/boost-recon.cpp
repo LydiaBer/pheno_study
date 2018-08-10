@@ -161,14 +161,6 @@ files(const std::string &path // Path to the input files
   return file_names; // Returns the vector with files to be read by RDF
 }
 
-bool check(
-    VecOps::RVec<Jet> &fatjets, // Input  FatJet of FastJet <Jet> type
-    VecOps::RVec<Jet> &trkjets,
-    VecOps::RVec<HepMCEvent> &evt // Input Event of Delphes <HepMCEvent> type
-    ) {
-  std::cout << "CHECK" << std::endl;
-  return true;
-}
 
 int main(int arc, char *argv[]) {
 
