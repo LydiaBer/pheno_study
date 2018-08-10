@@ -19,3 +19,6 @@ Before running any of the analysis, code I encourage you to check whether the an
 
 Specific information on each analysis code can be found in the README file inside the corresponding analysis folder.
 
+To make the Delphes installation running, please open the README file inside the ___delphes___ folder.
+
+For further information about the tagger, please open the README file inside the ___tagger___ folder. 
