@@ -3,10 +3,17 @@
 
 The original code is available [HERE](https://github.com/beojan/oxford-hh4b-pheno-code)
 
-There are 3 folders for each analysis done by this code: that is __Resolved__, __Intermediate__, __Boosted__.
+Before running any code, from your command line type: 
 
-Each analysis can run invidividually. To run the whole analysis source ```run.sh```.
+```source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh```
 
+The __analysis__ folder contains the analysis code for the _resolved__, __intermediate__ and __boosted__ regime.
+
+The __tagger__ folder contains the code for the advanced B-tagger but only for the boosted channel.
+
+The __utilities__ folder contains C++ code which can be used to make histograms of the final results. It also contains the ```python_hepmc_new.py``` which can be used to split large hepmc files in smaller sized files.
+
+The __delphes__ folder contains the full installation of Delphes. Inside ```delphes/cards``` you can find the ```delphes_cards_ATLAS_E.tcl``` which is a card, based on ```delphes_cards_ATLAS.tcl```, that allows for FatJet BTagging, Track-Jets identification and Flavour association for the TrackJets. 
 
 
 
