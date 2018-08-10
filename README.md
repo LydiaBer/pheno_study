@@ -15,5 +15,7 @@ The __utilities__ folder contains C++ code which can be used to make histograms 
 
 The __delphes__ folder contains the full installation of Delphes. Inside ```delphes/cards``` you can find the ```delphes_cards_ATLAS_E.tcl``` which is a card, based on ```delphes_cards_ATLAS.tcl```, that allows for FatJet BTagging, Track-Jets identification and Flavour association for the TrackJets. 
 
+Before running any of the analysis, code I encourage you to check whether the analysis is using the right input file with the right path.
+
 
 
