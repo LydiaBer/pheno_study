@@ -278,13 +278,13 @@ int main(int argc, char *argv[]) {
 
   auto signal_result = valid_evt.Filter(signal, {"event"}, "signal");
 
-  auto control_result = deltaRjj_cut.Filter(
+  auto control_result = valid_evt.Filter(
       [](const reconstructed_event &event) {
         return control(event) && (!signal(event));
       },
       {"event"}, "control");
 
-  auto sideband_result = deltaRjj_cut.Filter(
+  auto sideband_result = valid_evt.Filter(
       [](const reconstructed_event &event) {
         return sideband(event) && !control(event);
       },
@@ -329,7 +329,7 @@ int main(int argc, char *argv[]) {
   two_tag_cutflow.add(u8"Two Tagged",
                       reconstructed.Filter(two_tag_filter, {"event"}).Count());
   two_tag_cutflow.add(u8"ΔR_jj",
-                      deltaRjj_cut.Filter(two_tag_filter, {"event"}).Count());
+                      valid_evt.Filter(two_tag_filter, {"event"}).Count());
   two_tag_cutflow.add(u8"Signal",
                       signal_result.Filter(two_tag_filter, {"event"}).Count());
   two_tag_cutflow.add(u8"Control",
@@ -345,7 +345,7 @@ int main(int argc, char *argv[]) {
       u8"Four Tagged",
       reconstructed.Filter(four_tag_filter, {"event"}).Count());
   four_tag_cutflow.add(u8"ΔR_jj",
-                       deltaRjj_cut.Filter(four_tag_filter, {"event"}).Count());
+                       valid_evt.Filter(four_tag_filter, {"event"}).Count());
   four_tag_cutflow.add(
       u8"Signal", signal_result.Filter(four_tag_filter, {"event"}).Count());
   four_tag_cutflow.add(
