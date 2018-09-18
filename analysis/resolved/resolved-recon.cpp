@@ -252,11 +252,11 @@ int main(int argc, char *argv[]) {
   using vec_string = std::vector<std::string>;
 
   const std::string file_path = argv[1];
-  const std::string file_tag = argv[2];
-  const int file_numb = atoi(argv[3]);
   // LYD
-  const std::string output_dir = argv[4];
-  const std::string output_filename = argv[5];
+  //const std::string file_tag = argv[2];
+  //const int file_numb = atoi(argv[3]);
+  const std::string output_dir = argv[2];
+  const std::string output_filename = argv[3];
   const std::string output_path = output_dir+"/"+output_filename;
 
   ROOT::EnableImplicitMT();
@@ -265,8 +265,9 @@ int main(int argc, char *argv[]) {
   // Importing Input File
   //*******************
 
-  RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
-  // RDataFrame frame("Delphes","path/file.root");
+  // LYD RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
+  RDataFrame frame("Delphes", file_path);
+  // LYD  RDataFrame frame("Delphes","path/file.root");
 
   //****************************
   // Run Resolved Analysis Code
