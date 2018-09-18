@@ -252,8 +252,12 @@ int main(int argc, char *argv[]) {
   using vec_string = std::vector<std::string>;
 
   const std::string file_path = argv[1];
-  const int file_numb = atoi(argv[3]);
   const std::string file_tag = argv[2];
+  const int file_numb = atoi(argv[3]);
+  // LYD
+  const std::string output_dir = argv[4];
+  const std::string output_filename = argv[5];
+  const std::string output_path = output_dir+"/"+output_filename;
 
   ROOT::EnableImplicitMT();
 
@@ -294,17 +298,18 @@ int main(int argc, char *argv[]) {
   // Writing Output Ntuples
   //*************************
 
-  std::string output_filename = "pheno_resolved.root";
+  // LYD std::string output_filename = "pheno_resolved.root";
 
-  fmt::print("Writing to {}\n", output_filename);
+  // LYD fmt::print("Writing to {}\n", output_filename);
+  fmt::print("Writing to {}\n", output_path);
   // To print progress
   auto start_events_proxy = frame.Count();
   start_events_proxy.OnPartialResult(
-      10000, [](const unsigned long long &num_events) {
+      1000, [](const unsigned long long &num_events) {
         fmt::print("Processed {} events\n", num_events);
       });
 
-  TFile output_file(output_filename.c_str(), "RECREATE");
+  TFile output_file(output_path.c_str(), "RECREATE");
   write_tree(signal_result, "signal", output_file);
 
   start_events_proxy.GetValue(); // For printing progress

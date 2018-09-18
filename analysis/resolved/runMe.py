@@ -31,7 +31,7 @@ with open(FILE_LIST, 'r') as filehandle:
         if '#' in line: continue
         output_dir = OUT_DIR
         output_filename = file_path.split("/")[-1] # output name same as input name 
-        command =  "./build/resolved-recon /data/atlas/atlasdata/beresford/jrf/hh4b_pheno/REM/pheno_study/delphes test_jesse_signal 1"
+        command =  "./build/resolved-recon /data/atlas/atlasdata/beresford/jrf/hh4b_pheno/REM/pheno_study/delphes test_jesse_signal 1 {0} {1}".format(output_dir, output_filename)
         #command =  "./build/resolved-recon {0}".format(file_path)
         #command =  "./build/resolved-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
 
