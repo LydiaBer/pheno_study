@@ -5,7 +5,7 @@ This code takes as input the ROOT files produced by delphes and slims them by ap
 The three main files are as follows: 
 1) ```resolved-recon.cpp``` : the file where the actual analysis take place.
 2) ```utils.h``` : the file where classes and utility functions used in the "resolved-recon.cpp" are defined and specified.
-3) ```Cutflow.cpp```: the file where the structure for the Cutflow is defined.
+3) ```Cutflow.cpp```: the file where the structure for the cutflow is defined.
 
 ## Compiling and running the code
 
