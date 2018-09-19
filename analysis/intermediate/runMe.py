@@ -1,5 +1,5 @@
 ''' 
-Script for running resolved analysis on the batch
+Script for running intermediate analysis on the batch
 Expects input filelist of files to run on 
 One output file produced per input file to chosen output dir
 If run on the batch 1 job per file submitted
@@ -30,8 +30,8 @@ with open(FILE_LIST, 'r') as filehandle:
         # skip if commented out with hash
         if '#' in line: continue
         output_dir = OUT_DIR
-        output_filename = "resolved_"+file_path.split("/")[-1] # output name = resolved_inputname 
-        command =  "./build/resolved-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
+        output_filename = "intermediate_"+file_path.split("/")[-1] # output name = intermediate_inputname 
+        command =  "./build/intermediate-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
 
         if USE_BATCH:
             batch_script = os.getcwd()+"/tools/batchTemplate.sh"

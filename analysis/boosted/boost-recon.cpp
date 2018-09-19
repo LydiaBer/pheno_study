@@ -157,17 +157,17 @@ bool sideband(const reconstructed_event &evt) {
 //************
 // Function to add multiple file
 //************
-std::vector<std::string>
+/* LYD std::vector<std::string>
 files(const std::string &path // Path to the input files
       ,
       const int &nfiles // Number of input files
       ,
       const std::string &tag) {
-  /**
-   * Function to import the input file
-   * The file should be in the same folder
-   * such that the input path is the same
-   */
+  //
+  // * Function to import the input file
+  // * The file should be in the same folder
+  // * such that the input path is the same
+  // 
 
   std::vector<std::string>
       file_names; // Vector including all files paths and addresses
@@ -176,26 +176,28 @@ files(const std::string &path // Path to the input files
   }
   return file_names; // Returns the vector with files to be read by RDF
 }
-
+*/
 int main(int arc, char *argv[]) {
 
   std::ios::sync_with_stdio(false);
   using vec_string = std::vector<std::string>;
 
+  const std::string file_path = argv[1];
+  // LYD const std::string file_tag = argv[2];
+  // LYD const int file_numb = atoi(argv[3]);
+
+  const std::string output_dir = argv[2];
+  const std::string output_filename = argv[3];
+  const std::string output_path = output_dir+"/"+output_filename;
+
   ROOT::EnableImplicitMT();
 
-  const std::string file_path = argv[1];
-  const std::string file_tag = argv[2];
-  const int file_numb = atoi(argv[3]);
   //********************
   // Importing Input file
   //********************
 
-  RDataFrame frame("Delphes",
-                   files(file_path, file_numb, file_tag)); // Input file for RDF
-
-  // To add 1 input file
-  // RDataFrame frame("Delphes","path/file.root");
+  // LYD RDataFrame frame("Delphes", files(file_path, file_numb, file_tag)); // Input file for RDF
+  RDataFrame frame("Delphes", file_path);
 
   //***********************
   // Boosted Analysis
@@ -228,9 +230,9 @@ int main(int arc, char *argv[]) {
   // Storing Output
   //********************
 
-  std::string output_filename = "pheno_boosted.root"; // Name Output File
+  // LYD std::string output_filename = "pheno_boosted.root"; // Name Output File
 
-  fmt::print("Writing to {}\n", output_filename);
+  fmt::print("Writing to {}\n", output_path);
 
   auto start_events_proxy = frame.Count();
   start_events_proxy.OnPartialResult(
@@ -238,7 +240,7 @@ int main(int arc, char *argv[]) {
         fmt::print("Processed {} events\n", num_events);
       });
 
-  TFile output_file(output_filename.c_str(), "RECREATE"); // Opening Ouput File
+  TFile output_file(output_path.c_str(), "RECREATE"); // Opening Ouput File
   write_tree(signal_result, "signal", output_file); // Writing the Signal Tree
   write_tree(control_result, "control",
              output_file); // Writing the Control Tree

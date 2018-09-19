@@ -306,18 +306,19 @@ bool sideband(const reconstructed_event &evt) {
 
 
 //Function to read multiple files in RDF
-std::vector<std::string>
+/* LYD 
+  std::vector<std::string>
 files(const std::string &path // Path to the input files
       ,
       const int &nfiles // Number of input files
       ,
       const std::string &tag) {
- /**
-   * Function to import the input file
-   * The file should be in the same folder
-   * such that the input path is the same
-   */
-
+ //
+ //  * Function to import the input file
+ //  * The file should be in the same folder
+ //  * such that the input path is the same
+ // 
+ 
   /// Vector of Files for RDF
   std::vector<std::string>
       file_names; // Vector including all files paths and addresses
@@ -326,7 +327,7 @@ files(const std::string &path // Path to the input files
   }
   return file_names; // Returns the vector with files to be read by RDF
 }
-
+*/
 
 //***************
 //Main Analysis Code
@@ -337,14 +338,12 @@ int main(int arc, char *argv[]) {
   std::ios::sync_with_stdio(false);
   using vec_string = std::vector<std::string>;
 
- 
-//const std::string file_path = "/data/atlas/atlasdata/micheli/validation/delphes/background_beojan/4b";
-//  const int file_numb = 6;
-// const std::string file_tag = "4b";
-
   const std::string file_path = argv[1];
-  const int file_numb = atoi(argv[3]);
-  const std::string file_tag = argv[2];
+  // LYD const int file_numb = atoi(argv[3]);
+  // LYD const std::string file_tag = argv[2];
+  const std::string output_dir = argv[2];
+  const std::string output_filename = argv[3];
+  const std::string output_path = output_dir+"/"+output_filename;
 
 
   ROOT::EnableImplicitMT();
@@ -353,18 +352,8 @@ int main(int arc, char *argv[]) {
   //Importing Input File
   //*******************
 
-  RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
-  //**********
-  //Importing Input File
-  //***********
-
-
-  //To mport just a single file
-  // RDataFrame frame("Delphes","/data/atlas/atlasdata/micheli/delphes_out.root");
-  
-
-  //To import multiple files at once
- // RDataFrame frame("Delphes", files(std::string(argv), arc));
+  // LYD RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
+  RDataFrame frame("Delphes", file_path);
 
   //******************
   //Run Intermediate Analysis
@@ -402,9 +391,10 @@ int main(int arc, char *argv[]) {
  
 
  
-  std::string output_filename = "pheno_intermediate.root";
+  // LYD std::string output_filename = "pheno_intermediate.root";
 
-  fmt::print("Writing to {}\n", output_filename);
+  // LYD fmt::print("Writing to {}\n", output_filename);
+  fmt::print("Writing to {}\n", output_path);
 
   auto start_events_proxy = frame.Count();
   start_events_proxy.OnPartialResult(
@@ -412,7 +402,7 @@ int main(int arc, char *argv[]) {
         fmt::print("Processed {} events\n", num_events);
       });
 
-  TFile output_file(output_filename.c_str(), "RECREATE");
+  TFile output_file(output_path.c_str(), "RECREATE");
 
   write_tree(signal_result, "signal", output_file);
   //write_tree(control_result, "control", output_file);

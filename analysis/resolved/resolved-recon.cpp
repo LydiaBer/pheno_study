@@ -221,17 +221,18 @@ bool control(const reconstructed_event &evt) {
 // Function to read multiple input files
 //****************
 
+/* LYD
 std::vector<std::string>
 files(const std::string &path // Path to the input files
       ,
       const int &nfiles // Number of input files
       ,
       const std::string &tag) {
-  /**
-   * Function to import the input file
-   * The file should be in the same folder
-   * such that the input path is the same
-   */
+  //
+  // * Function to import the input file
+  // * The file should be in the same folder
+  // * such that the input path is the same
+  // 
 
   /// Vector of Files for RDF
   std::vector<std::string>
@@ -241,6 +242,7 @@ files(const std::string &path // Path to the input files
   }
   return file_names; // Returns the vector with files to be read by RDF
 }
+*/
 
 //***************
 // Main Analysis Code
