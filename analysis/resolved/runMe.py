@@ -2,13 +2,14 @@
 Script for running resolved analysis on the batch
 Expects input filelist of files to run on 
 One output file produced per input file to chosen output dir
+If run on the batch 1 job per file submitted
 ''' 
 
 import os
 
 ### User inputs
 
-FILE_LIST = "filelists/TestList.txt"
+FILE_LIST = "../filelists/TestList.txt"
 OUT_DIR = os.getcwd()+"/outputs/test"
 USE_BATCH = True
 
@@ -33,7 +34,7 @@ with open(FILE_LIST, 'r') as filehandle:
         command =  "./build/resolved-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
 
         if USE_BATCH:
-            batch_script = os.getcwd()+"/batchTemplate.sh"
+            batch_script = os.getcwd()+"/tools/batchTemplate.sh"
             logfile = OUT_DIR+"/logs/"+output_filename.split(".root")[0]
             batch_command  = "qsub -N {0} -o {1} -e {2} -v CODEDIR='{3}',CMD='{4}' {5}".format(output_filename.split(".root")[0],logfile+".out",logfile+".err",os.getcwd(), command, batch_script)
             print(batch_command)
