@@ -9,8 +9,8 @@ import os
 
 ### User inputs
 
-FILE_LIST = "../filelists/TestList.txt"
-OUT_DIR = os.getcwd()+"/outputs/test"
+FILE_LIST = "../filelists/alessandro_report.txt"
+OUT_DIR = os.getcwd()+"/outputs/alessandro_report"
 USE_BATCH = True
 
 ### End of user inputs
@@ -29,6 +29,8 @@ with open(FILE_LIST, 'r') as filehandle:
         file_path = line[:-1]
         # skip if commented out with hash
         if '#' in line: continue
+        # skip if empty line
+        if len(line.strip()) == 0: continue
         output_dir = OUT_DIR
         output_filename = "boosted_"+file_path.split("/")[-1] # output name = boosted_inputname 
         command =  "./build/boosted-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
@@ -40,6 +42,6 @@ with open(FILE_LIST, 'r') as filehandle:
             print(batch_command)
             os.system(batch_command)
         else: 
-          print(command)
-          os.system(command)
+            print(command)
+            os.system(command)
            

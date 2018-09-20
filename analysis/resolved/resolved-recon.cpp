@@ -1,6 +1,6 @@
-/// \file resolved-recon.cpp
-/// \brief Main implementation file
-///
+// \file resolved-recon.cpp
+// \brief Main implementation file
+
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -28,16 +28,15 @@
 #include "Cutflow.h"
 #include "utils.h"
 
-double f = 0.16;
+// From ATLAS code double f = 0.16;
 
 using namespace ROOT;
 namespace view = ranges::view;
 namespace action = ranges::action;
 
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
-constexpr double pi = 3.13;
 
-/// Reconstruct event in the resolved regime
+// Reconstruct event in the resolved regime
 reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
                                 VecOps::RVec<HepMCEvent> &evt) {
   reconstructed_event result{};
@@ -100,7 +99,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
   }
 
   // All possible combinations of forming two pairs of jets
-  //
+
   const int pairings[3][2][2] = {
       {{0, 1}, {2, 3}}, {{0, 2}, {1, 3}}, {{0, 3}, {1, 2}}};
 
@@ -127,12 +126,12 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
       std::swap(higgs1_2, higgs2_2);
     }
 
-    pair_candidates.push_back(std::make_pair(
+    pair_candidates.push_back(std::make_pair(higgs(higgs1, higgs1_1, higgs1_2), higgs(higgs2, higgs2_1, higgs2_2)));
         higgs(higgs1, higgs1_1, higgs1_2), higgs(higgs2, higgs2_1, higgs2_2)));
   }
 
   if (pair_candidates.empty()) {
-    //        // leave result invalid
+    // leave result invalid
     result.valid = false;
     result.ntag = ntag; // For ntag cut
   } else {
@@ -163,8 +162,8 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
 // Selection functions
 //********************
 
-/// \brief Require four jets with p<SUB>T</SUB> > 40 GeV, |&eta;| < 2.5
-/// with at least 2 being b-tagged.
+// Require four jets with p<SUB>T</SUB> > 40 GeV, |&eta;| < 2.5 with at least 2
+// being b-tagged.
 bool four_b_jets_pT_40_eta_25(VecOps::RVec<Jet> &jets) {
   // Filter jets with 4 pT > 40 GeV, |eta| < 2.5 jets with >= 2 b tagged]
   int count = 0;
@@ -184,10 +183,10 @@ bool four_b_jets_pT_40_eta_25(VecOps::RVec<Jet> &jets) {
   return false;
 }
 
-/// Checkpoint requiring event be marked as valid by reconstruct().
+// Checkpoint requiring event be marked as valid by reconstruct().
 bool valid_check(const reconstructed_event &evt) { return evt.valid; }
 
-/// Select m<SUB>hh</SUB> signal region
+// Select m<SUB>hh</SUB> signal region
 bool signal(const reconstructed_event &evt) {
   double m_h1 = evt.higgs1.p4.M();
   double m_h2 = evt.higgs2.p4.M();
@@ -207,7 +206,7 @@ bool sideband(const reconstructed_event &evt) {
   return (higgs1_flag && higgs2_flag);
 }
 
-/// Select m<SUB>hh</SUB> control region
+// Select m<SUB>hh</SUB> control region
 bool control(const reconstructed_event &evt) {
   double m_h1 = evt.higgs1.p4.M();
   double m_h2 = evt.higgs2.p4.M();
@@ -216,33 +215,6 @@ bool control(const reconstructed_event &evt) {
   bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 45.) ? true : false;
   return (higgs1_flag && higgs2_flag);
 }
-
-//****************
-// Function to read multiple input files
-//****************
-
-/* LYD
-std::vector<std::string>
-files(const std::string &path // Path to the input files
-      ,
-      const int &nfiles // Number of input files
-      ,
-      const std::string &tag) {
-  //
-  // * Function to import the input file
-  // * The file should be in the same folder
-  // * such that the input path is the same
-  // 
-
-  /// Vector of Files for RDF
-  std::vector<std::string>
-      file_names; // Vector including all files paths and addresses
-  for (int i = 0; i < nfiles; i++) {
-    file_names.push_back(fmt::format("{}/{}_{}.root", path, tag, i));
-  }
-  return file_names; // Returns the vector with files to be read by RDF
-}
-*/
 
 //***************
 // Main Analysis Code
@@ -254,12 +226,9 @@ int main(int argc, char *argv[]) {
   using vec_string = std::vector<std::string>;
 
   const std::string file_path = argv[1];
-  // LYD
-  //const std::string file_tag = argv[2];
-  //const int file_numb = atoi(argv[3]);
   const std::string output_dir = argv[2];
   const std::string output_filename = argv[3];
-  const std::string output_path = output_dir+"/"+output_filename;
+  const std::string output_path = output_dir + "/" + output_filename;
 
   ROOT::EnableImplicitMT();
 
@@ -267,9 +236,7 @@ int main(int argc, char *argv[]) {
   // Importing Input File
   //*******************
 
-  // LYD RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
   RDataFrame frame("Delphes", file_path);
-  // LYD  RDataFrame frame("Delphes","path/file.root");
 
   //****************************
   // Run Resolved Analysis Code
@@ -301,9 +268,6 @@ int main(int argc, char *argv[]) {
   // Writing Output Ntuples
   //*************************
 
-  // LYD std::string output_filename = "pheno_resolved.root";
-
-  // LYD fmt::print("Writing to {}\n", output_filename);
   fmt::print("Writing to {}\n", output_path);
   // To print progress
   auto start_events_proxy = frame.Count();
@@ -345,7 +309,7 @@ int main(int argc, char *argv[]) {
   two_tag_cutflow.add(
       u8"Sideband", sideband_result.Filter(two_tag_filter, {"event"}).Count());
   two_tag_cutflow.write();
-  //
+
   Cutflow four_tag_cutflow("FourTagCutflow", output_file);
   four_tag_cutflow.add(u8"4 good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 4 tagged",
                        four_jets.Count());
@@ -361,5 +325,6 @@ int main(int argc, char *argv[]) {
   four_tag_cutflow.add(
       u8"Sideband", sideband_result.Filter(four_tag_filter, {"event"}).Count());
   four_tag_cutflow.write();
+
   return 0;
 }

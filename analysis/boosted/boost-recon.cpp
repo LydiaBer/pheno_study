@@ -154,41 +154,15 @@ bool sideband(const reconstructed_event &evt) {
                                        // fall in the window then accept
 }
 
-//************
-// Function to add multiple file
-//************
-/* LYD std::vector<std::string>
-files(const std::string &path // Path to the input files
-      ,
-      const int &nfiles // Number of input files
-      ,
-      const std::string &tag) {
-  //
-  // * Function to import the input file
-  // * The file should be in the same folder
-  // * such that the input path is the same
-  // 
-
-  std::vector<std::string>
-      file_names; // Vector including all files paths and addresses
-  for (int i = 0; i < nfiles; i++) {
-    file_names.push_back(fmt::format("{}/{}_{}.root", path, tag, i));
-  }
-  return file_names; // Returns the vector with files to be read by RDF
-}
-*/
 int main(int arc, char *argv[]) {
 
   std::ios::sync_with_stdio(false);
   using vec_string = std::vector<std::string>;
 
   const std::string file_path = argv[1];
-  // LYD const std::string file_tag = argv[2];
-  // LYD const int file_numb = atoi(argv[3]);
-
   const std::string output_dir = argv[2];
   const std::string output_filename = argv[3];
-  const std::string output_path = output_dir+"/"+output_filename;
+  const std::string output_path = output_dir + "/" + output_filename;
 
   ROOT::EnableImplicitMT();
 
@@ -196,7 +170,6 @@ int main(int arc, char *argv[]) {
   // Importing Input file
   //********************
 
-  // LYD RDataFrame frame("Delphes", files(file_path, file_numb, file_tag)); // Input file for RDF
   RDataFrame frame("Delphes", file_path);
 
   //***********************
@@ -230,8 +203,6 @@ int main(int arc, char *argv[]) {
   // Storing Output
   //********************
 
-  // LYD std::string output_filename = "pheno_boosted.root"; // Name Output File
-
   fmt::print("Writing to {}\n", output_path);
 
   auto start_events_proxy = frame.Count();
@@ -241,7 +212,7 @@ int main(int arc, char *argv[]) {
       });
 
   TFile output_file(output_path.c_str(), "RECREATE"); // Opening Ouput File
-  write_tree(signal_result, "signal", output_file); // Writing the Signal Tree
+  write_tree(signal_result, "signal", output_file);   // Writing the Signal Tree
   write_tree(control_result, "control",
              output_file); // Writing the Control Tree
   write_tree(sideband_result, "sideband",

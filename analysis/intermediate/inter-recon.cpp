@@ -43,9 +43,6 @@ bool one_b_large_two_b_small_cuts(VecOps::RVec<Jet> &jets,
   bool fat_jet = false;
   bool small_jet = false;
 
- 
-
-
   // Filter small R jets with 2 pT>40 and |eta|< 2.5 & btagged
   for (auto &&j : jets) {
     if (j.PT >= 40. * GeV and std::abs(j.Eta) < 2.5) {
@@ -55,14 +52,11 @@ bool one_b_large_two_b_small_cuts(VecOps::RVec<Jet> &jets,
     }
   }
 
-
   if (count_small >= 2 and b_count_small >= 2)
     small_jet = true;
 
-
-
-
-  // Filter large R jet 1 pT>200 and |eta|<2. & btagged  for (auto &&j : fatjets) {
+  // Filter large R jet 1 pT>200 and |eta|<2. & btagged  for (auto &&j :
+  // fatjets) {
   for (auto &&j : fatjets) {
     if (j.PT >= 200. * GeV and std::abs(j.Eta) < 2.0) {
       count_fat++;
@@ -74,20 +68,15 @@ bool one_b_large_two_b_small_cuts(VecOps::RVec<Jet> &jets,
     fat_jet = true;
   }
 
-
-
   if (fat_jet && small_jet) {
     return true;
   } else {
     return false;
   }
-
-
-
 }
 
-//Function to check angular distance between 
-//large R jet and small R jet
+// Function to check angular distance between
+// large R jet and small R jet
 
 double deltaR(OxJet &jet1, OxJet &jet2) {
   using namespace std;
@@ -98,10 +87,6 @@ double deltaR(OxJet &jet1, OxJet &jet2) {
   double dR = sqrt(pow(dphi, 2.) + pow(deta, 2.));
 }
 
-
-
-
-
 // Reconstructed event in the intermediate regime
 reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
                                 VecOps::RVec<Jet> &largejet,
@@ -110,13 +95,11 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
 
   result.wgt = evt[0].Weight;
 
-
   // large R jets vector
   std::vector<OxJet> lj_vec =
       view::zip_with(make_jet, largejet) | view::filter([](const auto &jet) {
         return jet.p4.Pt() >= 200. * GeV and std::abs(jet.p4.Eta()) < 2.0;
       });
-
 
   // small R jets vector
   std::vector<OxJet> sj_vec =
@@ -124,43 +107,32 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
         return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 2.5;
       });
 
-
   // Sort Large R jets by pT
   ranges::sort(lj_vec, ranges::ordered_less{},
                [](auto &&jet) { return jet.p4.Pt(); });
-  
 
-  // Sort small R jets by pT  
+  // Sort small R jets by pT
   ranges::sort(sj_vec, ranges::ordered_less{},
                [](auto &&jet) { return jet.p4.Pt(); });
- 
 
-  //Decreasing Order
+  // Decreasing Order
   ranges::reverse(lj_vec);
   ranges::reverse(sj_vec);
 
-  const int n_small_tag = //Counting small R jets B tagged
+  const int n_small_tag = // Counting small R jets B tagged
       ranges::count(sj_vec, true, [](auto &&jet) { return jet.tagged; });
-  
 
-  const int n_large_tag = //Counting large R jets B tagged
+  const int n_large_tag = // Counting large R jets B tagged
       ranges::count(lj_vec, true, [](auto &&jet) { return jet.tagged; });
 
-
-
- 
   OxJet large_jet = lj_vec[0];
- 
-  //Separating B Tagged small r jets from non-B Tagged
+
+  // Separating B Tagged small r jets from non-B Tagged
   std::vector<OxJet> small_jets =
       sj_vec | view::filter([](auto &&jet) { return jet.tagged; });
- 
 
   std::vector<OxJet> other_jets =
       sj_vec | view::filter([](auto &jet) { return !jet.tagged; });
-
-
-
 
   // There could be only one non btag jet. Maybe change it because not strictly
   // necessary
@@ -184,15 +156,12 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
 
   */
 
-
-  //If small R jets tagged are less than 2-> Reject event
+  // If small R jets tagged are less than 2-> Reject event
 
   if (n_small_tag < 2) {
     result.valid = false;
     return result;
   }
-
-
 
   // Cut on DeltaR<1.2 between small R jets and Large R jet
 
@@ -201,34 +170,35 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
   for (auto &&j : small_jets) {
     if (deltaR(large_jet, j) < 1.2)
       continue;
-    if (deltaR(large_jet,j) >1.2) bjets_separated.push_back(j);
-    if (!(deltaR(large_jet,j) >1.2)) bjets_notseparated.push_back(j);}
+    if (deltaR(large_jet, j) > 1.2)
+      bjets_separated.push_back(j);
+    if (!(deltaR(large_jet, j) > 1.2))
+      bjets_notseparated.push_back(j);
+  }
 
-    if (bjets_separated.size() < 2) {
-      int available = bjets_notseparated.size();
-      int already_there = bjets_separated.size();
-      int to_push = 2 - already_there;
-      if (to_push > available){
-        result.valid = false;
-        return result;
-        }
-      for (int i =0; i<to_push; i++){
-      bjets_separated.push_back(bjets_notseparated.at(i));
-      }
+  if (bjets_separated.size() < 2) {
+    int available = bjets_notseparated.size();
+    int already_there = bjets_separated.size();
+    int to_push = 2 - already_there;
+    if (to_push > available) {
+      result.valid = false;
+      return result;
     }
+    for (int i = 0; i < to_push; i++) {
+      bjets_separated.push_back(bjets_notseparated.at(i));
+    }
+  }
 
-
-
- // Get the pairing that minimizes relative mass difference
- //Make pairs of small r jets
+  // Get the pairing that minimizes relative mass difference
+  // Make pairs of small r jets
   std::vector<JetPair> jets_pair =
       view::zip_with(make_pair, bjets_separated, bjets_separated);
- 
+
   jets_pair |= (action::sort(ranges::ordered_less{},
                              [large_jet](auto &&jet_pair) {
                                double mass_a = jet_pair.mass_1;
                                double mass_b = jet_pair.mass_2;
-                               //std::cout << "mass 2" << mass_b << std::endl;
+                               // std::cout << "mass 2" << mass_b << std::endl;
                                double djmassdiff = std::fabs(large_jet.p4.M() -
                                                              (mass_a + mass_b));
                                // std::cout<<"dijets mass
@@ -240,12 +210,10 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
 
   // Printing
   // std::cout << "Jets Pair 0" << jets_pair[0].jet_1.p4.M() << std::endl;
-  //std::cout << "Jets Pair 1" << jets_pair[0].jet_2.p4.M() << std::endl;
-  //std::cout << "Large jet" << large_jet.p4.M() << std::endl;
- 
+  // std::cout << "Jets Pair 1" << jets_pair[0].jet_2.p4.M() << std::endl;
+  // std::cout << "Large jet" << large_jet.p4.M() << std::endl;
 
-
- // Storing the candidates
+  // Storing the candidates
 
   result.higgs2.p4 = jets_pair[0].jet_1.p4 + jets_pair[0].jet_2.p4;
   result.higgs1.p4 = large_jet.p4;
@@ -257,9 +225,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
   result.small_jets[0] = jets_pair[0].jet_1;
   result.small_jets[1] = jets_pair[0].jet_2;
 
-
-
-  //If leading is subleading and viceversa then exchange
+  // If leading is subleading and viceversa then exchange
   if (result.small_jets[1].p4.Pt() > result.small_jets[0].p4.Pt()) {
     result.small_jets[0] = jets_pair[0].jet_2;
     result.small_jets[1] = jets_pair[0].jet_1;
@@ -268,11 +234,9 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &smalljet,
   return result;
 }
 
-
-//Select Only Valid Events
+// Select Only Valid Events
 
 bool valid_check(const reconstructed_event &evt) { return evt.valid; }
-
 
 bool signal(const reconstructed_event &evt) {
   double m_h1 = evt.higgs1.p4.M();
@@ -304,33 +268,8 @@ bool sideband(const reconstructed_event &evt) {
   return (higgs1_flag && higgs2_flag);
 }
 
-
-//Function to read multiple files in RDF
-/* LYD 
-  std::vector<std::string>
-files(const std::string &path // Path to the input files
-      ,
-      const int &nfiles // Number of input files
-      ,
-      const std::string &tag) {
- //
- //  * Function to import the input file
- //  * The file should be in the same folder
- //  * such that the input path is the same
- // 
- 
-  /// Vector of Files for RDF
-  std::vector<std::string>
-      file_names; // Vector including all files paths and addresses
-  for (int i = 0; i < nfiles; i++) {
-    file_names.push_back(fmt::format("{}/{}_{}.root", path, tag, i));
-  }
-  return file_names; // Returns the vector with files to be read by RDF
-}
-*/
-
 //***************
-//Main Analysis Code
+// Main Analysis Code
 //***************
 
 int main(int arc, char *argv[]) {
@@ -339,61 +278,54 @@ int main(int arc, char *argv[]) {
   using vec_string = std::vector<std::string>;
 
   const std::string file_path = argv[1];
-  // LYD const int file_numb = atoi(argv[3]);
-  // LYD const std::string file_tag = argv[2];
   const std::string output_dir = argv[2];
   const std::string output_filename = argv[3];
-  const std::string output_path = output_dir+"/"+output_filename;
-
+  const std::string output_path = output_dir + "/" + output_filename;
 
   ROOT::EnableImplicitMT();
 
   //*******************
-  //Importing Input File
+  // Importing Input File
   //*******************
 
-  // LYD RDataFrame frame("Delphes", files(file_path, file_numb, file_tag));
   RDataFrame frame("Delphes", file_path);
 
   //******************
-  //Run Intermediate Analysis
+  // Run Intermediate Analysis
   //******************
 
+  auto three_jets = frame.Filter(
+      one_b_large_two_b_small_cuts, {"Jet", "FatJet"},
+      u8"Intermediate analysis cuts"); // Apply Intermediate Events Filter
 
-  auto three_jets =
-      frame.Filter(one_b_large_two_b_small_cuts, {"Jet", "FatJet"},
-                   u8"Intermediate analysis cuts");  // Apply Intermediate Events Filter
+  auto reconstructed = three_jets.Define(
+      "event", reconstruct, {"Jet", "FatJet", "Event"}); // Reconstruct Events
 
-  auto reconstructed =
-      three_jets.Define("event", reconstruct, {"Jet", "FatJet", "Event"});  // Reconstruct Events
+  auto valid_evt = reconstructed.Filter(
+      valid_check, {"event"}, "valid events"); // Filter only valid Events
 
-  auto valid_evt = reconstructed.Filter(valid_check, {"event"}, "valid events"); // Filter only valid Events
-
-  auto signal_result = valid_evt.Filter(signal, {"event"}, "signal");  // Filter Signal Events
-/*  
-  auto control_result = valid_evt.Filter(  // Filter Events in the Control Region
-      [](const reconstructed_event &event) {
-        return control(event) && (!signal(event));
-      },
-      {"event"}, "control");
-
-  auto sideband_result = valid_evt.Filter(  // Filter Events in the Control Region
-      [](const reconstructed_event &event) {
-        return sideband(event) && !control(event);
-      },
-      {"event"}, "sideband");
-  */
-
+  auto signal_result =
+      valid_evt.Filter(signal, {"event"}, "signal"); // Filter Signal Events
+                                                     /*
+                                                       auto control_result = valid_evt.Filter(  // Filter Events in the Control
+                                                       Region
+                                                           [](const reconstructed_event &event) {
+                                                             return control(event) && (!signal(event));
+                                                           },
+                                                           {"event"}, "control");
+                                                   
+                                                       auto sideband_result = valid_evt.Filter(  // Filter Events in the Control
+                                                       Region
+                                                           [](const reconstructed_event &event) {
+                                                             return sideband(event) && !control(event);
+                                                           },
+                                                           {"event"}, "sideband");
+                                                       */
 
   //********************
-  //Writing Output Ntuple
+  // Writing Output Ntuple
   //*******************
- 
 
- 
-  // LYD std::string output_filename = "pheno_intermediate.root";
-
-  // LYD fmt::print("Writing to {}\n", output_filename);
   fmt::print("Writing to {}\n", output_path);
 
   auto start_events_proxy = frame.Count();
@@ -405,14 +337,13 @@ int main(int arc, char *argv[]) {
   TFile output_file(output_path.c_str(), "RECREATE");
 
   write_tree(signal_result, "signal", output_file);
-  //write_tree(control_result, "control", output_file);
-  //write_tree(sideband_result, "sideband", output_file);
+  // write_tree(control_result, "control", output_file);
+  // write_tree(sideband_result, "sideband", output_file);
 
   start_events_proxy.GetValue(); // For printing progress
-  
 
   //*********************
-  //Writing Cutflows
+  // Writing Cutflows
   //********************
   Cutflow intermediate_cutflow("Intermediate Cutflow", output_file);
   intermediate_cutflow.add(
@@ -422,8 +353,8 @@ int main(int arc, char *argv[]) {
   intermediate_cutflow.add(u8"(Valid) 1 large jet  and 2 small jets Tagged",
                            valid_evt.Count());
   intermediate_cutflow.add(u8"Signal", signal_result.Count());
- // intermediate_cutflow.add(u8"Control", control_result.Count());
- // intermediate_cutflow.add(u8"Sideband", sideband_result.Count());
+  // intermediate_cutflow.add(u8"Control", control_result.Count());
+  // intermediate_cutflow.add(u8"Sideband", sideband_result.Count());
   intermediate_cutflow.write();
 
   return 0;
