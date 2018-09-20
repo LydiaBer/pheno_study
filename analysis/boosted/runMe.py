@@ -10,7 +10,7 @@ import os
 ### User inputs
 
 FILE_LIST = "../filelists/alessandro_report.txt"
-OUT_DIR = os.getcwd().split("/boosted")[0]+"outputs/alessandro_report"
+OUT_DIR = os.getcwd().split("/boosted")[0]+"/outputs/alessandro_report"
 USE_BATCH = True
 
 ### End of user inputs
