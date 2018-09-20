@@ -1,44 +1,23 @@
-In this folder we have the main code for the Boosted Analysis
+# Boosted analysis code 
 
-I would suggest to source the following file in order to have any software need for this analysis :
+This code takes as input the ROOT files produced by delphes and slims them by applying the boosted analysis selection and reconstructing the Higgs candidates for the boosted analysis. 
 
-```$ source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh```
+The three main files are as follows: 
+1) ```boosted-recon.cpp``` : the file where the actual analysis take place.
+2) ```utils.h``` : the file where classes and utility functions used in the "boosted-recon.cpp" are defined and specified.
+3) ```Cutflow.cpp```: the file where the structure for the cutflow is defined.
 
-It is made of 3 files:
-1) ```boost-recon.cpp``` : the file where the actual analysis take place.
-2) ```utils.h``` : the file where classes and utility functions used in the "resolved-recon.cpp" are defined and specified.
-3) ```Cutflow.cpp```: the file where the structure for the Cutflow is determined.
+## Compiling and running the code
 
+In the ```pheno_study``` directory the ```setup.sh``` script should first be sourced before proceeding:
+```source setup.sh``` 
 
-I suggest to have the latest ROOT version running, which can be retrieved using the setup file and which at the moment of writing corresponds to ROOT 6.14. Otherwise there might be some issues  with the RDataframes production or when reading the output file.
+The boosted analysis code can then be compiled by running:
+```cd analysis/boosted```
+```source compileMe.sh```
 
-**MAIN SETTINGS**
+The code is run using commands such as ```./build/boosted-recon  input_file_path output_dir output_filename```. In practice the running of the code can be performed using the ```runMe.py``` script as follows: 
 
-The output file is called ```pheno_boosted.root``` and the name can be specified at the end of the ```boosted-recon.cpp``` file with ```std::string output_filename = "pheno_boosted.root";```.
+```python runMe.py```
 
-The input file is defined in the initialisation of the RDataframe in the main function as :
-
-```RDataFrame frame("Delphes", "/data/atlas/atlasdata/micheli/4b/Events/run_02/tag_1_delphes_events.root");```
-
-**TO COMPILE AND RUN THE CODE**
-
-You will need CMake running on your machine. Then inside the ```boosted``` folder, type:
-
-```
-$ rm -rf build; mkdir build; cd build
-```
-
-We made the folder ```build``` where CMake will output the ```pheno_boosted.root``` file. 
-In the ```build``` folder type,
-```
-$ cmake ..; make
-```
-
-If it compiles without error then you should be able to run
-
-```
-$ ./boosted-recon
-```
-This will generate the output file ```pheno_boosted.root``` in the ```build``` folder.
-
-
+In this script the user defines the file list containing the input files to be run over, the output directory to store the boosted analysis ROOT ntuples in and whether to run locally or on the Oxford batch system. One output boosted ROOT ntuple is produced for every input delphes ROOT file and is stored in the output directory defined by the user.  

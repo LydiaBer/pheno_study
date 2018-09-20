@@ -1,44 +1,23 @@
-In this folder we have the main code for the resolved Analysis
+# Resolved analysis code 
 
-I would suggest to source the following file in order to have any software need for this analysis :
+This code takes as input the ROOT files produced by delphes and slims them by applying the resolved analysis selection and reconstructing the Higgs candidates for the resolved analysis. 
 
-```source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh```
-
-It is made of 3 files:
+The three main files are as follows: 
 1) ```resolved-recon.cpp``` : the file where the actual analysis take place.
 2) ```utils.h``` : the file where classes and utility functions used in the "resolved-recon.cpp" are defined and specified.
-3) ```Cutflow.cpp```: the file where the structure for the Cutflow is determined.
+3) ```Cutflow.cpp```: the file where the structure for the cutflow is defined.
 
+## Compiling and running the code
 
-I suggest to have the latest ROOT version running, which can be retrieved using the setup file and which at the moment of writing corresponds to ROOT 6.14. Otherwise there might be some issues  with the RDataframes production or when reading the output file.
+In the ```pheno_study``` directory the ```setup.sh``` script should first be sourced before proceeding:
+```source setup.sh``` 
 
-**MAIN SETTINGS**
+The resolved analysis code can then be compiled by running:
+```cd analysis/resolved```
+```source compileMe.sh```
 
-The output file is called ```pheno_resolved.root``` and the name can be specified at the end of the ```resolved-recon.cpp``` file with ```std::string output_filename = "pheno_resolved.root";```.
+The code is run using commands such as ```./build/resolved-recon  input_file_path output_dir output_filename```. In practice the running of the code can be performed using the ```runMe.py``` script as follows: 
 
-The input file is defined in the initialisation of the RDataframe in the main function as :
+```python runMe.py```
 
-```RDataFrame frame("Delphes", "/data/atlas/atlasdata/micheli/4b/Events/run_02/tag_1_delphes_events.root");```
-
-**TO COMPILE AND RUN THE CODE**
-
-You will need CMake running on your machine. Then inside the ```resolved``` folder, type:
-
-```
-rm -rf build; mkdir build; cd build
-```
-
-We made the folder ```build``` where CMake will output the ```pheno_resolved.root``` file. 
-In the ```build``` folder type,
-```
-cmake ..; make
-```
-
-If it compiles without error then you should be able to run
-
-```
-./resolved-recon
-```
-This will generate the output file ```pheno_resolved.root``` in the ```build``` folder.
-
-
+In this script the user defines the file list containing the input files to be run over, the output directory to store the resolved analysis ROOT ntuples in and whether to run locally or on the Oxford batch system. One output resolved ROOT ntuple is produced for every input delphes ROOT file and is stored in the output directory defined by the user.  

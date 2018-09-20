@@ -154,48 +154,23 @@ bool sideband(const reconstructed_event &evt) {
                                        // fall in the window then accept
 }
 
-//************
-// Function to add multiple file
-//************
-std::vector<std::string>
-files(const std::string &path // Path to the input files
-      ,
-      const int &nfiles // Number of input files
-      ,
-      const std::string &tag) {
-  /**
-   * Function to import the input file
-   * The file should be in the same folder
-   * such that the input path is the same
-   */
-
-  std::vector<std::string>
-      file_names; // Vector including all files paths and addresses
-  for (int i = 0; i < nfiles; i++) {
-    file_names.push_back(fmt::format("{}/{}_{}.root", path, tag, i));
-  }
-  return file_names; // Returns the vector with files to be read by RDF
-}
-
 int main(int arc, char *argv[]) {
 
   std::ios::sync_with_stdio(false);
   using vec_string = std::vector<std::string>;
 
+  const std::string file_path = argv[1];
+  const std::string output_dir = argv[2];
+  const std::string output_filename = argv[3];
+  const std::string output_path = output_dir + "/" + output_filename;
+
   ROOT::EnableImplicitMT();
 
-  const std::string file_path = argv[1];
-  const std::string file_tag = argv[2];
-  const int file_numb = atoi(argv[3]);
   //********************
   // Importing Input file
   //********************
 
-  RDataFrame frame("Delphes",
-                   files(file_path, file_numb, file_tag)); // Input file for RDF
-
-  // To add 1 input file
-  // RDataFrame frame("Delphes","path/file.root");
+  RDataFrame frame("Delphes", file_path);
 
   //***********************
   // Boosted Analysis
@@ -228,24 +203,12 @@ int main(int arc, char *argv[]) {
   // Storing Output
   //********************
 
-  std::string output_filename = "pheno_boosted.root"; // Name Output File
+  fmt::print("Writing to {}\n", output_path);
 
-  fmt::print("Writing to {}\n", output_filename);
-
-  auto start_events_proxy = frame.Count();
-  start_events_proxy.OnPartialResult(
-      10000, [](const unsigned long long &num_events) {
-        fmt::print("Processed {} events\n", num_events);
-      });
-
-  TFile output_file(output_filename.c_str(), "RECREATE"); // Opening Ouput File
-  write_tree(signal_result, "signal", output_file); // Writing the Signal Tree
-  write_tree(control_result, "control",
-             output_file); // Writing the Control Tree
-  write_tree(sideband_result, "sideband",
-             output_file); // Writing the Sideband Tree
-
-  start_events_proxy.GetValue();
+  TFile output_file(output_path.c_str(), "RECREATE"); // Opening Ouput File
+  write_tree(signal_result, "signal", output_file);   // Writing the Signal Tree
+  write_tree(control_result, "control", output_file); // Writing the Control Tree
+  write_tree(sideband_result, "sideband", output_file); // Writing the Sideband Tree
 
   //**********************
   // Writing Cutflows
