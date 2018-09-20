@@ -1,5 +1,5 @@
-rm -rf build; mkdir build; cd build
 source ../../setup.sh
+rm -rf build; mkdir build; cd build
 cmake ..; make
 cd ..
 
