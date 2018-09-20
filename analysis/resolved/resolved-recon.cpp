@@ -126,7 +126,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet> &jet,
       std::swap(higgs1_2, higgs2_2);
     }
 
-    pair_candidates.push_back(std::make_pair(higgs(higgs1, higgs1_1, higgs1_2), higgs(higgs2, higgs2_1, higgs2_2)));
+    pair_candidates.push_back(std::make_pair(
         higgs(higgs1, higgs1_1, higgs1_2), higgs(higgs2, higgs2_1, higgs2_2)));
   }
 
@@ -269,18 +269,9 @@ int main(int argc, char *argv[]) {
   //*************************
 
   fmt::print("Writing to {}\n", output_path);
-  // To print progress
-  auto start_events_proxy = frame.Count();
-  start_events_proxy.OnPartialResult(
-      1000, [](const unsigned long long &num_events) {
-        fmt::print("Processed {} events\n", num_events);
-      });
 
   TFile output_file(output_path.c_str(), "RECREATE");
   write_tree(signal_result, "signal", output_file);
-
-  start_events_proxy.GetValue(); // For printing progress
-
   write_tree(control_result, "control", output_file);
   write_tree(sideband_result, "sideband", output_file);
 

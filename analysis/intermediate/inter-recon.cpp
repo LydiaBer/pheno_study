@@ -328,19 +328,11 @@ int main(int arc, char *argv[]) {
 
   fmt::print("Writing to {}\n", output_path);
 
-  auto start_events_proxy = frame.Count();
-  start_events_proxy.OnPartialResult(
-      10000, [](const unsigned long long &num_events) {
-        fmt::print("Processed {} events\n", num_events);
-      });
-
   TFile output_file(output_path.c_str(), "RECREATE");
 
   write_tree(signal_result, "signal", output_file);
   // write_tree(control_result, "control", output_file);
   // write_tree(sideband_result, "sideband", output_file);
-
-  start_events_proxy.GetValue(); // For printing progress
 
   //*********************
   // Writing Cutflows
