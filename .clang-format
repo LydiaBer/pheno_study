@@ -1,0 +1,49 @@
+Language:        Cpp
+BasedOnStyle:  LLVM
+AccessModifierOffset: -2
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlinesLeft: false
+AlignOperands:   true
+AlignTrailingComments: true
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+BreakBeforeTernaryOperators: true
+ColumnLimit:     100 
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 6
+ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH, RANGES_FOR ]
+IncludeCategories: 
+  - Regex:           '^"'
+    Priority:        2
+  - Regex:           '^<.*\.h>'
+    Priority:        3
+  - Regex:           '^<.*\.hpp>'
+    Priority:        4
+  - Regex:           '^<boost/[^.]*>'
+    Priority:        5
+  - Regex:           '^<[^.]*>'
+    Priority:        6
+IndentWidth:     4
+PointerAlignment: Left
+ReflowComments:  true
+SortIncludes:    true
+Standard:        Cpp11
+TabWidth:        4
+UseTab:          Never
+
