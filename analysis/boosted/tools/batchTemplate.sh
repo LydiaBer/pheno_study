@@ -8,7 +8,6 @@
 echo "Setting up"
 cd $CODEDIR
 source ../../setup.sh
-#source /cvmfs/sft.cern.ch/lcg/views/dev4/latest/x86_64-slc6-gcc7-opt/setup.sh
 
 # Run
 echo "Running: "
