@@ -9,8 +9,8 @@ import os
 
 ### User inputs
 
-FILE_LIST = "../filelists/alessandro_report.txt"
-OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/alessandro_report"
+FILE_LIST = "../filelists/2018sep13_all_merged_delphes.txt"
+OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/2018sep13_all_merged_delphes"
 USE_BATCH = True
 
 ### End of user inputs
@@ -33,7 +33,7 @@ with open(FILE_LIST, 'r') as filehandle:
         if len(line.strip()) == 0: continue
         output_dir = OUT_DIR
         output_filename = "intermediate_"+file_path.split("/")[-1] # output name = intermediate_inputname 
-        command =  "./build/inter-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
+        command =  "./build/intermediate-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
 
         if USE_BATCH:
             batch_script = os.getcwd()+"/tools/batchTemplate.sh"
