@@ -9,8 +9,8 @@ import os
 
 ### User inputs
 
-FILE_LIST = "../filelists/alessandro_report.txt"
-OUT_DIR = os.getcwd().split("/resolved")[0]+"/outputs/alessandro_report"
+FILE_LIST = "../filelists/2018sep13_all_merged_delphes.txt"
+OUT_DIR = os.getcwd().split("/resolved")[0]+"/outputs/2018sep13_all_merged_delphes"
 USE_BATCH = True
 
 ### End of user inputs
