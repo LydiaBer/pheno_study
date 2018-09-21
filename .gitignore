@@ -1,0 +1,16 @@
+*.so
+delphes/CaloGrid
+delphes/*.pcm
+delphes/DelphesHepMC
+delphes/DelphesLHEF
+delphes/DelphesROOT
+delphes/DelphesSTDHEP
+delphes/DelphesValidation
+delphes/Example1
+delphes/hepmc2pileup
+delphes/lhco2root
+delphes/pileup2root
+delphes/root2lhco
+delphes/root2pileup
+delphes/stdhep2pileup
+delphes/tmp/
