@@ -5,7 +5,7 @@ project(boosted-recon)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(ROOT REQUIRED COMPONENTS ROOTDataFrame XMLParser ROOTVecOps )
 find_package(Delphes)
-add_definitions(-Wfatal-errors)
+add_definitions(-Wfatal-errors -Wall -Wextra)
 
 include(${ROOT_USE_FILE})
 include_directories(BEFORE include ${DELPHES_INCLUDE_DIRS})
