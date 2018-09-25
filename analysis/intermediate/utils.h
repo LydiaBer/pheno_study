@@ -99,6 +99,20 @@ inline JetPair make_pair(OxJet& jet1, OxJet& jet2) {
     return JetPair(m_1, m_2, j_1, j_2);
 }
 
+// Function to check angular distance between
+// large R jet and small R jet
+double deltaR(OxJet& jet1, OxJet& jet2) {
+    using namespace std;
+
+    double deta = jet1.p4.Eta() - jet2.p4.Eta();
+    double dphi = fabs(jet1.p4.Phi() - jet2.p4.Phi());
+    while(dphi > TMath::TwoPi()) dphi -= TMath::TwoPi();
+    if(dphi > TMath::Pi()) dphi = TMath::TwoPi() - dphi;
+
+    return sqrt(deta*deta + dphi*dphi);
+}
+
+// Reconstructed event in the intermediate regime
 // Reconstructed event information
 struct reconstructed_event {
     bool valid;           ///< Is event valid

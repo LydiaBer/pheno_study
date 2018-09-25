@@ -17,6 +17,7 @@
 #include <TH1I.h>
 #include <TROOT.h>
 #include <TTree.h>
+#include <TMath.h>
 #include <ROOT/RDataFrame.hxx>
 #include <ROOT/RVec.hxx>
 
@@ -35,56 +36,22 @@ constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
 bool one_b_large_two_b_small_cuts(VecOps::RVec<Jet>& jets, VecOps::RVec<Jet>& fatjets) {
 
-    int count_small = 0;
     int b_count_small = 0; // Counting b tagged small-R jets
-    int count_fat = 0;
     int b_count_fat = 0; // Counting b tagged large-R jets
-    bool fat_jet = false;
-    bool small_jet = false;
 
     // Filter small R jets with 2 pT>40 and |eta|< 2.5 & btagged
     for (auto&& j : jets) {
-        if (j.PT >= 40. * GeV and std::abs(j.Eta) < 2.5) {
-            count_small++;
-            if (j.BTag) b_count_small++;
-        }
+        if (j.PT >= 40.*GeV && fabs(j.Eta) < 2.5 && j.BTag) b_count_small++;
     }
 
-    if (count_small >= 2 and b_count_small >= 2) small_jet = true;
-
-    // Filter large R jet 1 pT>200 and |eta|<2. & btagged  for (auto &&j :
-    // fatjets) {
+    // Filter large R jet 1 pT>200 and |eta|<2. & btagged
     for (auto&& j : fatjets) {
-        if (j.PT >= 200. * GeV and std::abs(j.Eta) < 2.0) {
-            count_fat++;
-            if (j.BTag) b_count_fat++;
-        }
-    }
-    if (count_fat >= 1 and b_count_fat == 1) {
-        fat_jet = true;
+        if (j.PT >= 200.*GeV && fabs(j.Eta) < 2.0 && j.BTag) b_count_fat++;
     }
 
-    if (fat_jet && small_jet) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return b_count_small >= 2 && b_count_fat == 1;
 }
 
-// Function to check angular distance between
-// large R jet and small R jet
-
-double deltaR(OxJet& jet1, OxJet& jet2) {
-    using namespace std;
-
-    double dphi = jet1.p4.Phi() - jet2.p4.Phi();
-    double deta = jet1.p4.Eta() - jet2.p4.Eta();
-
-    double dR = sqrt(pow(dphi, 2.) + pow(deta, 2.));
-}
-
-// Reconstructed event in the intermediate regime
 reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, VecOps::RVec<Jet>& largejet,
                                 VecOps::RVec<HepMCEvent>& evt) {
     reconstructed_event result{};
@@ -160,9 +127,8 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, VecOps::RVec<Jet>& 
     std::vector<OxJet> bjets_separated;
     std::vector<OxJet> bjets_notseparated;
     for (auto&& j : small_jets) {
-        if (deltaR(large_jet, j) < 1.2) continue;
         if (deltaR(large_jet, j) > 1.2) bjets_separated.push_back(j);
-        if (!(deltaR(large_jet, j) > 1.2)) bjets_notseparated.push_back(j);
+        else bjets_notseparated.push_back(j);
     }
 
     if (bjets_separated.size() < 2) {
@@ -227,32 +193,23 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, VecOps::RVec<Jet>& 
 bool valid_check(const reconstructed_event& evt) { return evt.valid; }
 
 bool signal(const reconstructed_event& evt) {
-    double m_h1 = evt.higgs1.p4.M();
-    double m_h2 = evt.higgs2.p4.M();
-
     // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 40.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 40.) ? true : false;
+    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 40.);
+    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 40.);
     return (higgs1_flag && higgs2_flag);
 }
 
 bool control(const reconstructed_event& evt) {
-    double m_h1 = evt.higgs1.p4.M();
-    double m_h2 = evt.higgs2.p4.M();
-
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 45.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 45.) ? true : false;
+    // Cut in a mass window of 90 GeV around 125 GeV for both Higgs
+    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 45.);
+    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 45.);
     return (higgs1_flag && higgs2_flag);
 }
 
 bool sideband(const reconstructed_event& evt) {
-    double m_h1 = evt.higgs1.p4.M();
-    double m_h2 = evt.higgs2.p4.M();
-
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
+    // Cut in a mass window of 100 GeV around 125 GeV for both Higgs
+    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.);
+    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.);
     return (higgs1_flag && higgs2_flag);
 }
 
@@ -261,6 +218,11 @@ bool sideband(const reconstructed_event& evt) {
 //***************
 
 int main(int arc, char* argv[]) {
+
+    if(argc < 4){
+      fprintf(stderr, "Not enough arguments provided! Need input filepath, output dir, and output filename.\n");
+      return 1;
+    }
 
     std::ios::sync_with_stdio(false);
     using vec_string = std::vector<std::string>;
