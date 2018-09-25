@@ -217,7 +217,7 @@ bool sideband(const reconstructed_event& evt) {
 // Main Analysis Code
 //***************
 
-int main(int arc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
     if(argc < 4){
       fprintf(stderr, "Not enough arguments provided! Need input filepath, output dir, and output filename.\n");
@@ -225,7 +225,6 @@ int main(int arc, char* argv[]) {
     }
 
     std::ios::sync_with_stdio(false);
-    using vec_string = std::vector<std::string>;
 
     const std::string file_path = argv[1];
     const std::string output_dir = argv[2];

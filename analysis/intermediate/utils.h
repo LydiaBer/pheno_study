@@ -3,6 +3,9 @@
 //
 //
 
+#ifndef INTERMEDIATE_ANALYSIS_UTILS_H
+#define INTERMEDIATE_ANALYSIS_UTILS_H
+
 #pragma once
 #include <array>
 #include <cmath>
@@ -101,7 +104,7 @@ inline JetPair make_pair(OxJet& jet1, OxJet& jet2) {
 
 // Function to check angular distance between
 // large R jet and small R jet
-double deltaR(OxJet& jet1, OxJet& jet2) {
+inline double deltaR(OxJet& jet1, OxJet& jet2) {
     using namespace std;
 
     double deta = jet1.p4.Eta() - jet2.p4.Eta();
@@ -323,3 +326,5 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     signal_tree->Write("", TObject::kOverwrite);
     fmt::print("\n");
 }
+
+#endif

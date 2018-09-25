@@ -19,7 +19,7 @@ ULong64_t Cutflow::get(const std::string& label) {
 void Cutflow::write() {
     TH1I cutflow(name.c_str(), name.c_str(), labels.size(), 0, labels.size() + 1);
     cutflow.SetDirectory(file);
-    for (int i = 1; i <= labels.size(); ++i) {
+    for (unsigned int i = 1; i <= labels.size(); ++i) {
         cutflow.GetXaxis()->SetBinLabel(i, labels[i - 1].c_str());
         cutflow.SetBinContent(i, values[i - 1].GetValue());
     }

@@ -1,4 +1,5 @@
 *.so
+analysis/*/build/
 delphes/CaloGrid
 delphes/*.pcm
 delphes/DelphesHepMC
