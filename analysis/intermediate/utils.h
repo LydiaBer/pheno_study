@@ -3,6 +3,9 @@
 //
 //
 
+#ifndef INTERMEDIATE_ANALYSIS_UTILS_H
+#define INTERMEDIATE_ANALYSIS_UTILS_H
+
 #pragma once
 #include <array>
 #include <cmath>
@@ -99,6 +102,20 @@ inline JetPair make_pair(OxJet& jet1, OxJet& jet2) {
     return JetPair(m_1, m_2, j_1, j_2);
 }
 
+// Function to check angular distance between
+// large R jet and small R jet
+inline double deltaR(OxJet& jet1, OxJet& jet2) {
+    using namespace std;
+
+    double deta = jet1.p4.Eta() - jet2.p4.Eta();
+    double dphi = fabs(jet1.p4.Phi() - jet2.p4.Phi());
+    while(dphi > TMath::TwoPi()) dphi -= TMath::TwoPi();
+    if(dphi > TMath::Pi()) dphi = TMath::TwoPi() - dphi;
+
+    return sqrt(deta*deta + dphi*dphi);
+}
+
+// Reconstructed event in the intermediate regime
 // Reconstructed event information
 struct reconstructed_event {
     bool valid;           ///< Is event valid
@@ -309,3 +326,5 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     signal_tree->Write("", TObject::kOverwrite);
     fmt::print("\n");
 }
+
+#endif

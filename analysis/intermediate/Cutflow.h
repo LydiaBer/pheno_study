@@ -14,9 +14,9 @@ class Cutflow {
 
   public:
     Cutflow() = default;
-    Cutflow(const std::string& name /**< [in] Cutflow (and TH1) name*/,
-            TFile& file /**< [out] File to save to*/)
-        : file(&file), name(name), labels(), values() {}
+    Cutflow(const std::string& cutflowName /**< [in] Cutflow (and TH1) name*/,
+            TFile& outFile /**< [out] File to save to*/)
+        : name(cutflowName), labels(), values(), file(&outFile) {}
 
     /// Add entry to cutflow
     inline void add(const std::string& label, CountProxy&& value) {
@@ -31,8 +31,8 @@ class Cutflow {
     void write();
 
   private:
+    const std::string name;
     std::vector<std::string> labels;
     std::vector<CountProxy> values;
     TFile* file;
-    const std::string name;
 };
