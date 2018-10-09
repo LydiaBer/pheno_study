@@ -8,7 +8,7 @@ __analysis__ folder containing code for the __resolved__, __intermediate__ and _
 
 __tagger__ folder containing code for the advanced B-tagger for the boosted channel -> *To be integrated to the main boosted code*
 
-__utilities__ folder containing other code e.g. C++ code which can be used to make histograms of the final results, ```python_hepmc_new.py``` which can be used to split large hepmc files in smaller sized files -> *In process of switching to new python based plotting framework*
+__utilities__ folder containing other code e.g. C++ code which can be used to make histograms, ```python_hepmc_new.py``` which can be used to split large hepmc files in smaller sized files. Not needed currently.  
 
 ## Download code
 ```git clone https://github.com/LydiaBer/pheno_study.git```
