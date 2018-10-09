@@ -4,6 +4,7 @@
 Welcome to plot.py
 
 Plotting script from Jesse Liu modified for HH4b pheno
+
 From: /data/atlas/atlasdata/jesseliu/atlas/susy/compressed_ew/atlas-susy-ew/various_higgsinofitter/r21/v2_3/HiggsinoFitter/plotting
 and /home/jesseliu/pheno/fcc/PhenoSim/analyse/conventional/hh4b/plotting
 
@@ -358,9 +359,6 @@ def calc_selections(var, dir, analysis, d_slicing_weight, d_matching_weight, lum
   # Dicitonary for histograms and its significance plots
   # in format {samp_name : histogram}
   d_hsig = {}
-  
-  # obtain direction of cut  
-  cut_dir = d_vars[var]['cut_dir'] 
   
   # calculate significances for signals only
   for samp in l_samp:
