@@ -21,3 +21,5 @@ The code is run using commands such as ```./build/resolved-recon  input_file_pat
 ```python runMe.py```
 
 In this script the user defines the file list containing the input files to be run over, the output directory to store the resolved analysis ROOT ntuples in and whether to run locally or on the Oxford batch system. One output resolved ROOT ntuple is produced for every input delphes ROOT file and is stored in the output directory defined by the user.  
+
+To plot your results please read the ```README``` file in the ```plotting``` directory one level up in the ```analysis``` directory. 

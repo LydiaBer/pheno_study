@@ -10,7 +10,7 @@ import os
 ### User inputs
 
 FILE_LIST = "../filelists/2018sep13_all_merged_delphes.txt"
-OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/2018sep13_all_merged_delphes"
+OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/2018sep13"
 USE_BATCH = True
 
 ### End of user inputs
@@ -32,7 +32,8 @@ with open(FILE_LIST, 'r') as filehandle:
         # skip if empty line
         if len(line.strip()) == 0: continue
         output_dir = OUT_DIR
-        output_filename = "intermediate_"+file_path.split("/")[-1] # output name = intermediate_inputname 
+        # make short output filename of form intermediate_genfiltercut_hh.root
+        output_filename = "intermediate_"+file_path.split("/")[-1].split("_")[-2]+"_"+file_path.split("/")[-1].split("_")[-1].replace("sm","hh")         
         command =  "./build/intermediate-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
 
         if USE_BATCH:

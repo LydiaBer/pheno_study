@@ -13,12 +13,12 @@
 
 # 4b bkg split into 50k chunks
 
-#/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_0.root
-#/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_1.root
-#/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_2.root
-#/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_3.root
-#/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_4.root
-#/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_5.root
+/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_0.root
+/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_1.root
+/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_2.root
+/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_3.root
+/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_4.root
+/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/4b/4b_5.root
 
 # ttbar bkg split into 50k chunks
 #/data/atlas/atlasdata/beresford/micheli/datadisk/micheli/validation/delphes/background_beojan/ttbar/ttbar_0.root
