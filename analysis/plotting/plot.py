@@ -35,10 +35,13 @@ from beautify   import *
 
 #--------------------------------------------------
 #
-# Global settings
+# TODO matching dictionary temporary until we make new ntuples with low pT filter instead of matching, currently using same matching xsec ratio for pT filtered, should be checked if correct 
+# TODO implement auto cross-check of number of events for slicing dictionary to ensure this is kept up to date EXIT on mis-match!
 # TODO Could add back in cutflow part incl add_cut or needed in previous stage as have cuts affecting many jets, cut arrow, N-1
-# TODO Could add back in significance scan 
-# TODO FIXME label e.g. masscut
+# TODO Could add back in significance scan
+# TODO Could loop over signal region, control region etc. 
+
+# Global settings
 
 # Labels
 GROUP_status = '#bf{#it{Pheno4b}} Internal'
@@ -58,35 +61,51 @@ def main():
   
   #================================================
   # user set values
-  l_var     = 'm_hh/(pT_h1)'
-  #var     = 'pT_h1'
-  cut_sel = 'masscut' # corresponds to set of cuts in cuts.py 
-  sig_reg = 'signal' # Gets specific region from input ROOT file 
-  lumi    =  3000.0
+  dir = '2018sep13' # directory input files to plot are in
+
+  l_vars     = ['m_hh','m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2']
+  l_analyses = ['resolved']#, 'intermediate_noGenFilt', 'intermediate'] # corresponds to sets of files in samples.py choice from resolved, boosted, intermediate 
+  sig_reg = 'signal' # gets specific region from input ROOT file
+  cut_sel = '' # corresponds to set of cuts in cuts.py 
+  lumi    =  3000.0 
   savedir = 'figs'
 
-  IsLogY   = False
-  annotate_text = 'MC Pileup 0'
+  IsLogY   = True
+  annotate_text = 'MC Pileup 0, No k-factors'
 
   # Slicing weight (weight down by number of slices run over)
+  # Don't include resolved, intermediate, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
-               'resolved_loop_hh' : 100000./50000.,
-               'resolved_noGenFilt_2b2j' : 1200000./50000.,
-               'resolved_noGenFilt_4b' : 1200000./50000.,
-               'resolved_noGenFilt_4j' :  1200000./50000.,
+               'loop_hh' : 100000./50000.,
+               'noGenFilt_4b' : 1200000./50000.,
+               'noGenFilt_2b2j' : 1200000./50000.,
+               'noGenFilt_4j' :  1200000./50000.,
+               'noGenFilt_ttbar' : 1200000./50000.,
+               'xptb200_4b' : 1200000./50000.,
+               'xptb200_2b2j' : 1200000./50000.,
+               'xptj200_4j' : 1200000./50000.,
   }
 
   # Matching weight (Delphes saves unmatched xsec not matched xsec which is lower)
   # For now weight down 4j and 2b2j by ratio of matched xsec/non matched xsec (using xsec from single 50k slice as proxy for all slices)
   # In future can reproduce samples with explicit pT filter cut (increase stats) and xqcut removed then this step will not be necessary
+  # Set to 1 for all other samples 
+
   # xsecs for ratios taken from: 
   # /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/pp2jjjj/01/Events/pp_1/pp_1_tag_1_banner.txt
   # /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/pp2bbjj/01/Events/pp_1/pp_1_tag_1_banner.txt
+
   d_matching_weight = {
-               'resolved_loop_hh' : 1.,
-               'resolved_noGenFilt_4b' : 1.,
-               'resolved_noGenFilt_4j' : 106811.992819/887124.3069,
-               'resolved_noGenFilt_2b2j' : 38165.8048156/116266.19204,
+               'noGenFilt_4j' : 106811.992819/887124.3069,
+               'noGenFilt_2b2j' : 38165.8048156/116266.19204,
+               'loop_hh' : 1.,
+               'noGenFilt_4b' : 1.,
+               'noGenFilt_ttbar' : 1.,
+               'xptb200_4b' : 1.,
+               'xptj200_4j' : 106811.992819/887124.3069,
+               'xptb200_2b2j' : 38165.8048156/116266.19204,
+               'xptb200_2b2j' : 1.,
+               'xptj200_4j' : 1.,
 }
 
   #================================================
@@ -94,46 +113,56 @@ def main():
   # -------------------------------------------------------------
   # Argument parser
   parser = argparse.ArgumentParser(description='Analyse background/signal TTrees and make plots.')
-  parser.add_argument('-v', '--variable',  type=str, nargs='?', help='String name for the variable (as appearing in the TTree) to make N-1 in.', default=var)
-  parser.add_argument('-s', '--sigReg',    type=str, nargs='?', help='String name of selection (signal/control) region to perform N-1 selection.', default=cut_sel)
   parser.add_argument('-l', '--lumi',      type=str, nargs='?', help='Float of integrated luminosity to normalise MC to.', default=lumi)
   parser.add_argument('-n', '--noLogY',  action='store_true', help='Do not draw log Y axis.')
  
   args = parser.parse_args()
-  if args.variable:
-    var = args.variable
-  if args.sigReg:
-    cut_sel = args.sigReg
   if args.lumi:
     lumi = args.lumi
   if args.noLogY:
     IsLogY = False
   
   # -------------------------------------------------------------
+  # --------------
+  # LOOP over list of analyses l_analyses
+  # --------------
   
-  # Convert maths characters in variables to valid file names
-  save_var = var
-  if '/' in var:
-    save_var = var.replace('/', 'Over', 1)
-  if '(' in var:
-    save_var = save_var.replace('(', '', 1)
-  if ')' in var:
-    save_var = save_var.replace(')', '', 1)
+  for analysis in l_analyses:
   
-  print( '--------------------------------------------' )
-  print( '\nWelcome to plot.py\n' )
-  print( 'Plotting variable: {0}'.format(var) )
-  print( 'Selection region: {0}'.format(cut_sel) )
-  print( 'Normalising luminosity: {0}'.format(lumi) )
-  print( '\n--------------------------------------------\n' )
+    # --------------
+    # LOOP over list of variables l_var
+    # --------------
   
-  mkdir(savedir)  
-  save_name = savedir + '/hist1d_{0}_{1}'.format(save_var, cut_sel)
-  if not IsLogY: save_name += '_noLogY'
-  print_lumi = lumi # [1/fb]
-  print('Lumi to print: {0}'.format(print_lumi))
+    for var in l_vars:
+      # Convert maths characters in variables to valid file names
+      save_var = var
+      if '/' in var:
+        save_var = var.replace('/', 'Over', 1)
+      if '(' in var:
+        save_var = save_var.replace('(', '', 1)
+      if ')' in var:
+        save_var = save_var.replace(')', '', 1)
+      
+      print( '--------------------------------------------' )
+      print( '\nWelcome to plot.py\n' )
+      print( 'Plotting variable: {0}'.format(var) )
+      print( 'Selection region: {0}'.format(cut_sel) )
+      print( 'Normalising luminosity: {0}'.format(lumi) )
+      print( '\n--------------------------------------------\n' )
+      
+      mkdir(savedir) 
 
-  calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
+      if cut_sel is '': 
+        save_name = savedir + '/{0}_hist1d_{1}'.format(analysis, save_var)
+      else:
+        save_name = savedir + '/{0}_hist1d_{1}_{2}'.format(analysis, save_var, cut_sel)
+ 
+      if not IsLogY: save_name += '_noLogY'
+
+      print_lumi = lumi # [1/fb]
+      print('Lumi to print: {0}'.format(print_lumi))
+    
+      calc_selections(var, dir, analysis, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
 
   tfinish = time.time()
   telapse = tfinish - t0
@@ -144,7 +173,7 @@ def main():
   print('--------------------------------------------------')
 
 #____________________________________________________________________________
-def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, l_print_cuts=[]):
+def calc_selections(var, dir, analysis, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, l_print_cuts=[]):
   '''
   Extract trees given a relevant variable
   '''
@@ -156,10 +185,10 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
   #----------------------------------------------------
   #
   # Get the sample paths from samples.py
-  bkg_path, sig_path, bkg_suffix, sig_suffix = get_sample_paths()
+  bkg_path, sig_path, bkg_suffix, sig_suffix = get_sample_paths(dir)
   #
   # Get samples to plot from samples.py
-  l_samp_bkg, l_sampOther = get_samples_to_plot()
+  l_samp_bkg, l_sampOther = get_samples_to_plot(analysis)
   #
   # Get dictionary defining sample properties from samples.py
   d_samp = configure_samples()
@@ -199,8 +228,6 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
   # Initialise stacked background  
   hs = THStack('','')
   hs_bkg_frac  = THStack('','') # Another stack normalised so displays fraction of processes
-  hs_intgl_low = THStack('','') # lower cut integral (for significance cut)
-  hs_intgl_upp = THStack('','') # upper cut integral (for significance cut)
  
   # Initialise objects to fill in loop 
   d_files = {}
@@ -247,8 +274,13 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
 
     # assign TFile to a dictionary entry
     d_files[samp] = TFile(full_path)
+   
+    # Get sample part of name for use in d_slicing_weight and d_matching_weight
+    # i.e. remove resolved_, intermediate_ or boosted_ from name
+    l_samp_split = samp.split("_")[1:]
+    no_ana_name_samp = '_'.join(l_samp_split)
     # Get TH1F histogram from the TTree in the TFile and store to dictionary entry
-    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[samp], d_matching_weight[samp], samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
+    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_matching_weight[no_ana_name_samp], samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
 
     # ---------------------------------------------------- 
     # Stacked histogram: construct and format
@@ -256,10 +288,8 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
     # extract key outputs of histogram 
     hist        = d_hists[samp][0]
     nYield      = d_hists[samp][1]
-    h_intgl_low = d_hists[samp][2]
-    h_intgl_upp = d_hists[samp][3]
-    nYieldErr   = d_hists[samp][4]
-    nRaw        = d_hists[samp][5]
+    nYieldErr   = d_hists[samp][2]
+    nRaw        = d_hists[samp][3]
     
     # samp : nYield number of events for each sample
     d_yield[samp]    = nYield
@@ -269,8 +299,6 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
     # add background to stacked histograms
     if sample_type == 'bkg':
       hs.Add(hist)
-      hs_intgl_low.Add(h_intgl_low)
-      hs_intgl_upp.Add(h_intgl_upp)
       
       format_hist(hist, 1, 0, 1, f_color, 1001, 0)
       nTotBkg  += nYield
@@ -294,11 +322,11 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
   # ----------------------------------------------------------------- 
   # legend for bkg, signals and total bkg yield
   # ----------------------------------------------------------------- 
-  leg = mk_leg(0.57, 0.6, 0.88, 0.7, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  leg = mk_leg(0.57, 0.6, 0.88, 0.68, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
   # legend with breakdown of background by sample
   d_bkg_leg = {}
   l_bkg_leg = ['samp1']
-  d_bkg_leg['samp1'] = mk_leg(0.57, 0.7, 0.88, 0.85, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  d_bkg_leg['samp1'] = mk_leg(0.57, 0.68, 0.88, 0.83, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
 
   print('==============================================')
   
@@ -330,8 +358,6 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
   # Dicitonary for histograms and its significance plots
   # in format {samp_name : histogram}
   d_hsig = {}
-  d_hsigZ20 = {}
-  d_hsigZ05 = {}
   
   # obtain direction of cut  
   cut_dir = d_vars[var]['cut_dir'] 
@@ -341,21 +367,10 @@ def calc_selections(var, d_slicing_weight, d_matching_weight, lumi, save_name, s
     sample_type = d_samp[samp]['type']
     if sample_type == 'sig':
       d_hsig[samp] = d_hists[samp][0]
-      h_signal_low = d_hists[samp][2]
-      h_signal_upp = d_hists[samp][3]
-      # significance based on cutting to left (veto right)
-      if 'left' in cut_dir:
-        d_hsigZ20[samp] = mk_sigZ_plot(h_signal_low, hs_intgl_low, 20, hNbins, hXmin, hXmax)
-        d_hsigZ05[samp] = mk_sigZ_plot(h_signal_low, hs_intgl_low, 05, hNbins, hXmin, hXmax)
-         
-      # significance based on cutting to right (veto left)
-      if 'right' in cut_dir:
-        d_hsigZ20[samp] = mk_sigZ_plot(h_signal_upp, hs_intgl_upp, 20, hNbins, hXmin, hXmax)
-        d_hsigZ05[samp] = mk_sigZ_plot(h_signal_upp, hs_intgl_upp, 05, hNbins, hXmin, hXmax)
   
   # ----------------------------------------------------------------- 
   # Proceed to plot
-  plot_selections(var, hs, d_hsig, h_mcErr, d_hsigZ05, d_hsigZ20, leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter
+  plot_selections(var, hs, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, analysis, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter
 , annotate_text ,variable_bin, l_cuts, print_lumi, IsLogY)
   # ----------------------------------------------------------------- 
   
@@ -382,7 +397,10 @@ def tree_get_th1f(f, slicing_weight, matching_weight, hname, var, sig_reg, cutsA
     my_weight = 100000.0
 
   mc_weight = "mc_sf"
-  cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(cutsAfter, mc_weight, lumi, my_weight, matching_weight, slicing_weight) 
+  if cutsAfter is '':
+    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) / ({4}))'.format(mc_weight, lumi, my_weight, matching_weight, slicing_weight) 
+  else:
+    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(cutsAfter, mc_weight, lumi, my_weight, matching_weight, slicing_weight) 
   
   print('---------------------------------')
   print('Final weighted cut string: ')
@@ -400,8 +418,6 @@ def tree_get_th1f(f, slicing_weight, matching_weight, hname, var, sig_reg, cutsA
   nYieldErr = ROOT.Double(0)
   nYield    = h_AfterCut.IntegralAndError(0, Nbins+1, nYieldErr)
 
-  h_intgl_lower = TH1D(hname + '_intgl_lower', "", Nbins, xmin, xmax)
-  h_intgl_upper = TH1D(hname + '_intgl_upper', "", Nbins, xmin, xmax)
   
   for my_bin in range( h_AfterCut.GetXaxis().GetNbins() + 1 ):
     
@@ -414,22 +430,15 @@ def tree_get_th1f(f, slicing_weight, matching_weight, hname, var, sig_reg, cutsA
       print( 'WARNING: Bin {0} of sample {1} has negative entry, setting central value to 0.'.format(my_bin, hname) )
       h_AfterCut.SetBinContent(my_bin, 0.)
     
-    # do one-sided integral either side of bin
-    intgl_lower = h_AfterCut.Integral( 0, my_bin ) 
-    intgl_upper = h_AfterCut.Integral( my_bin, Nbins+1 ) 
-    
-    h_intgl_lower.Fill( bin_low, intgl_lower )
-    h_intgl_upper.Fill( bin_low, intgl_upper )
-  
   nRaw = h_AfterCut.GetEntries()
   print( 'hist.IntegralAndError() : sample {0} has integral {1:.3f} +/- {2:.3f}'.format( hname, nYield, nYieldErr ) )
   # =========================================================
   
-  return [h_AfterCut, nYield, h_intgl_lower, h_intgl_upper, nYieldErr, nRaw]
+  return [h_AfterCut, nYield, nYieldErr, nRaw]
 
 
 #____________________________________________________________________________
-def plot_selections(var, h_bkg, d_hsig, h_mcErr, d_hsigZ05, d_hsigZ20 , leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter, annotate_text, variable_bin, l_cuts, print_lumi, IsLogY=True):
+def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, analysis, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter, annotate_text, variable_bin, l_cuts, print_lumi, IsLogY=True):
   '''
   plots the variable var given input THStack h_bkg, one signal histogram and legend built
   makes a dat / bkg panel in lower part of figure
@@ -509,24 +518,10 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, d_hsigZ05, d_hsigZ20 , leg, l_b
   customise_axes(h_bkg, xtitle, ytitle, 1.5, IsLogY, enlargeYaxis)
   
   # Add text e.g. ATLAS Label, sqrt{s}, lumi to plot
-  add_text_to_plot(sig_reg, cut_sel, lumi, l_cuts, annotate_text, print_lumi)
+  add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, print_lumi)
 
   gPad.RedrawAxis() 
   
-  #---------------------------------------------------------------
-  # Pad 2: lower panel for data/SM or significance
-  #---------------------------------------------------------------
-  
-  #can.cd()
-  #pad2.Draw()
-  #pad2.cd()
-  #customise_gPad(top=0.05, bot=0.39, left=gpLeft, right=gpRight)
-  #
-  #
-  ## SRs draw significance scans, CRs draw  
-  #cut_dir = d_vars[var]['cut_dir']
-  #draw_sig_scan(l_sig, d_hsigZ20, cut_dir, xtitle, hXmin, hXmax) 
-  #gPad.RedrawAxis() 
 
   #==========================================================
   # save everything
@@ -536,7 +531,7 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, d_hsigZ05, d_hsigZ20 , leg, l_b
   can.Close()
   
 #____________________________________________________________________________
-def add_text_to_plot(sig_reg, cut_sel, lumi, l_cuts, annotate_text, print_lumi):
+def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, print_lumi):
   
   print('Adding sqrt{s}, lumi, region, ntuple version to plot')
   
@@ -544,14 +539,20 @@ def add_text_to_plot(sig_reg, cut_sel, lumi, l_cuts, annotate_text, print_lumi):
   #
   # Text for energy, lumi, region, ntuple status
   
-  myText(0.55, 0.85, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+  myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
   myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF, xqcut 30 GeV), ' + NTUP_status, text_size*0.6, kGray+1)
   myText(0.18, 0.82, GROUP_status, text_size, kBlack)
   myText(0.18, 0.77, '#sqrt{s}' + ' = {0}, {1}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  if 'signal' in sig_reg:
+    myText(0.18, 0.73, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
+  if 'control' in sig_reg:
+    myText(0.18, 0.73, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
+  if 'sideband' in sig_reg:
+    myText(0.18, 0.73, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
   
   # Additional annotations
   if not annotate_text == '':
-    myText(0.18, 0.73, annotate_text, text_size*0.8, kGray+1) 
+    myText(0.18, 0.69, annotate_text, text_size*0.8, kGray+2) 
   #
   #---------------------------------------------------------------
   
@@ -584,66 +585,6 @@ def mk_mcErr(hStack, pc_sys, Nbins=100, xmin=0, xmax=100, variable_bin=False, hX
     h_mcErr.SetBinError(   my_bin, yval_err ) 
   
   return h_mcErr
-
-#____________________________________________________________________________
-#def draw_sig_scan(l_signals, d_hsigZ, cut_dir, xtitle, hXmin, hXmax):
-#  '''
-#  Draw significance scan for signals in list l_signals
-#  using significance histograms d_hsigZ
-#  labelled by cut_dir, xtitle in range hXmin, hXmax
-#  '''
-#  print('Making significance scan plot in lower panel')
-#  #----------------------------------------------------
-#  # draw significances
-#  d_samp = configure_samples()
-#  ytitle = 'Significance Z'
-#  for i, samp in enumerate(l_signals):
-#    hsigZ = d_hsigZ[samp]
-#    hsigZ.Draw('hist same')
-#    if i < 1:
-#      customise_axes(hsigZ, xtitle, ytitle, 1.2)
-#    l_color     = d_samp[samp]['l_color'] 
-#    format_hist(hsigZ, 2, l_color, 1, 0)
-#  
-#  # draw line for the ratio = 1
-#  l = draw_line(hXmin, 1.97, hXmax, 1.97, color=kAzure+1, style=7) 
-#  l.Draw()
-#  x_txt = 0.77
-#  if 'left' in cut_dir:
-#    myText(x_txt, 0.83, 'Cut left',  0.07, kBlack)
-#  if 'right' in cut_dir:
-#    myText(x_txt, 0.83, 'Cut right', 0.07, kBlack)
-#
-###____________________________________________________________________________
-def mk_sigZ_plot(h_intgl_sig, h_intgl_bkg, pc_syst, Nbins=100, xmin=0, xmax=100):
-  '''
-  Takes background & signal one-sided integral histograms
-  and input percentage systematic
-  Returns the signal significance Z histogram
-  '''
-  print('Making significance plot')
-  h_pcsyst = TH1D('', "", Nbins, xmin, xmax)
-
-  for my_bin in range( h_intgl_bkg.GetStack().Last().GetSize() ): 
-    sExp     = h_intgl_sig.GetBinContent(my_bin)
-    bExp     = h_intgl_bkg.GetStack().Last().GetBinContent(my_bin)  
-    bin_low  = h_intgl_bkg.GetStack().Last().GetBinLowEdge( my_bin )
-   
-    # Catch pathologies when yields might be negative
-    # Set significance is 0 if bExp or sExp is below 0
-    if bExp <= 0:
-      RS_sigZ = 0
-    if sExp <= 0:
-      RS_sigZ = 0
-    if bExp > 0 and sExp > 0:
-      
-      # add statistical and systematic uncertainties in quadrature
-      BUnc   = sqrt ( abs( bExp + ( ( pc_syst / float(100) ) * bExp ) ** 2 ) )
-      RS_sigZ = RooStats.NumberCountingUtils.BinomialExpZ( sExp, bExp, BUnc/float(bExp) )
-      h_pcsyst.Fill(bin_low, RS_sigZ)
-      #print('{0}, {1}, {2}, {3}, {4}, {5}'.format(my_bin, bin_low, bExp, sExp, my_sigZ, RS_sigZ) )
-   
-  return h_pcsyst
 
 #____________________________________________________________________________
 def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.05) :

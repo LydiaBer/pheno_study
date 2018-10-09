@@ -14,7 +14,7 @@ from ROOT import TColor
 from ROOT import kBlack,kWhite,kGray,kRed,kPink,kMagenta,kViolet,kBlue,kAzure,kCyan,kTeal,kGreen,kSpring,kYellow,kOrange
 
 #____________________________________________________________________________
-def get_sample_paths():
+def get_sample_paths(dir = ''):
 
   # -------------------------------------
   #
@@ -26,8 +26,8 @@ def get_sample_paths():
   TOPPATH = '../outputs'
   
   # Path to ntuples 
-  bkg_path  = TOPPATH + '/2018sep13'
-  sig_path  = TOPPATH + '/2018sep13'
+  bkg_path  = TOPPATH + '/' + dir
+  sig_path  = TOPPATH + '/' + dir
   
   # Suffix of the sample file names
   bkg_suffix   = '.root'
@@ -37,26 +37,79 @@ def get_sample_paths():
 
 
 #____________________________________________________________________________
-def get_samples_to_plot():
+def get_samples_to_plot(analysis = ''):
   '''
   List of background and signal samples to analyse in plot.py 
   '''
-  
+
   #------------------------------------
-  # Backgrounds
+  # Background and signal samples
   #------------------------------------
-  l_samp_bkg = [
-               'resolved_noGenFilt_2b2j',  
-               'resolved_noGenFilt_4b',    
-               'resolved_noGenFilt_4j'    
+
+  l_samp_bkg = []
+  l_samp_sig = []
+
+  if analysis is 'resolved':
+    l_samp_bkg = [
+                 'resolved_noGenFilt_2b2j',
+                 'resolved_noGenFilt_4b',
+                 'resolved_noGenFilt_4j',
+                 'resolved_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'resolved_loop_hh'
     ]
-  
-  #------------------------------------
-  # Signals
-  #------------------------------------
-  l_samp_sig = [
-               'resolved_loop_hh'
-  ]
+
+  if analysis is 'intermediate':
+    l_samp_bkg = [
+                 'intermediate_xptb200_2b2j',
+                 'intermediate_xptb200_4b',
+                 'intermediate_xptj200_4j',
+                 'intermediate_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'intermediate_loop_hh',
+    ]
+
+  if analysis is 'boosted':
+    l_samp_bkg = [
+                 'boosted_xptb200_2b2j',  
+                 'boosted_xptb200_4b',    
+                 'boosted_xptj200_4j',
+                 'boosted_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'boosted_loop_hh'
+    ]
+
+  # Included to compare impact of pT filter
+
+  if analysis is 'intermediate_noGenFilt':
+    l_samp_bkg = [
+                 'intermediate_noGenFilt_2b2j',  
+                 'intermediate_noGenFilt_4b',    
+                 'intermediate_noGenFilt_4j',
+                 'intermediate_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'intermediate_loop_hh'
+    ]
+
+  if analysis is 'boosted_noGenFilt':
+    l_samp_bkg = [
+                 'boosted_noGenFilt_2b2j',  
+                 'boosted_noGenFilt_4b',    
+                 'boosted_noGenFilt_4j'
+                 'boosted_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'boosted_loop_hh'
+    ]
 
   return l_samp_bkg, l_samp_sig
 
@@ -117,13 +170,35 @@ def configure_samples():
   # -------------------------------------
   d_samp = {
     
-    # Bkg sample
+    # Bkg samples
     'resolved_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
     'resolved_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
     'resolved_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    # Signals
-    'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 }
+    'resolved_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'resolved_xptb200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'resolved_xptb200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'resolved_xptj200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
 
+    'intermediate_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'intermediate_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'intermediate_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'intermediate_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'intermediate_xptb200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'intermediate_xptb200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'intermediate_xptj200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+
+    'boosted_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'boosted_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'boosted_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'boosted_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'boosted_xptb200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'boosted_xptb200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'boosted_xptj200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+
+    # Signals
+    'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
+    'intermediate_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
+    'boosted_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 }
     }
 
   return d_samp

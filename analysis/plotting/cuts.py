@@ -14,7 +14,7 @@ to be applied to this region.
 '''
 
 #____________________________________________________________________________
-def configure_cuts(var, sig_reg, print_cuts=True):
+def configure_cuts(var, cut_sel, print_cuts=True):
 
   ''' 
   Can define multiple lists and combine them
@@ -28,12 +28,16 @@ def configure_cuts(var, sig_reg, print_cuts=True):
   # =============================================
   d_cuts = {
     'masscut'     : l_masscut
-  }
-  # From cut lists
-  l_cuts = d_cuts[sig_reg]
-  # join cuts with && (AND) operator
-  added_cuts = ' && '.join(l_cuts)
+  } 
   
+  l_cuts = [''] 
+  added_cuts = ''
+  if cut_sel is not '':
+    # From cut lists
+    l_cuts = d_cuts[cut_sel]
+    # join cuts with && (AND) operator
+    added_cuts = ' && '.join(l_cuts)
+
   if print_cuts:
     print('===============================================')
     print('Cuts applied:')
