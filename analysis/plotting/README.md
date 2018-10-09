@@ -9,7 +9,7 @@ The main files are as follows:
 2) ```samples.py```: defines which set of input ROOT files should be run over, specified depending on the ```dir``` and ```analysis``` specified in ```plot.py```. ```
 3) ```variables.py``` : defines binning and labelling for variables we want to make histograms for.
 4) ```cuts.py```: defines additional cut selections to be applied by specifying ```cut_sel``` in ```plot.py```.
-5) ```beautify.py````: contains additional plotting functions to change plot formatting. 
+5) ```beautify.py```: contains additional plotting functions to change plot formatting. 
 
 ## Running the code
 
