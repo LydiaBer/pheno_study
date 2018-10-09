@@ -146,43 +146,36 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, VecOps::RVec<Jet>& 
 
     // Get the pairing that minimizes relative mass difference
     // Make pairs of small r jets
-    std::vector<JetPair> jets_pair = view::zip_with(make_pair, bjets_separated, bjets_separated);
 
-    jets_pair |= (action::sort(ranges::ordered_less{},
-                               [large_jet](auto&& jet_pair) {
-                                   double mass_a = jet_pair.mass_1;
-                                   double mass_b = jet_pair.mass_2;
-                                   // std::cout << "mass 2" << mass_b << std::endl;
-                                   double djmassdiff =
-                                         std::fabs(large_jet.p4.M() - (mass_a + mass_b));
-                                   // std::cout<<"dijets mass
-                                   // difference"<<djmassdiff<<std::endl;
+    JetPair bestPair;
 
-                                   return djmassdiff;
-                               })
-                  | action::take(1));
-
-    // Printing
-    // std::cout << "Jets Pair 0" << jets_pair[0].jet_1.p4.M() << std::endl;
-    // std::cout << "Jets Pair 1" << jets_pair[0].jet_2.p4.M() << std::endl;
-    // std::cout << "Large jet" << large_jet.p4.M() << std::endl;
+    for(unsigned int i = 0; i < bjets_separated.size(); i++){
+      for(unsigned int j = i+1; j < bjets_separated.size(); j++){
+        if(i == 0 && j == 1){
+          bestPair = make_pair(bjets_separated.at(i), bjets_separated.at(j));
+          continue;
+        }
+        JetPair thisPair = make_pair(bjets_separated.at(i), bjets_separated.at(j));
+        if(fabs(thisPair.p4().M() - large_jet.p4.M()) < fabs(bestPair.p4().M() - large_jet.p4.M())) bestPair = thisPair;
+      }
+    }
 
     // Storing the candidates
 
-    result.higgs2.p4 = jets_pair[0].jet_1.p4 + jets_pair[0].jet_2.p4;
+    result.higgs2.p4 = bestPair.jet_1.p4 + bestPair.jet_2.p4;
     result.higgs1.p4 = large_jet.p4;
     result.n_small_tag = n_small_tag;
     result.n_small_jets = sj_vec.size();
     result.n_large_tag = n_large_tag;
     result.n_large_jets = lj_vec.size();
     result.large_jet = large_jet;
-    result.small_jets[0] = jets_pair[0].jet_1;
-    result.small_jets[1] = jets_pair[0].jet_2;
+    result.small_jets[0] = bestPair.jet_1;
+    result.small_jets[1] = bestPair.jet_2;
 
     // If leading is subleading and viceversa then exchange
     if (result.small_jets[1].p4.Pt() > result.small_jets[0].p4.Pt()) {
-        result.small_jets[0] = jets_pair[0].jet_2;
-        result.small_jets[1] = jets_pair[0].jet_1;
+        result.small_jets[0] = bestPair.jet_2;
+        result.small_jets[1] = bestPair.jet_1;
     }
 
     return result;
@@ -279,6 +272,7 @@ int main(int argc, char* argv[]) {
     TFile output_file(output_path.c_str(), "RECREATE");
 
     write_tree(signal_result, "signal", output_file);
+    write_tree(valid_evt, "pre-selection", output_file);
     // write_tree(control_result, "control", output_file);
     // write_tree(sideband_result, "sideband", output_file);
 
