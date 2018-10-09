@@ -45,19 +45,19 @@ def configure_vars():
     # ---------------------------------------------
     # Higgs variables
     # ---------------------------------------------
-    'm_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':2000}
+    'm_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':2000},
 
-    'm_h1' :{'tlatex':'m_h1','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300}
-    'm_h2' :{'tlatex':'m_h2','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300}
+    'm_h1' :{'tlatex':'m_h1','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300},
+    'm_h2' :{'tlatex':'m_h2','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300},
     
-    'pT_h1' :{'tlatex':'pT_h1','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':1000}
-    'pT_h2' :{'tlatex':'pT_h2','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':1000}
+    'pT_h1' :{'tlatex':'pT_h1','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':1000},
+    'pT_h2' :{'tlatex':'pT_h2','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':1000},
 
-    'eta_h1' :{'tlatex':'#eta_h1','units':'GeV','hXNbins':100,'hXmin':-5, 'hXmax':5}
-    'eta_h2' :{'tlatex':'#eta_h2','units':'GeV','hXNbins':100,'hXmin':-5,  'hXmax':5}
+    'eta_h1' :{'tlatex':'#eta_h1','units':'GeV','hXNbins':100,'hXmin':-5, 'hXmax':5},
+    'eta_h2' :{'tlatex':'#eta_h2','units':'GeV','hXNbins':100,'hXmin':-5,  'hXmax':5},
 
-    'phi_h1' :{'tlatex':'#phi_h1','units':'GeV','hXNbins':100,'hXmin':-5, 'hXmax':5}
-    'phi_h2' :{'tlatex':'#phi_h2','units':'GeV','hXNbins':100,'hXmin':-5,  'hXmax':5}
+    'phi_h1' :{'tlatex':'#phi_h1','units':'GeV','hXNbins':100,'hXmin':-5, 'hXmax':5},
+    'phi_h2' :{'tlatex':'#phi_h2','units':'GeV','hXNbins':100,'hXmin':-5,  'hXmax':5},
     
     # -------------------//------------------------
 
