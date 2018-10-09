@@ -11,7 +11,7 @@ import os
 
 FILE_LIST = "../filelists/2018sep13_all_merged_delphes.txt"
 OUT_DIR = os.getcwd().split("/boosted")[0]+"/outputs/2018sep13"
-USE_BATCH = False
+USE_BATCH = True
 
 ### End of user inputs
 
