@@ -49,11 +49,50 @@ def get_samples_to_plot(analysis = ''):
   l_samp_bkg = []
   l_samp_sig = []
 
-  if analysis is 'resolved':
+  # Samples with no generator pT filter
+
+  if analysis is 'intermediate_noGenFilt':
+    l_samp_bkg = [
+                 'intermediate_noGenFilt_2b2j',  
+                 'intermediate_noGenFilt_4b',    
+                 'intermediate_noGenFilt_4j',
+                 'intermediate_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'intermediate_loop_hh'
+    ]
+
+  if analysis is 'boosted_noGenFilt':
+    l_samp_bkg = [
+                 'boosted_noGenFilt_2b2j',  
+                 'boosted_noGenFilt_4b',    
+                 'boosted_noGenFilt_4j'
+                 'boosted_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'boosted_loop_hh'
+    ]
+  if analysis is 'resolved_noGenFilt':
     l_samp_bkg = [
                  'resolved_noGenFilt_2b2j',
                  'resolved_noGenFilt_4b',
                  'resolved_noGenFilt_4j',
+                 'resolved_noGenFilt_ttbar'
+      ]
+
+    l_samp_sig = [
+                 'resolved_loop_hh'
+    ]
+
+  # Samples with generator pT filter
+
+  if analysis is 'resolved':
+    l_samp_bkg = [
+                 'resolved_xptb200_2b2j',  
+                 'resolved_xptb200_4b',    
+                 'resolved_xptj200_4j',
                  'resolved_noGenFilt_ttbar'
       ]
 
@@ -85,31 +124,6 @@ def get_samples_to_plot(analysis = ''):
                  'boosted_loop_hh'
     ]
 
-  # Included to compare impact of pT filter
-
-  if analysis is 'intermediate_noGenFilt':
-    l_samp_bkg = [
-                 'intermediate_noGenFilt_2b2j',  
-                 'intermediate_noGenFilt_4b',    
-                 'intermediate_noGenFilt_4j',
-                 'intermediate_noGenFilt_ttbar'
-      ]
-
-    l_samp_sig = [
-                 'intermediate_loop_hh'
-    ]
-
-  if analysis is 'boosted_noGenFilt':
-    l_samp_bkg = [
-                 'boosted_noGenFilt_2b2j',  
-                 'boosted_noGenFilt_4b',    
-                 'boosted_noGenFilt_4j'
-                 'boosted_noGenFilt_ttbar'
-      ]
-
-    l_samp_sig = [
-                 'boosted_loop_hh'
-    ]
 
   return l_samp_bkg, l_samp_sig
 
