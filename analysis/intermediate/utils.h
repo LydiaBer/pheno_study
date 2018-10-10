@@ -49,8 +49,8 @@ class OxJet {
     float btag;        ///< B-tagging score
     bool tagged;       ///< Is jet B-tagged?
 
-    OxJet() : p4(), tagged(false) {}
-    OxJet(double M, double pT, double eta, long double phi, bool tagged) : p4(), tagged(tagged) {
+    OxJet() : p4(), btag(0), tagged(false) {}
+    OxJet(double M, double pT, double eta, long double phi, bool tagged) : p4(), btag(0), tagged(tagged) {
         p4.SetPtEtaPhiM(pT, eta, phi, M);
     }
 };
@@ -77,6 +77,8 @@ class JetPair {
     JetPair() : mass_1(0), mass_2(0), jet_1(), jet_2() {}
     JetPair(double M_1, double M_2, OxJet first_jet, OxJet second_jet)
         : mass_1(M_1), mass_2(M_2), jet_1(first_jet), jet_2(second_jet) {}
+
+    TLorentzVector p4(){return jet_1.p4 + jet_2.p4;}
 };
 
 // Make jet function
