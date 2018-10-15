@@ -58,7 +58,6 @@ def configure_vars():
 
     'phi_h1' :{'tlatex':'#phi_h1','units':'GeV','hXNbins':100,'hXmin':-5, 'hXmax':5},
     'phi_h2' :{'tlatex':'#phi_h2','units':'GeV','hXNbins':100,'hXmin':-5,  'hXmax':5},
-    
     # -------------------//------------------------
 
   } # end of d_vars = {} dictionary

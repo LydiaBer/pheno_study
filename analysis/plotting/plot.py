@@ -62,16 +62,16 @@ def main():
   
   #================================================
   # user set values
-  dir = '2018sep13' # directory input files to plot are in
+  dir = 'jesse_linked_delphes' #2018sep13' # directory input files to plot are in
 
   l_vars     = ['m_hh','m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2']
   l_analyses = ['resolved', 'resolved_noGenFilt', 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
   sig_reg = 'signal' # gets specific region from input ROOT file
   cut_sel = '' # corresponds to set of cuts in cuts.py 
   lumi    =  3000.0 
-  savedir = 'figs'
+  savedir = 'figs'+"/"+dir
 
-  IsLogY   = True
+  IsLogY   = False
   annotate_text = 'MC Pileup 0, No k-factors'
 
   # Slicing weight (weight down by number of slices run over)
@@ -82,9 +82,9 @@ def main():
                'noGenFilt_2b2j' : 1200000./50000.,
                'noGenFilt_4j' :  1200000./50000.,
                'noGenFilt_ttbar' : 1200000./50000.,
-               'xptb200_4b' : 1200000./50000.,
-               'xptb200_2b2j' : 1200000./50000.,
-               'xptj200_4j' : 1200000./50000.,
+               'xpt200_4b' : 1200000./50000.,
+               'xpt200_2b2j' : 1200000./50000.,
+               'xpt200_4j' : 1200000./50000.,
   }
 
   # Matching weight (Delphes saves unmatched xsec not matched xsec which is lower)
@@ -102,11 +102,11 @@ def main():
                'loop_hh' : 1.,
                'noGenFilt_4b' : 1.,
                'noGenFilt_ttbar' : 1.,
-               'xptb200_4b' : 1.,
-               'xptj200_4j' : 106811.992819/887124.3069,
-               'xptb200_2b2j' : 38165.8048156/116266.19204,
-               'xptb200_2b2j' : 1.,
-               'xptj200_4j' : 1.,
+               'xpt200_4b' : 1.,
+               'xpt200_4j' : 106811.992819/887124.3069,
+               'xpt200_2b2j' : 38165.8048156/116266.19204,
+               'xpt200_2b2j' : 1.,
+               'xpt200_4j' : 1.,
 }
 
   #================================================
