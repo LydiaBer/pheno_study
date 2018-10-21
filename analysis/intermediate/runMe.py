@@ -10,7 +10,7 @@ import os
 ### User inputs
 
 FILE_LIST = "../filelists/jesse_linked_delphes.txt" #2018sep13_all_merged_delphes.txt"
-OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/jesse_linked_delphes"#2018sep13"
+OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/jesse_linked_delphes" #2018sep13"
 USE_BATCH = True
 
 ### End of user inputs

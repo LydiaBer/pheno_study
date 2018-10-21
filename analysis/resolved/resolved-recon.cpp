@@ -255,6 +255,7 @@ int main(int argc, char* argv[]) {
     fmt::print("Writing to {}\n", output_path);
 
     TFile output_file(output_path.c_str(), "RECREATE");
+    write_tree(valid_evt, "pre-selection", output_file);
     write_tree(signal_result, "signal", output_file);
     write_tree(control_result, "control", output_file);
     write_tree(sideband_result, "sideband", output_file);

@@ -1,0 +1,24 @@
+### Signal ### 
+# From /data/atlas/atlasdata/jesseliu/pheno/packages/fcc/MG5_aMC_v2_6_2/pp2hh_loop_sm/Events 100k events total
+
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/nominal
+
+### Bkg ###
+# No pT filter
+# From /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13 1.2M events total for each bkg
+
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/2b2j
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/4b
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/4j
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/ttbar
+
+# From /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018oct12 XXX events total for each production channel
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/h/tth
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/h/wh
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/h/zh
+
+# pT filter
+# From /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13 1.2M events total for each bkg
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/filtered-bkg-pt200/2b2j
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/filtered-bkg-pt200/4b
+/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/filtered-bkg-pt200/4j

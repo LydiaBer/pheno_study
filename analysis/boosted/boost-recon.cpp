@@ -193,6 +193,7 @@ int main(int arc, char* argv[]) {
     fmt::print("Writing to {}\n", output_path);
 
     TFile output_file(output_path.c_str(), "RECREATE");   // Opening Ouput File
+    write_tree(valid_evt, "pre-selection", output_file);  // Writing the Pre-Selection Tree
     write_tree(signal_result, "signal", output_file);     // Writing the Signal Tree
     write_tree(control_result, "control", output_file);   // Writing the Control Tree
     write_tree(sideband_result, "sideband", output_file); // Writing the Sideband Tree
