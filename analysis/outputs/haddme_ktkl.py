@@ -1,5 +1,7 @@
 import os, glob
 
+os.system("mkdir separate")  
+
 files = os.listdir(".")
 for file in files:
   if "TopYuk" in file and "sample-0.root" in file:
@@ -9,3 +11,4 @@ for file in files:
     #print basename
     print "hadd {0} {1}*.root".format(basename+".root", basename)
     os.system("hadd {0} {1}*.root".format(basename+".root", basename))
+    os.system("mv {0}*.root separate".format(basename))  
