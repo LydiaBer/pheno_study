@@ -64,8 +64,7 @@ def main():
   dir = 'jesse_linked_delphes' #2018sep13' # directory input files to plot are in
 
   l_vars     = ['m_hh','m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
-  l_vars     = ['pT_h1_j1', 'pT_h1_j2', 'pT_h2_j1', 'pT_h2_j2']
-  l_analyses = ['resolved', 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
+  l_analyses = ['resolved', 'resolved_noGenFilt', 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
   l_sig_regs = ['pre-selection','signal'] # gets specific region from input ROOT file
 
   cut_sel = '' # corresponds to set of cuts in cuts.py 
