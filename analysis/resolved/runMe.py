@@ -43,9 +43,13 @@ with open(FILE_LIST, 'r') as filehandle:
         file_path = file_dir+"/"+file
 
         # make short output filename of form resolved_genfiltercut_sample.root
-        if "signal" in file_path:
+        if "signal/nominal" in file_path:
           output_filename = "resolved_loop_hh_"+file   
- 
+
+        elif "signal/varied_coupling" in file_path:
+          TopYuk = file_path.split("TopYuk_")[1].split("/SlfCoup")[0]
+          output_filename = "resolved_hh_"+"TopYuk_"+TopYuk+"_"+file  
+
         elif "bkg" in file_path:
           if "unfiltered" in file_path:
             filter = "noGenFilt"
@@ -58,6 +62,7 @@ with open(FILE_LIST, 'r') as filehandle:
           batch_script = os.getcwd()+"/tools/batchTemplate.sh"
           logfile = OUT_DIR+"/logs/"+output_filename.split(".root")[0]
           batch_command  = "qsub -N {0} -o {1} -e {2} -v CODEDIR='{3}',CMD='{4}' {5}".format(output_filename.split(".root")[0],logfile+".out",logfile+".err",os.getcwd(), command, batch_script)
+          print
           print(batch_command)
           os.system(batch_command)
         else: 

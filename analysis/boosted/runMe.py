@@ -43,9 +43,13 @@ with open(FILE_LIST, 'r') as filehandle:
         file_path = file_dir+"/"+file
 
         # make short output filename of form boosted_genfiltercut_sample.root
-        if "signal" in file_path:
+        if "signal/nominal" in file_path:
           output_filename = "boosted_loop_hh_"+file   
  
+        elif "signal/varied_coupling" in file_path:
+          TopYuk = file_path.split("TopYuk_")[1].split("/SlfCoup")[0]
+          output_filename = "boosted_hh_"+"TopYuk_"+TopYuk+"_"+file  
+
         elif "bkg" in file_path:
           if "unfiltered" in file_path:
             filter = "noGenFilt"
