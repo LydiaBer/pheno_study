@@ -145,6 +145,10 @@ return (std::vector<int>(view::ints(0, n_jets)) | action::shuffle(engine)
 /// Output format for writing TTrees
 struct out_format {
     double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
+    double pT_hh; ///< Di-Higgs pT (pT<SUB>hh</SUB> or pT<SUB>4j</SUB>)
+    double dR_hh; ///< Di-Higgs dR (dR<SUB>hh</SUB> or dR<SUB>4j</SUB>)
+    double deta_hh; ///< Di-Higgs deta (deta<SUB>hh</SUB> or deta<SUB>4j</SUB>)
+    double dphi_hh; ///< Di-Higgs dphi (dphi<SUB>hh</SUB> or dphi<SUB>4j</SUB>)
 
     double m_h1;   ///< Leading Higgs mass
                    // double E_h1;   ///< Leading Higgs energy
@@ -215,7 +219,8 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     namespace action = ranges::action;
     static bool first_tree = true;
 
-    const char* out_format_leaflist = "m_hh/D:m_h1/D:pT_h1:eta_h1:phi_h1:"
+    const char* out_format_leaflist = "m_hh/D:pT_hh:dR_hh:deta_hh:dphi_hh:"
+                                      "m_h1/D:pT_h1:eta_h1:phi_h1:"
                                       "m_h2/D:pT_h2:eta_h2:phi_h2:"
                                       "m_h1_j1:pT_h1_j1:eta_h1_j1:phi_h1_j1:"
                                       "m_h1_j2:pT_h1_j2:eta_h1_j2:phi_h1_j2:"
@@ -260,6 +265,11 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               auto&& rwgt = rwgt_vars[slot];
 
               vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
+              vars->pT_hh = (event.higgs1.p4 + event.higgs2.p4).Pt();
+              vars->dR_hh = event.higgs1.p4.DeltaR(event.higgs2.p4);
+              vars->deta_hh = event.higgs1.p4.Eta()-event.higgs2.p4.Eta();
+              vars->dphi_hh = event.higgs1.p4.DeltaPhi(event.higgs2.p4);
+
               ntag_var[slot] = event.ntag;
               njets_var[slot] = event.njets;
               mc_sf_var[slot] = event.wgt;

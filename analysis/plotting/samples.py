@@ -67,7 +67,7 @@ def get_samples_to_plot(analysis = ''):
     l_samp_bkg = [
                  'boosted_noGenFilt_2b2j',  
                  'boosted_noGenFilt_4b',    
-                 'boosted_noGenFilt_4j'
+                 'boosted_noGenFilt_4j',
                  'boosted_noGenFilt_ttbar'
       ]
 
@@ -90,9 +90,9 @@ def get_samples_to_plot(analysis = ''):
 
   if analysis is 'resolved':
     l_samp_bkg = [
-                 'resolved_xptb200_2b2j',  
-                 'resolved_xptb200_4b',    
-                 'resolved_xptj200_4j',
+                 'resolved_xpt200_2b2j',  
+                 'resolved_xpt200_4b',    
+                 'resolved_xpt200_4j',
                  'resolved_noGenFilt_ttbar'
       ]
 
@@ -102,9 +102,9 @@ def get_samples_to_plot(analysis = ''):
 
   if analysis is 'intermediate':
     l_samp_bkg = [
-                 'intermediate_xptb200_2b2j',
-                 'intermediate_xptb200_4b',
-                 'intermediate_xptj200_4j',
+                 'intermediate_xpt200_2b2j',
+                 'intermediate_xpt200_4b',
+                 'intermediate_xpt200_4j',
                  'intermediate_noGenFilt_ttbar'
       ]
 
@@ -114,9 +114,9 @@ def get_samples_to_plot(analysis = ''):
 
   if analysis is 'boosted':
     l_samp_bkg = [
-                 'boosted_xptb200_2b2j',  
-                 'boosted_xptb200_4b',    
-                 'boosted_xptj200_4j',
+                 'boosted_xpt200_2b2j',  
+                 'boosted_xpt200_4b',    
+                 'boosted_xpt200_4j',
                  'boosted_noGenFilt_ttbar'
       ]
 
@@ -189,25 +189,25 @@ def configure_samples():
     'resolved_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
     'resolved_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
     'resolved_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'resolved_xptb200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'resolved_xptb200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'resolved_xptj200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'resolved_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'resolved_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'resolved_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
 
     'intermediate_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
     'intermediate_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
     'intermediate_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
     'intermediate_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'intermediate_xptb200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'intermediate_xptb200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'intermediate_xptj200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'intermediate_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'intermediate_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'intermediate_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
 
     'boosted_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
     'boosted_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
     'boosted_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
     'boosted_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'boosted_xptb200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'boosted_xptb200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'boosted_xptj200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'boosted_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'boosted_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'boosted_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
 
     # Signals
     'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },

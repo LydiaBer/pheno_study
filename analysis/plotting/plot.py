@@ -40,7 +40,6 @@ from beautify   import *
 # TODO implement auto cross-check of number of events for slicing dictionary to ensure this is kept up to date EXIT on mis-match!
 # TODO Could add back in cutflow part incl add_cut or needed in previous stage as have cuts affecting many jets, cut arrow, N-1
 # TODO Could add back in significance scan
-# TODO Could loop over signal region, control region etc. 
 
 # Global settings
 
@@ -62,14 +61,15 @@ def main():
   
   #================================================
   # user set values
-  dir = '2018sep13' # directory input files to plot are in
+  dir = 'jesse_linked_delphes' #2018sep13' # directory input files to plot are in
 
-  l_vars     = ['m_hh','m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2']
+  l_vars     = ['m_hh','m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
   l_analyses = ['resolved', 'resolved_noGenFilt', 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
-  sig_reg = 'signal' # gets specific region from input ROOT file
+  l_sig_regs = ['pre-selection','signal'] # gets specific region from input ROOT file
+
   cut_sel = '' # corresponds to set of cuts in cuts.py 
   lumi    =  3000.0 
-  savedir = 'figs'
+  savedir = 'figs'+"/"+dir
 
   IsLogY   = True
   annotate_text = 'MC Pileup 0, No k-factors'
@@ -82,9 +82,9 @@ def main():
                'noGenFilt_2b2j' : 1200000./50000.,
                'noGenFilt_4j' :  1200000./50000.,
                'noGenFilt_ttbar' : 1200000./50000.,
-               'xptb200_4b' : 1200000./50000.,
-               'xptb200_2b2j' : 1200000./50000.,
-               'xptj200_4j' : 1200000./50000.,
+               'xpt200_4b' : 1200000./50000.,
+               'xpt200_2b2j' : 1200000./50000.,
+               'xpt200_4j' : 1200000./50000.,
   }
 
   # Matching weight (Delphes saves unmatched xsec not matched xsec which is lower)
@@ -102,11 +102,9 @@ def main():
                'loop_hh' : 1.,
                'noGenFilt_4b' : 1.,
                'noGenFilt_ttbar' : 1.,
-               'xptb200_4b' : 1.,
-               'xptj200_4j' : 106811.992819/887124.3069,
-               'xptb200_2b2j' : 38165.8048156/116266.19204,
-               'xptb200_2b2j' : 1.,
-               'xptj200_4j' : 1.,
+               'xpt200_4b' : 1.,
+               'xpt200_4j' : 106811.992819/887124.3069,
+               'xpt200_2b2j' : 38165.8048156/116266.19204,
 }
 
   #================================================
@@ -131,39 +129,45 @@ def main():
   for analysis in l_analyses:
   
     # --------------
-    # LOOP over list of variables l_var
+    # LOOP over list of signal regions l_sig_regs:
     # --------------
-  
-    for var in l_vars:
-      # Convert maths characters in variables to valid file names
-      save_var = var
-      if '/' in var:
-        save_var = var.replace('/', 'Over', 1)
-      if '(' in var:
-        save_var = save_var.replace('(', '', 1)
-      if ')' in var:
-        save_var = save_var.replace(')', '', 1)
-      
-      print( '--------------------------------------------' )
-      print( '\nWelcome to plot.py\n' )
-      print( 'Plotting variable: {0}'.format(var) )
-      print( 'Selection region: {0}'.format(cut_sel) )
-      print( 'Normalising luminosity: {0}'.format(lumi) )
-      print( '\n--------------------------------------------\n' )
-      
-      mkdir(savedir) 
-
-      if cut_sel is '': 
-        save_name = savedir + '/{0}_hist1d_{1}'.format(analysis, save_var)
-      else:
-        save_name = savedir + '/{0}_hist1d_{1}_{2}'.format(analysis, save_var, cut_sel)
- 
-      if not IsLogY: save_name += '_noLogY'
-
-      print_lumi = lumi # [1/fb]
-      print('Lumi to print: {0}'.format(print_lumi))
     
-      calc_selections(var, dir, analysis, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
+    for sig_reg in l_sig_regs:
+    
+      # --------------
+      # LOOP over list of variables l_var
+      # --------------
+    
+      for var in l_vars:
+        # Convert maths characters in variables to valid file names
+        save_var = var
+        if '/' in var:
+          save_var = var.replace('/', 'Over', 1)
+        if '(' in var:
+          save_var = save_var.replace('(', '', 1)
+        if ')' in var:
+          save_var = save_var.replace(')', '', 1)
+        
+        print( '--------------------------------------------' )
+        print( '\nWelcome to plot.py\n' )
+        print( 'Plotting variable: {0}'.format(var) )
+        print( 'Selection region: {0}'.format(cut_sel) )
+        print( 'Normalising luminosity: {0}'.format(lumi) )
+        print( '\n--------------------------------------------\n' )
+        
+        mkdir(savedir) 
+  
+        if cut_sel is '': 
+          save_name = savedir + '/{0}_{1}_{2}'.format(analysis, sig_reg, save_var)
+        else:
+          save_name = savedir + '/{0}_{1}_{2}_{3}'.format(analysis, sig_reg, save_var, cut_sel)
+   
+        if IsLogY: save_name += '_LogY'
+  
+        print_lumi = lumi # [1/fb]
+        print('Lumi to print: {0}'.format(print_lumi))
+      
+        calc_selections(var, dir, analysis, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
 
   tfinish = time.time()
   telapse = tfinish - t0
@@ -392,7 +396,7 @@ def tree_get_th1f(f, slicing_weight, matching_weight, hname, var, sig_reg, cutsA
   # hh weight so visible on plots
   my_weight = 1.
   if "hh" in hname:
-    my_weight = 100000.0
+    my_weight = 50000.0
 
   mc_weight = "mc_sf"
   if cutsAfter is '':
@@ -621,7 +625,7 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
     sample_type = d_samp[samp]['type']
     leg_entry   = d_samp[samp]['leg']
     if "HH" in leg_entry:
-      leg_entry = leg_entry+" x100000"
+      leg_entry = leg_entry+" x50000"
     legMk       = d_legMk[sample_type]
   
     #print('samp: {0}, type: {1}, legMk: {2}'.format(samp, sample_type, legMk) ) 
