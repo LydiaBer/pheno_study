@@ -29,6 +29,10 @@ and run in the following order:
 ```python haddme_ktkl.py```
 ```source haddme.sh```
 
+## Using existing ntuples
+
+If instead of using the ntuples you have produced which are stored in your outputs directory you can instead plot centrally produced ntuples by changing ```TOPPATH = '../outputs'``` in ```samples.py``` to point to the existing ntuples. Centrally stored ntuples can be found here: /data/atlas/atlasdata/DiHiggsPheno/ntuples
+
 ## Running the code
 
 In the ```pheno_study``` directory the ```setup.sh``` script should first be sourced before proceeding:
