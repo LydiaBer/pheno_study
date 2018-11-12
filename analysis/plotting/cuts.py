@@ -21,13 +21,13 @@ def configure_cuts(var, cut_sel, print_cuts=True):
   e.g. to create different analysis regions CR, VR, SR
   '''
 
-  l_masscut = [
-    'm_hh>0.'
+  l_ntag4 = [
+    '(ntag>3)',
   ]  
   
   # =============================================
   d_cuts = {
-    'masscut'     : l_masscut
+    'ntag4'     : l_ntag4
   } 
   
   l_cuts = [''] 
