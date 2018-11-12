@@ -244,9 +244,9 @@ bool remove_ttbar(const reconstructed_event& evt, VecOps::RVec<Jet>& raw_jets) {
 bool signal(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(m_h1 - 125.) < 40.) ? true : false;
-    bool higgs2_flag = (std::abs(m_h2 - 125.) < 40.) ? true : false;
+    // Cut in a mass window of 20 GeV around 125 GeV for both Higgs
+    bool higgs1_flag = (std::abs(m_h1 - 125.) < 20.) ? true : false;
+    bool higgs2_flag = (std::abs(m_h2 - 125.) < 20.) ? true : false;
     return (higgs1_flag && higgs2_flag);
 }
 
@@ -254,9 +254,9 @@ bool signal(const reconstructed_event& evt) {
 bool sideband(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(m_h1 - 125.) < 50.) ? true : false;
-    bool higgs2_flag = (std::abs(m_h2 - 125.) < 50.) ? true : false;
+    // Cut in a mass window of 30 GeV around 125 GeV for both Higgs
+    bool higgs1_flag = (std::abs(m_h1 - 125.) < 30.) ? true : false;
+    bool higgs2_flag = (std::abs(m_h2 - 125.) < 30.) ? true : false;
     return (higgs1_flag && higgs2_flag);
 }
 
@@ -264,9 +264,9 @@ bool sideband(const reconstructed_event& evt) {
 bool control(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(m_h1 - 125.) < 45.) ? true : false;
-    bool higgs2_flag = (std::abs(m_h2 - 125.) < 45.) ? true : false;
+    // Cut in a mass window of 50 GeV around 125 GeV for both Higgs
+    bool higgs1_flag = (std::abs(m_h1 - 125.) < 50.) ? true : false;
+    bool higgs2_flag = (std::abs(m_h2 - 125.) < 50.) ? true : false;
     return (higgs1_flag && higgs2_flag);
 }
 
