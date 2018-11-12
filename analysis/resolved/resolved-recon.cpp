@@ -180,8 +180,8 @@ bool signal(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
     // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 40.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 40.) ? true : false;
+    bool higgs1_flag = (std::abs(m_h1 - 125.) < 40.) ? true : false;
+    bool higgs2_flag = (std::abs(m_h2 - 125.) < 40.) ? true : false;
     return (higgs1_flag && higgs2_flag);
 }
 
@@ -190,8 +190,8 @@ bool sideband(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
     // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
+    bool higgs1_flag = (std::abs(m_h1 - 125.) < 50.) ? true : false;
+    bool higgs2_flag = (std::abs(m_h2 - 125.) < 50.) ? true : false;
     return (higgs1_flag && higgs2_flag);
 }
 
@@ -200,8 +200,8 @@ bool control(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
     // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 45.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 45.) ? true : false;
+    bool higgs1_flag = (std::abs(m_h1 - 125.) < 45.) ? true : false;
+    bool higgs2_flag = (std::abs(m_h2 - 125.) < 45.) ? true : false;
     return (higgs1_flag && higgs2_flag);
 }
 
@@ -212,8 +212,11 @@ bool control(const reconstructed_event& evt) {
 int main(int argc, char* argv[]) {
     // Use iostreams for input only and fmt::print for output only, so fine
     std::ios::sync_with_stdio(false); // Needed for fast iostreams
-    using vec_string = std::vector<std::string>;
 
+    if (argc != 4) {
+        fmt::print("Must have precisely 3 arguments: file_path output_dir output_filename\n");
+        exit(2);
+    }
     const std::string file_path = argv[1];
     const std::string output_dir = argv[2];
     const std::string output_filename = argv[3];
