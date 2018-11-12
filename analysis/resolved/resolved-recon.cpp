@@ -254,7 +254,6 @@ bool signal(const reconstructed_event& evt) {
 bool control(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
-<<<<<<< HEAD
     // Cut in a mass window of 30 GeV around 125 GeV for both Higgs
     bool higgs1_flag = (std::abs(m_h1 - 125.) < 30.) ? true : false;
     bool higgs2_flag = (std::abs(m_h2 - 125.) < 30.) ? true : false;
