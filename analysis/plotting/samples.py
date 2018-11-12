@@ -23,7 +23,7 @@ def get_sample_paths(dir = ''):
   # -------------------------------------
   
   # Paths to ntuples # 
-  TOPPATH = '../outputs'
+  TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
   
   # Path to ntuples 
   bkg_path  = TOPPATH + '/' + dir

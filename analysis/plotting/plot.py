@@ -36,7 +36,7 @@ from beautify   import *
 
 #--------------------------------------------------
 #
-# TODO matching dictionary temporary until we make new ntuples with low pT filter instead of matching, currently using same matching xsec ratio for pT filtered, should be checked if correct 
+# TODO matching dictionary temporary until we make new ntuples with low pT filter instead of matching
 # TODO implement auto cross-check of number of events for slicing dictionary to ensure this is kept up to date EXIT on mis-match!
 # TODO Could add back in cutflow part incl add_cut or needed in previous stage as have cuts affecting many jets, cut arrow, N-1
 # TODO Could add back in significance scan
@@ -61,17 +61,17 @@ def main():
   
   #================================================
   # user set values
-  dir = 'jesse_linked_delphes' #2018sep13' # directory input files to plot are in
+  dir = 'jesse_linked_delphes' # directory input files to plot are in
 
   l_vars     = ['m_hh','m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
   l_analyses = ['resolved', 'resolved_noGenFilt', 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
   l_sig_regs = ['pre-selection','signal'] # gets specific region from input ROOT file
 
-  cut_sel = '' # corresponds to set of cuts in cuts.py 
+  cut_sel = 'ntag4' # corresponds to set of cuts in cuts.py 
   lumi    =  3000.0 
   savedir = 'figs'+"/"+dir
 
-  IsLogY   = True
+  IsLogY   = False
   annotate_text = 'MC Pileup 0, No k-factors'
 
   # Slicing weight (weight down by number of slices run over)
@@ -103,8 +103,8 @@ def main():
                'noGenFilt_4b' : 1.,
                'noGenFilt_ttbar' : 1.,
                'xpt200_4b' : 1.,
-               'xpt200_4j' : 106811.992819/887124.3069,
-               'xpt200_2b2j' : 38165.8048156/116266.19204,
+               'xpt200_4j' :13515.2473531/71702.662768,
+               'xpt200_2b2j' :655.237254906/1799.7624417,
 }
 
   #================================================
@@ -396,7 +396,7 @@ def tree_get_th1f(f, slicing_weight, matching_weight, hname, var, sig_reg, cutsA
   # hh weight so visible on plots
   my_weight = 1.
   if "hh" in hname:
-    my_weight = 50000.0
+    my_weight = 10000.0
 
   mc_weight = "mc_sf"
   if cutsAfter is '':
@@ -625,14 +625,16 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
     sample_type = d_samp[samp]['type']
     leg_entry   = d_samp[samp]['leg']
     if "HH" in leg_entry:
-      leg_entry = leg_entry+" x50000"
+      leg_entry = leg_entry+" x10000"
     legMk       = d_legMk[sample_type]
   
     #print('samp: {0}, type: {1}, legMk: {2}'.format(samp, sample_type, legMk) ) 
     # calculate the % of each background component and put in legend
     pc_yield   = 0
     if sample_type == 'bkg':
-      pc_yield = 100 * ( d_yield[samp] / float(nTotBkg) )
+      pc_yield = 0.
+      if nTotBkg >0.:
+        pc_yield = 100 * ( d_yield[samp] / float(nTotBkg) )
       leg_txt = '{0} ({1:.2g}, {2:.1f}%, {3:.0f})'.format( leg_entry, d_yield[samp], pc_yield, d_raw[samp] )
     if sample_type == 'sig':
       leg_txt = '{0} ({1:.2g}, {2:.0f})'.format(leg_entry, d_yield[samp], d_raw[samp])
