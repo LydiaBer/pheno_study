@@ -18,13 +18,13 @@
 /data/atlas/atlasdata/DiHiggsPheno/samples/delphes/unfiltered-bkg/h/zh
 
 # Varied coupling HH (From /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018oct15 100k events for each coupling combo) 
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_0.5
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_0.8
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_0.9
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.0
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.1
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.2
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.5
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_0.5
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_0.8
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_0.9
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.0
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.1
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.2
+#/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/signal/varied_coupling/TopYuk_1.5
 
 ## pT filter
 
