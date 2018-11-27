@@ -27,6 +27,7 @@ namespace action = ranges::action;
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 double leadPtCut = 250.0;
 double sublPtCut = 250.0;
+double xhhcut = 1.6;
 
 bool two_large_b_jets(VecOps::RVec<Jet>& jets /*!Input Jets of FastJet <Jet> type*/) {
     /**
@@ -173,7 +174,7 @@ bool signal(const reconstructed_event& evt) {
      *fall in the signal Mass window
      */
     double Xhh = sqrt((pow(((evt.higgs1.p4.M() - 124) / (0.1 * evt.higgs1.p4.M())), 2) + (pow(((evt.higgs2.p4.M() - 115) / (0.1 * evt.higgs2.p4.M())), 2))));
-    bool isSR = Xhh < 0.16;
+    bool isSR = Xhh < xhhcut;
 
     return isSR;
 }
@@ -185,7 +186,7 @@ bool control(const reconstructed_event& evt) {
      *fall in the control Mass window
      */
     double Xhh = sqrt((pow(((evt.higgs1.p4.M() - 124) / (0.1 * evt.higgs1.p4.M())), 2) + (pow(((evt.higgs2.p4.M() - 115) / (0.1 * evt.higgs2.p4.M())), 2))));
-    bool isSR = Xhh < 0.16;
+    bool isSR = Xhh < xhhcut;
     return (!isSR && (sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) < 33));
 }
 
@@ -197,7 +198,7 @@ bool sideband(const reconstructed_event& evt) {
      *fall in the sideband Mass window
      */
     double Xhh = sqrt((pow(((evt.higgs1.p4.M() - 124) / (0.1 * evt.higgs1.p4.M())), 2) + (pow(((evt.higgs2.p4.M() - 115) / (0.1 * evt.higgs2.p4.M())), 2))));
-    bool isSR = Xhh < 0.16;
+    bool isSR = Xhh < xhhcut;
 
     return (!isSR && (sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) > 33.0) &&(sqrt(pow(evt.higgs1.p4.M() - 134.0, 2) + pow(evt.higgs2.p4.M() - 125.0, 2)) < 58.0));
 
