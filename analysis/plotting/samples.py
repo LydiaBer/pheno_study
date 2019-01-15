@@ -124,6 +124,25 @@ def get_samples_to_plot(analysis = ''):
                  'boosted_loop_hh'
     ]
 
+  if analysis is 'resolved_TopYuk':
+    l_samp_bkg = []
+
+    l_samp_sig = [
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_0.5', 
+                 'resolved_hh_TopYuk_1.0_SlfCoup_1.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_2.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_3.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_5.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_7.0', 
+                 'resolved_hh_TopYuk_1.0_SlfCoup_10.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_m1.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_m2.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_m3.0', 
+                 'resolved_hh_TopYuk_1.0_SlfCoup_m5.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_m7.0', 
+                 #'resolved_hh_TopYuk_1.0_SlfCoup_m10.0', 
+                 #'resolved_hh_TopYuk_0.5_SlfCoup_1.0',
+    ]
 
   return l_samp_bkg, l_samp_sig
 
@@ -212,7 +231,23 @@ def configure_samples():
     # Signals
     'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
     'intermediate_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
-    'boosted_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 }
+    'boosted_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
+    
+    # Signal TopYuk
+     'resolved_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
+     'resolved_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = 1','l_color':kRed },
+     'resolved_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
+     'resolved_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
+     'resolved_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
+     'resolved_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
+     'resolved_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
+     'resolved_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
+     'resolved_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
+     'resolved_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
+     'resolved_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
+     'resolved_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
+     'resolved_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
+     'resolved_hh_TopYuk_0.5_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.5','l_color':myDarkOrange },
     }
 
   return d_samp

@@ -9,7 +9,7 @@ from ROOT import *
 
 #____________________________________________________________________________
 def format_hist(hist, l_width=2, l_color=kBlue+2, l_style=1, f_color=0, f_style=1001, l_alpha=1.0):
-  
+
   # Lines
   hist.SetLineColorAlpha(l_color, l_alpha)
   hist.SetLineStyle(l_style)

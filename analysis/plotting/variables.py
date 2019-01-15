@@ -45,7 +45,7 @@ def configure_vars():
     # ---------------------------------------------
     # Higgs variables
     # ---------------------------------------------
-    'm_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':2000},
+    'm_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':800},
 
     'm_h1' :{'tlatex':'m_h1','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300},
     'm_h2' :{'tlatex':'m_h2','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300},
