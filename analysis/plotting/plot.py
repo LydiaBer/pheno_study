@@ -62,10 +62,10 @@ def main():
   #================================================
   # user set values
   dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in
-  dir = 'jesse_linked_delphes' # directory input files to plot are in
+  #dir = 'jesse_linked_delphes' # directory input files to plot are in
 
   l_vars     = ['m_hh']#,'m_h1']#,'m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
-  l_analyses = ['resolved_TopYuk']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
+  l_analyses = ['resolved_SlfCoup']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
   l_sig_regs = ['signal']#,'pre-selection'] # gets specific region from input ROOT file
 
   cut_sel = 'ntag4' # corresponds to set of cuts in cuts.py 
@@ -456,7 +456,6 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, hname, var, sig
   if "hh" in hname:
     my_weight = 10000.0
 
->>>>>>> origin/master
   mc_weight = "mc_sf"
   if cutsAfter is '':
     cut_after = '(({0}) * ({1}) * ({2}) * ({3}) / ({4}))'.format(mc_weight, lumi, my_weight, matching_weight, slicing_weight) 

@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in
 outdir = "./figs/{0}/lambda_limits/".format(dir)
 
-regimes = ['resolved_TopYuk']#, 'intermediate','boosted']
+regimes = ['resolved_SlfCoup']#, 'intermediate','boosted']
 cut_sel = 'ntag4' # corresponds to set of cuts in cuts.py 
 
 if not os.path.exists(outdir):
