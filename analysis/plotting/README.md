@@ -33,7 +33,7 @@ and run in the following order:
 
 If instead of using the ntuples you have produced which are stored in your outputs directory you can instead plot centrally produced ntuples by changing ```TOPPATH = '../outputs'``` in ```samples.py``` to point to the existing ntuples. Centrally stored ntuples can be found here: /data/atlas/atlasdata/DiHiggsPheno/ntuples
 
-## Running the code
+## Running the plotting code
 
 In the ```pheno_study``` directory the ```setup.sh``` script should first be sourced before proceeding:
 ```source setup.sh``` 
@@ -46,3 +46,12 @@ The code is then run as follows:
 ```python plot.py```
 
 The output pdf files are stored in the ```figs``` directory.  
+
+## Running the constraint codes
+
+First the ```plot.py``` must be run (as described above) in order to produce YIELD files for the constraint code. In plot.py ensure the following is used ```dir = 'jesse_linked_delphes/varied_couplings``` and the analysis is ```resolved_SlfCoup``` for example for the resolved analysis lambda limits ntuples to be used which are defined in samples.py. 
+```python plot.py```
+
+Next the constraint code is run, for the lambda limits run:
+```plot_lambda_limit.py```
+This takes the YIELD files as input and produces plots of cross-section vs kappa value (modified coupling/SM coupling) and uses this to produce a chi2 vs kappa value constraint plot.  
