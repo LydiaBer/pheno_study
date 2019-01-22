@@ -284,7 +284,7 @@ int main(int argc, char* argv[]) {
     const std::string output_filename = argv[3];
     const std::string output_path = output_dir + "/" + output_filename;
 
-    ROOT::EnableImplicitMT();
+    // ROOT::EnableImplicitMT();
 
     //*******************
     // Importing Input File

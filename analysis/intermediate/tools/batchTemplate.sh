@@ -1,8 +1,6 @@
 #!/bin/sh 
-#PBS -l nodes=1:ppn=8
 #PBS -l cput=11:59:59
 #PBS -l walltime=11:59:59
-#PBS -l mem=16gb
 
 # Setup stuff
 echo "Setting up"
