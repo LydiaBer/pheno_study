@@ -175,34 +175,96 @@ bool four_b_jets_pT_40_eta_25(VecOps::RVec<Jet>& jets) {
 // Checkpoint requiring event be marked as valid by reconstruct().
 bool valid_check(const reconstructed_event& evt) { return evt.valid; }
 
-// Select m<SUB>hh</SUB> signal region
+/// Require p<SUB>T</SUB>(h)s are in the appropriate range
+bool pT_hs(const reconstructed_event& evt) {
+    double m4j = (evt.higgs1.p4 + evt.higgs2.p4).M();
+
+    // This uses leading and subleading *pT* higgs
+    const auto& lead = (evt.higgs1.p4.Pt() >= evt.higgs2.p4.Pt()) ? evt.higgs1 : evt.higgs2;
+    const auto& sublead = (evt.higgs1.p4.Pt() >= evt.higgs2.p4.Pt()) ? evt.higgs2 : evt.higgs1;
+
+    // Numbers also incorrect
+    // Const was 90 GeV
+    return (lead.p4.Pt() > (0.513333 * m4j - 103.3333 * GeV)
+            // Const was 70 GeV
+            && sublead.p4.Pt() > (0.33333 * m4j - 73.3333 * GeV));
+}
+
+/// Require &Delta;&eta;(hh) < 1.5
+bool delta_eta_hh(const reconstructed_event& evt) {
+    return abs(evt.higgs1.p4.Eta() - evt.higgs2.p4.Eta()) < 1.5;
+}
+
+/// \brief Veto top quarks using X<SUB>wt</SUB>
+///
+/// Requires plain branches again to reconstruct tops
+bool remove_ttbar(const reconstructed_event& evt, VecOps::RVec<Jet>& raw_jets) {
+    const auto& hc_jets = evt.jets;
+    std::vector<OxJet> jets =
+          view::zip_with(make_jet, raw_jets) | view::filter([](const auto& jet) {
+              return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 2.5;
+          });
+    ranges::sort(jets, ranges::ordered_less{}, [](const auto& jet) { return jet.p4.Pt(); });
+    ranges::reverse(jets);
+
+    std::vector<double> Xwts{};
+    for (auto&& hc_jet : hc_jets) {
+        std::vector<OxJet> non_hc_jets =
+              jets | view::remove_if([&hc_jet](auto&& jet) { return jet == hc_jet; });
+        for (auto&& [w_jet1, w_jet2] : view::cartesian_product(non_hc_jets, non_hc_jets)) {
+            // Drop pairs where two W constituents are the same jet
+            if (w_jet1 == w_jet2) {
+                continue;
+            }
+            // // Drop pairs where both W constituents are b tagged
+            // if (w_jet1.tagged && w_jet2.tagged) continue;
+            // Drop if hc_jet isn't highest MV2
+            // if ((hc_jet.btag < w_jet1.btag and (ranges::find(hc_jets, w_jet1) !=
+            // std::end(hc_jets)))
+            //     or (hc_jet.btag < w_jet2.btag
+            //         and (ranges::find(hc_jets, w_jet2) != std::end(hc_jets)))) {
+            //     continue;
+            // }
+
+            double Mw = (w_jet1.p4 + w_jet2.p4).M();
+            double Mt = (w_jet1.p4 + w_jet2.p4 + hc_jet.p4).M();
+            double Xwt = sqrt(pow((Mw - 80.4 * GeV) / (0.1 * Mw), 2)
+                              + pow((Mt - 172.5 * GeV) / (0.1 * Mt), 2));
+            Xwts.push_back(Xwt);
+        }
+    }
+    if (Xwts.empty()) {
+        // fmt::print(top_deb, "Xwts is empty\n");
+        return true;
+    }
+    return !(ranges::min(Xwts) < 1.5);
+}
+
+/// Select m<SUB>hh</SUB> signal region
 bool signal(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 40.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 40.) ? true : false;
-    return (higgs1_flag && higgs2_flag);
+    double Xhh = sqrt(pow((m_h1 - 120 * GeV) / (0.1 * m_h1), 2)
+                      + pow((m_h2 - 110 * GeV) / (0.1 * m_h2), 2));
+    return Xhh < 1.6;
 }
 
-// Select m<SUB>hh</SUB> sideband region
-bool sideband(const reconstructed_event& evt) {
-    double m_h1 = evt.higgs1.p4.M();
-    double m_h2 = evt.higgs2.p4.M();
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
-    return (higgs1_flag && higgs2_flag);
-}
-
-// Select m<SUB>hh</SUB> control region
+/// Select m<SUB>hh</SUB> control region
 bool control(const reconstructed_event& evt) {
     double m_h1 = evt.higgs1.p4.M();
     double m_h2 = evt.higgs2.p4.M();
-    // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 45.) ? true : false;
-    bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 45.) ? true : false;
-    return (higgs1_flag && higgs2_flag);
+
+    double desc = sqrt(pow(m_h1 - 120 * 1.03 * GeV, 2) + pow(m_h2 - 110 * 1.03 * GeV, 2));
+    return desc < 30 * GeV;
+}
+
+/// Select m<SUB>hh</SUB> sideband region
+bool sideband(const reconstructed_event& evt) {
+    double m_h1 = evt.higgs1.p4.M();
+    double m_h2 = evt.higgs2.p4.M();
+
+    double desc = sqrt(pow(m_h1 - 120 * 1.05 * GeV, 2) + pow(m_h2 - 110 * 1.05 * GeV, 2));
+    return desc < 45 * GeV;
 }
 
 //***************
@@ -212,8 +274,11 @@ bool control(const reconstructed_event& evt) {
 int main(int argc, char* argv[]) {
     // Use iostreams for input only and fmt::print for output only, so fine
     std::ios::sync_with_stdio(false); // Needed for fast iostreams
-    using vec_string = std::vector<std::string>;
 
+    if (argc != 4) {
+        fmt::print("Must have precisely 3 arguments: file_path output_dir output_filename\n");
+        exit(2);
+    }
     const std::string file_path = argv[1];
     const std::string output_dir = argv[2];
     const std::string output_filename = argv[3];
@@ -237,14 +302,17 @@ int main(int argc, char* argv[]) {
     auto reconstructed = four_jets.Define("event", reconstruct, {"Jet", "Event"});
 
     auto valid_evt = reconstructed.Filter(valid_check, {"event"}, u8"ΔR_jj");
+    auto pT_higgs = valid_evt.Filter(pT_hs, {"event"}, u8"pT Higgs");
+    auto dEta_hh = valid_evt.Filter(delta_eta_hh, {"event"}, u8"Delta eta HH");
+    auto ttbar_veto = valid_evt.Filter(remove_ttbar, {"event", "Jet"}, u8"ttbar veto");
 
-    auto signal_result = valid_evt.Filter(signal, {"event"}, "signal");
+    auto signal_result = ttbar_veto.Filter(signal, {"event"}, "signal");
 
-    auto control_result = valid_evt.Filter(
+    auto control_result = ttbar_veto.Filter(
           [](const reconstructed_event& event) { return control(event) && (!signal(event)); },
           {"event"}, "control");
 
-    auto sideband_result = valid_evt.Filter(
+    auto sideband_result = ttbar_veto.Filter(
           [](const reconstructed_event& event) { return sideband(event) && !control(event); },
           {"event"}, "sideband");
 
@@ -255,7 +323,7 @@ int main(int argc, char* argv[]) {
     fmt::print("Writing to {}\n", output_path);
 
     TFile output_file(output_path.c_str(), "RECREATE");
-    write_tree(valid_evt, "pre-selection", output_file);
+    write_tree(ttbar_veto, "pre-selection", output_file);
     write_tree(signal_result, "signal", output_file);
     write_tree(control_result, "control", output_file);
     write_tree(sideband_result, "sideband", output_file);

@@ -24,10 +24,19 @@ def configure_cuts(var, cut_sel, print_cuts=True):
   l_ntag4 = [
     '(ntag>3)',
   ]  
+
+  l_ntag3 = [
+    '(ntag>2)',
+  ]  
   
+  l_ntag2 = [
+    '(ntag>1)',
+  ]  
   # =============================================
   d_cuts = {
-    'ntag4'     : l_ntag4
+    'ntag4'     : l_ntag4,
+    'ntag3'     : l_ntag3,
+    'ntag2'     : l_ntag2
   } 
   
   l_cuts = [''] 
