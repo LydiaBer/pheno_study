@@ -25,7 +25,7 @@ namespace view = ranges::view;
 namespace action = ranges::action;
 
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
-double leadPtCut = 250.0;
+double leadPtCut = 450.0;
 double sublPtCut = 250.0;
 double xhhcut = 1.6;
 
@@ -41,7 +41,8 @@ bool two_large_b_jets(VecOps::RVec<Jet>& jets /*!Input Jets of FastJet <Jet> typ
     int b_count = 0; // Counting Number of Boosted B-tagged Events
 
     for (auto&& j : jets) {
-        if (j.PT >= 200. * GeV and std::abs(j.Eta) < 2.0) {
+        //if (j.PT >= 200. * GeV and std::abs(j.Eta) < 2.0) {
+        if (j.PT >= 250. * GeV ) {
             count++;
             if (j.BTag) b_count++;
         }
@@ -68,8 +69,7 @@ reconstruct(VecOps::RVec<Jet>& jet,       // Input Jet of FastJet <Jet> type
     std::vector<OxJet> lj_vec =
           view::zip_with(make_jet, jet)
           | view::filter([](const auto& jet) { // Apply Wrapper for OxJet
-                return jet.p4.Pt() >= 200. * GeV
-                       and std::abs(jet.p4.Eta()) < 2.5; // Apply Boosted Filter
+                return jet.p4.Pt() >= 250. * GeV and std::abs(jet.p4.Eta()) < 2.5; // Apply Boosted Filter
             });
 
     std::vector<OxJet> tj_vec =
@@ -100,21 +100,16 @@ reconstruct(VecOps::RVec<Jet>& jet,       // Input Jet of FastJet <Jet> type
     std::vector<OxJet> h2_assoTrkJet;
 
     for(auto trackJet : tj_vec){
-      if (trackJet.p4.DeltaR(leading.p4) <= 0.5){
+      if (trackJet.p4.DeltaR(leading.p4) <= 0.4){
         h1_assoTrkJet.push_back(trackJet);
       }
-      if (trackJet.p4.DeltaR(subleading.p4) <= 0.5){
+      if (trackJet.p4.DeltaR(subleading.p4) <= 0.4){
         h2_assoTrkJet.push_back(trackJet);
       }
     } 
     //Check if trackjets are pt Ordered 
     if (h1_assoTrkJet.size() > 1 and h1_assoTrkJet[1].p4.Pt() > h1_assoTrkJet[0].p4.Pt()) std::cout<<"Warning:            ********TrackJets aren't pt-ordered****************"<<std::endl;
     if (h2_assoTrkJet.size() > 1 and h2_assoTrkJet[1].p4.Pt() > h2_assoTrkJet[0].p4.Pt()) std::cout<<"Warning:            ********TrackJets aren't pt-ordered****************"<<std::endl;
-    //Drop events with both higgs with zero associated trackjets
-    if (h1_assoTrkJet.size() < 1 and h2_assoTrkJet.size() < 1) {
-      result.valid = false;
-      return result;
-    }   
 
     // Higgs Reconstruction
 
@@ -141,6 +136,9 @@ reconstruct(VecOps::RVec<Jet>& jet,       // Input Jet of FastJet <Jet> type
     if (result.higgs2.trkjet1_isTagged) h2_ntag++;
     if (result.higgs2.trkjet2_isTagged) h2_ntag++;
 
+    result.higgs1.ntags = h1_ntag;
+    result.higgs2.ntags = h2_ntag;
+
     if ((h1_ntag < 1 and h2_ntag >= 1)or(h1_ntag >= 1 and h2_ntag < 1)) result.lowTag = true;
     else if (h1_ntag > 0 and h2_ntag > 0){
       result.valid = true;
@@ -148,10 +146,6 @@ reconstruct(VecOps::RVec<Jet>& jet,       // Input Jet of FastJet <Jet> type
       if (h1_ntag > 2 or h2_ntag > 2) result.overTag = true;
     }
     else if (h1_ntag < 1 and h2_ntag < 1) result.valid = false;
-
-    result.higgs1.ntags = h1_assoTrkJet.size();
-    result.higgs2.ntags = h2_assoTrkJet.size();
-
 
     return result; // Return type <reconstructed_event>
 }
@@ -161,6 +155,7 @@ bool fatJetMass_check(const reconstructed_event& evt) { return evt.higgs1.p4.M()
 bool diJetEta_check(const reconstructed_event& evt) { return evt.higgs1.p4.Eta() < 2.0 && evt.higgs2.p4.Eta() < 2.0; } 
 bool fatJetPt_check(const reconstructed_event& evt) { return evt.higgs1.p4.Pt() > leadPtCut && evt.higgs2.p4.Pt() > sublPtCut;} 
 bool dEtaHH_check(const reconstructed_event& evt) { return std::abs(evt.higgs1.p4.Eta() - evt.higgs2.p4.Eta()) < 1.7;} 
+bool bJetSkim_check(const reconstructed_event& evt) { return evt.higgs1.ntags + evt.higgs2.ntags >= 2;} 
 bool lowTag_check(const reconstructed_event& evt) { return evt.lowTag; } // Filter Only lower tagged Events
 bool overTag_check(const reconstructed_event& evt) { return evt.overTag; } // Filter Only lower tagged Events
 Float_t getWeight(const reconstructed_event& evt) { return evt.wgt; } 
@@ -202,14 +197,6 @@ bool sideband(const reconstructed_event& evt) {
 
     return (!isSR && (sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) > 33.0) &&(sqrt(pow(evt.higgs1.p4.M() - 134.0, 2) + pow(evt.higgs2.p4.M() - 125.0, 2)) < 58.0));
 
-    // test using ATLAS regions double m_h1 = evt.higgs1.p4.M(); // Mass of the Leading Higgs
-    // test using ATLAS regions double m_h2 = evt.higgs2.p4.M(); // Mass of the Subleading Higgs
-
-    // test using ATLAS regions // Cut in a mass window of 80 GeV around 125 GeV for both Higgs
-    // test using ATLAS regions bool higgs1_flag = (std::abs(evt.higgs1.p4.M() - 125.) < 50.) ? true : false;
-    // test using ATLAS regions bool higgs2_flag = (std::abs(evt.higgs2.p4.M() - 125.) < 50.) ? true : false;
-    // test using ATLAS regions return (higgs1_flag && higgs2_flag); // Return Type boolean: if both Higgs
-                                         // fall in the window then accept
 }
 
 int main(int arc, char* argv[]) {
@@ -250,13 +237,16 @@ int main(int arc, char* argv[]) {
     auto pass_dEtaHH = pass_diJetEta.Filter(dEtaHH_check, {"event"}, u8"HH deltaEta < 1.7 "); 
 
     auto add_MC_weight = pass_dEtaHH.Define("mc_weight", getWeight, {"event"}); 
+
     add_MC_weight.Snapshot("newtree", "newfile.root", {"event","mc_weight"});
 
     auto add_dRjj_h1 = add_MC_weight.Define("deltaRjj_h1", getDRjj_h1, {"event"}); 
 
     auto add_dRjj_h2 = add_dRjj_h1.Define("deltaRjj_h2", getDRjj_h2, {"event"}); 
 
-    auto valid_evt = add_dRjj_h2.Filter(valid_check, {"event"}, "valid events"); 
+    auto pass_bJetSkim = add_dRjj_h2.Filter(bJetSkim_check, {"event"}, u8"pass bjet skim "); 
+
+    auto valid_evt = pass_bJetSkim.Filter(valid_check, {"event"}, "valid events"); 
 
     auto lowTag_evt = add_MC_weight.Filter(lowTag_check,{"event"}, "lowTag events"); 
 
@@ -292,19 +282,6 @@ int main(int arc, char* argv[]) {
     ////*********************
     //// Storing Output
     ////********************
-
-    //fmt::print("Writing to {}\n", output_path);
-
-    //TFile output_file(output_path.c_str(), "RECREATE");   // Opening Ouput File
-    //write_tree(signal_result, "signal", output_file);     // Writing the Signal Tree
-    //write_tree(control_result, "control", output_file);   // Writing the Control Tree
-    //write_tree(sideband_result, "sideband", output_file); // Writing the Sideband Tree
-
-    //*********************
-    // Storing Histograms
-    //********************
-    //
-
 
     auto h_dRjj_h1 = add_dRjj_h2.Histo1D({"deltaRjj_h1", "", 45, -0.6,5}, "deltaRjj_h1","mc_weight");
     auto h_dRjj_h2 = add_dRjj_h2.Histo1D({"deltaRjj_h2", "", 45, -0.6,5}, "deltaRjj_h2","mc_weight");
@@ -764,14 +741,16 @@ int main(int arc, char* argv[]) {
     // Writing Cutflows
     //************************
 
-    Cutflow boosted_cutflow("Boosted Cutflow",
+    Cutflow boosted_cutflow("Boosted_Cutflow",
                             hist_file); // Define Cutflow for the Boosted Analysis
-    boosted_cutflow.add(u8"2 large good jets(pT ≥ 200 GeV, η ≤ 2.0), ≥ 2 tagged",
+    boosted_cutflow.add(u8"2 large good jets",//before: 2 large good jets(pT ≥ 200 GeV, η ≤ 2.0), ≥ 2 tagged
                         two_b_jets.Count());
     boosted_cutflow.add(u8"Reconstructed events", reconstructed.Count());
-    boosted_cutflow.add(u8"FatJet Mass > 50", pass_fatJetMass.Count());
-    boosted_cutflow.add(u8"FatJet pt  > "+std::to_string(leadPtCut)+","+std::to_string(sublPtCut), pass_diJetEta.Count());
-    boosted_cutflow.add(u8"FatJet eta < 2", pass_diJetEta.Count());
+    boosted_cutflow.add(u8"FatJet Mass", pass_fatJetMass.Count());
+    boosted_cutflow.add(u8"FatJet pT"+std::to_string(leadPtCut)+","+std::to_string(sublPtCut), pass_diJetEta.Count());
+    boosted_cutflow.add(u8"FatJet eta", pass_diJetEta.Count());
+    boosted_cutflow.add(u8"FatJet DeltaEta", pass_diJetEta.Count());
+    boosted_cutflow.add(u8"bJetSkim", pass_bJetSkim.Count());
     boosted_cutflow.add(u8"2 large jet Tagged", valid_evt.Count());
     boosted_cutflow.add(u8"Signal", signal_result.Count());
     boosted_cutflow.add(u8"Control", control_result.Count());
@@ -780,6 +759,16 @@ int main(int arc, char* argv[]) {
     boosted_cutflow.add(u8"Low-tag Control", lowTag_control_result.Count());
     boosted_cutflow.add(u8"Low-tag Sideband", lowTag_sideband_result.Count());
     boosted_cutflow.write();
+
+    std::cout << "======================="<< std::endl;
+    std::cout << "       2LR jets in barrel: " << boosted_cutflow.get("2 large good jets") << std::endl; 
+    std::cout << "       PassFatJetMass: " << boosted_cutflow.get("FatJet Mass") << std::endl; 
+    std::cout << "       PassDijetEta: " << boosted_cutflow.get("FatJet eta") << std::endl; 
+    std::cout << "       PassDetaHH: " << boosted_cutflow.get("FatJet DeltaEta") << std::endl; 
+    std::cout << "       PassBJetSkim: " << boosted_cutflow.get("bJetSkim") << std::endl; 
+    std::cout << "       PassSignal: " << boosted_cutflow.get("Signal") << std::endl; 
+    std::cout << "======================="<< std::endl;
+
 
     std::cout<<"closing histo file\n";
     hist_file.Write();
