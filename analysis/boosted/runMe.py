@@ -9,8 +9,8 @@ import os
 
 ### User inputs
 
-FILE_LIST = "../filelists/jesse_linked_delphes.txt" #2018sep13_all_merged_delphes.txt"
-OUT_DIR = os.getcwd().split("/boosted")[0]+"/outputs/jesse_linked_delphes"#2018sep13"
+FILE_LIST = "./run/sliced_trackJetBtagged_samples_boosted.txt" #2018sep13_all_merged_delphes.txt"
+OUT_DIR = os.getcwd().split("/boosted")[0]+"/outputs/./sliced_trackJetBtagged_samples"#2018sep13"
 USE_BATCH = True
 
 ### End of user inputs
@@ -43,18 +43,33 @@ with open(FILE_LIST, 'r') as filehandle:
         file_path = file_dir+"/"+file
 
         # make short output filename of form boosted_genfiltercut_sample.root
-        if "signal/nominal" in file_path:
+        if "hh_loop_sm" in file_path:
           output_filename = "boosted_loop_hh_"+file   
  
         elif "signal/varied_coupling" in file_path:
           TopYuk = file_path.split("TopYuk_")[1].split("/SlfCoup")[0]
           output_filename = "boosted_hh_"+"TopYuk_"+TopYuk+"_"+file  
 
-        elif "bkg" in file_path:
-          if "unfiltered" in file_path:
-            filter = "noGenFilt"
-          if "pt200" in file_path:
-            filter = "xpt200"
+        elif "4b" in file_path:
+          if "20_to_200" in file_path:
+            filter = "20_to_200_4b"
+          if "200_to_500" in file_path:
+            filter = "200_to_500_4b"
+          if "500_to_1000" in file_path:
+            filter = "500_to_1000_2b2j"
+          if "1000_to_infty" in file_path:
+            filter = "1000_to_infty_4b"
+          output_filename = "boosted_{0}_{1}_{2}".format(filter, file_path.split("/")[-2],file)
+
+        elif "2b2j" in file_path:
+          if "20_to_200" in file_path:
+            filter = "20_to_200_2b2j"
+          if "200_to_500" in file_path:
+            filter = "200_to_500_2b2j"
+          if "500_to_1000" in file_path:
+            filter = "500_to_1000_2b2j"
+          if "1000_to_infty" in file_path:
+            filter = "1000_to_infty_2b2j"
           output_filename = "boosted_{0}_{1}_{2}".format(filter, file_path.split("/")[-2],file)
 
         command =  "./build/boosted-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
