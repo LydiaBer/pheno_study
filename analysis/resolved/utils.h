@@ -58,6 +58,8 @@ class OxJet {
     OxJet(double M, double pT, double eta, long double phi, bool tagged) : p4(), tagged(tagged) {
         p4.SetPtEtaPhiM(pT, eta, phi, M);
     }
+
+    inline bool operator==(const OxJet& snd) { return this->p4 == snd.p4; }
 };
 
 /// Wrapper around Jet constructor
@@ -72,34 +74,6 @@ inline OxJet make_jet(Jet& jet) {
     return OxJet(M, pT, eta, phi, tagged);
 }
 
-/*
-/// Compare jets by B-tagging score then p<SUB>T</SUB>
-inline bool operator<(const Jet& lhs, const Jet& rhs) {
-    if (lhs.btag == rhs.btag) {
-        return lhs.p4.Pt() < rhs.p4.Pt();
-    }
-    else {
-        return lhs.btag < rhs.btag;
-    }
-}
-
-inline bool operator==(const Jet& lhs, const Jet& rhs) {
-    return (lhs.btag == rhs.btag) && (lhs.p4.Pt() == rhs.p4.Pt());
-}
-
-inline bool operator!=(const Jet& lhs, const Jet& rhs) {
-    return std::rel_ops::operator!=(lhs, rhs);
-}
-inline bool operator>(const Jet& lhs, const Jet& rhs) {
-    return std::rel_ops::operator>(lhs, rhs);
-}
-inline bool operator<=(const Jet& lhs, const Jet& rhs) {
-    return std::rel_ops::operator<=(lhs, rhs);
-}
-inline bool operator>=(const Jet& lhs, const Jet& rhs) {
-    return std::rel_ops::operator>=(lhs, rhs);
-}
-*/
 /// Reconstructed event information
 struct reconstructed_event {
     bool valid;                ///< Is event valid
@@ -144,9 +118,9 @@ return (std::vector<int>(view::ints(0, n_jets)) | action::shuffle(engine)
 */
 /// Output format for writing TTrees
 struct out_format {
-    double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
-    double pT_hh; ///< Di-Higgs pT (pT<SUB>hh</SUB> or pT<SUB>4j</SUB>)
-    double dR_hh; ///< Di-Higgs dR (dR<SUB>hh</SUB> or dR<SUB>4j</SUB>)
+    double m_hh;    ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
+    double pT_hh;   ///< Di-Higgs pT (pT<SUB>hh</SUB> or pT<SUB>4j</SUB>)
+    double dR_hh;   ///< Di-Higgs dR (dR<SUB>hh</SUB> or dR<SUB>4j</SUB>)
     double deta_hh; ///< Di-Higgs deta (deta<SUB>hh</SUB> or deta<SUB>4j</SUB>)
     double dphi_hh; ///< Di-Higgs dphi (dphi<SUB>hh</SUB> or dphi<SUB>4j</SUB>)
 
@@ -267,7 +241,7 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
               vars->pT_hh = (event.higgs1.p4 + event.higgs2.p4).Pt();
               vars->dR_hh = event.higgs1.p4.DeltaR(event.higgs2.p4);
-              vars->deta_hh = event.higgs1.p4.Eta()-event.higgs2.p4.Eta();
+              vars->deta_hh = event.higgs1.p4.Eta() - event.higgs2.p4.Eta();
               vars->dphi_hh = event.higgs1.p4.DeltaPhi(event.higgs2.p4);
 
               ntag_var[slot] = event.ntag;

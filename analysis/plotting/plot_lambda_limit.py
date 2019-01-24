@@ -2,7 +2,8 @@
 
 import os,math,csv
 from matplotlib import pyplot as plt
-
+import matplotlib
+matplotlib.use('PDF')
 ##################################################################
 
 dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in

@@ -1,4 +1,5 @@
 *.so
+compile_commands.json
 analysis/*/build/
 delphes/CaloGrid
 delphes/*.pcm

@@ -34,40 +34,57 @@ namespace action = ranges::action;
 
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
-bool one_b_large_two_b_small_cuts(VecOps::RVec<Jet>& jets, VecOps::RVec<Jet>& fatjets) {
+//-----------------------------------------------
+// Keep the preselection fairly loose
+// This enables greater flexibility
+//-----------------------------------------------
+bool one_large_two_b_small_cuts(VecOps::RVec<Jet>& jets, VecOps::RVec<Jet>& fatjets ) {
 
-    int b_count_small = 0; // Counting b tagged small-R jets
-    int b_count_fat = 0; // Counting b tagged large-R jets
+    int count_small = 0; // Counting small-R jets
+    int count_fat = 0; // Counting large-R jets
 
-    // Filter small R jets with 2 pT>40 and |eta|< 2.5 & btagged
+    // Loose filter small R jets
     for (auto&& j : jets) {
-        if (j.PT >= 40.*GeV && fabs(j.Eta) < 2.5 && j.BTag) b_count_small++;
+        if (j.PT >= 20.*GeV && std::abs(j.Eta) < 4.5 ) count_small++;
     }
 
-    // Filter large R jet 1 pT>200 and |eta|<2. & btagged
+    // Loose filter large R jet
     for (auto&& j : fatjets) {
-        if (j.PT >= 200.*GeV && fabs(j.Eta) < 2.0 && j.BTag) b_count_fat++;
+        if (j.PT >= 100.*GeV &&  std::abs(j.Eta) < 2.5) count_fat++;
     }
 
-    return b_count_small >= 2 && b_count_fat == 1;
+    return count_small >= 2 && count_fat >= 1; 
 }
 
-reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, VecOps::RVec<Jet>& largejet,
+//-----------------------------------------------
+// Reconstruction routine
+//-----------------------------------------------
+reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, // Delphes Jet 
+                                VecOps::RVec<Jet>& largejet, // Delphes FatJet
+                                VecOps::RVec<Jet>& trkjet,   // Delphes TrackJet
                                 VecOps::RVec<HepMCEvent>& evt) {
     reconstructed_event result{};
 
+
     result.wgt = evt[0].Weight;
+
 
     // large R jets vector
     std::vector<OxJet> lj_vec =
           view::zip_with(make_jet, largejet) | view::filter([](const auto& jet) {
-              return jet.p4.Pt() >= 200. * GeV and std::abs(jet.p4.Eta()) < 2.0;
+              return jet.p4.Pt() >= 100. * GeV and std::abs(jet.p4.Eta()) < 2.5;
           });
-
+    
     // small R jets vector
     std::vector<OxJet> sj_vec =
           view::zip_with(make_jet, smalljet) | view::filter([](const auto& jet) {
-              return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 2.5;
+              return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 4.5;
+          });
+    
+    // track jets vector
+    std::vector<OxJet> tj_vec =
+          view::zip_with(make_jet, trkjet) | view::filter([](const auto& jet) {
+              return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 2.5;
           });
 
     // Sort Large R jets by pT
@@ -75,103 +92,116 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, VecOps::RVec<Jet>& 
 
     // Sort small R jets by pT
     ranges::sort(sj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
+    
+    // Sort track R jets by pT
+    ranges::sort(tj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
 
     // Decreasing Order
     ranges::reverse(lj_vec);
     ranges::reverse(sj_vec);
-
-    const int n_small_tag = // Counting small R jets B tagged
-          ranges::count(sj_vec, true, [](auto&& jet) { return jet.tagged; });
+    ranges::reverse(tj_vec);
 
     const int n_large_tag = // Counting large R jets B tagged
           ranges::count(lj_vec, true, [](auto&& jet) { return jet.tagged; });
+    
+    const int n_track_tag = // Counting small R jets B tagged
+          ranges::count(tj_vec, true, [](auto&& jet) { return jet.tagged; });
 
+    // Assign the leading large R jet as the leading Higgs candidate
     OxJet large_jet = lj_vec[0];
-
-    // Separating B Tagged small r jets from non-B Tagged
-    std::vector<OxJet> small_jets = sj_vec | view::filter([](auto&& jet) { return jet.tagged; });
-
-    std::vector<OxJet> other_jets = sj_vec | view::filter([](auto& jet) { return !jet.tagged; });
-
-    // There could be only one non btag jet. Maybe change it because not strictly
-    // necessary
-    /*if (n_small_tag< 2) {
-    int n_jets_to_choose = 2-n_small_tag;
-    int n_other_jets = sj_vec.size() - n_small_tag;
-    if (n_other_jets < n_jets_to_choose){
-    fmt::print(stderr,
-            "We need {} jets; but only have {} to pick from. How? \n",
-            n_jets_to_choose, n_other_jets);
-    result.valid=false;
-    return result;
+ 
+    //---------------------------------------------------
+    // Associate track jets with large R jet
+    //---------------------------------------------------
+   
+    // A vector of jets associated with leading large R jet 
+    std::vector<OxJet> h1_assoTrkJet;
+    float max_dR_trackJet_largeJet = 0.8;
+    
+    for(auto tj : tj_vec){
+      if ( tj.p4.DeltaR(large_jet.p4) <= max_dR_trackJet_largeJet){
+        h1_assoTrkJet.push_back(tj);
+      }
     }
-    if(n_other_jets < 1){
-    result.valid=false;
-    }
+    
+    const int n_assoc_track_tag = // Counting track jets associated with large R jet that are B tagged
+          ranges::count(h1_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
 
-    ranges::copy(other_jets | view::take(n_jets_to_choose),
-            ranges::back_inserter(small_jets));
-    }
+    //---------------------------------------------------
+    // Assign small R jets to second Higgs candidate
+    //---------------------------------------------------
 
-    */
-
-    // If small R jets tagged are less than 2-> Reject event
-
-    if (n_small_tag < 2) {
+    // If small R jets are less than 2-> Reject event
+    if (sj_vec.size() < 2) {
         result.valid = false;
         return result;
     }
 
+    //---------------------------------------------------
+    // For all separated jets
+    // Both small b-jets and non-b-jets
     // Cut on DeltaR<1.2 between small R jets and Large R jet
-
-    std::vector<OxJet> bjets_separated;
-    std::vector<OxJet> bjets_notseparated;
-    for (auto&& j : small_jets) {
-        if (deltaR(large_jet, j) > 1.2) bjets_separated.push_back(j);
-        else bjets_notseparated.push_back(j);
+    //---------------------------------------------------
+    
+    // Put all small R jets separated from fat jet into jets_separated
+    std::vector<OxJet> jets_separated;
+    std::vector<OxJet> jets_notseparated;
+    for (auto&& j : sj_vec) {
+      if (deltaR(large_jet, j) > 1.2) jets_separated.push_back(j);
+      else jets_notseparated.push_back(j);
+      
     }
-
-    if (bjets_separated.size() < 2) {
-        int available = bjets_notseparated.size();
-        int already_there = bjets_separated.size();
+    
+    if (jets_separated.size() < 2) {
+        int available = jets_notseparated.size();
+        int already_there = jets_separated.size();
         int to_push = 2 - already_there;
         if (to_push > available) {
             result.valid = false;
             return result;
         }
         for (int i = 0; i < to_push; i++) {
-            bjets_separated.push_back(bjets_notseparated.at(i));
+            jets_separated.push_back(jets_notseparated.at(i));
         }
     }
-
+    
+    const int n_separ_tag = // Counting small jets separated from large R jet that are B tagged
+      ranges::count(jets_separated, true, [](auto&& jet) { return jet.tagged; });
+    
     // Get the pairing that minimizes relative mass difference
     // Make pairs of small r jets
 
     JetPair bestPair;
 
-    for(unsigned int i = 0; i < bjets_separated.size(); i++){
-      for(unsigned int j = i+1; j < bjets_separated.size(); j++){
+    for(unsigned int i = 0; i < jets_separated.size(); i++){
+      for(unsigned int j = i+1; j < jets_separated.size(); j++){
         if(i == 0 && j == 1){
-          bestPair = make_pair(bjets_separated.at(i), bjets_separated.at(j));
+          bestPair = make_pair(jets_separated.at(i), jets_separated.at(j));
           continue;
         }
-        JetPair thisPair = make_pair(bjets_separated.at(i), bjets_separated.at(j));
+        JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
         if(fabs(thisPair.p4().M() - large_jet.p4.M()) < fabs(bestPair.p4().M() - large_jet.p4.M())) bestPair = thisPair;
       }
     }
 
     // Storing the candidates
-
-    result.higgs2.p4 = bestPair.jet_1.p4 + bestPair.jet_2.p4;
-    result.higgs1.p4 = large_jet.p4;
-    result.n_small_tag = n_small_tag;
-    result.n_small_jets = sj_vec.size();
-    result.n_large_tag = n_large_tag;
-    result.n_large_jets = lj_vec.size();
-    result.large_jet = large_jet;
-    result.small_jets[0] = bestPair.jet_1;
-    result.small_jets[1] = bestPair.jet_2;
-
+    result.higgs2.p4      = bestPair.jet_1.p4 + bestPair.jet_2.p4;
+    result.higgs1.p4      = large_jet.p4;
+    result.n_small_tag    = n_separ_tag;
+    result.n_small_jets   = jets_separated.size();
+    result.n_large_tag    = n_large_tag;
+    result.n_large_jets   = lj_vec.size();
+    result.n_track_tag    = n_track_tag;
+    result.n_track_jets   = tj_vec.size();
+    result.n_assoc_track_tag  = n_assoc_track_tag;
+    result.n_assoc_track_jets = h1_assoTrkJet.size();
+    
+    result.large_jet      = large_jet;
+    if ( h1_assoTrkJet.size() >= 1 ) { result.h1_assoTrkJet1.p4 = h1_assoTrkJet[0].p4; }
+    if ( h1_assoTrkJet.size() >= 2 ) { result.h1_assoTrkJet2.p4 = h1_assoTrkJet[1].p4; }
+ 
+    result.small_jets[0]  = bestPair.jet_1;
+    result.small_jets[1]  = bestPair.jet_2;
     // If leading is subleading and viceversa then exchange
     if (result.small_jets[1].p4.Pt() > result.small_jets[0].p4.Pt()) {
         result.small_jets[0] = bestPair.jet_2;
@@ -224,12 +254,12 @@ int main(int argc, char* argv[]) {
     const std::string output_filename = argv[3];
     const std::string output_path = output_dir + "/" + output_filename;
 
-    ROOT::EnableImplicitMT();
+    // Uncomment to enable multithreading
+    //ROOT::EnableImplicitMT();
 
     //*******************
     // Importing Input File
     //*******************
-
     RDataFrame frame("Delphes", file_path);
 
     //******************
@@ -237,31 +267,16 @@ int main(int argc, char* argv[]) {
     //******************
 
     auto three_jets =
-          frame.Filter(one_b_large_two_b_small_cuts, {"Jet", "FatJet"},
+          frame.Filter(one_large_two_b_small_cuts, {"Jet", "FatJet"},
                        u8"Intermediate analysis cuts"); // Apply Intermediate Events Filter
-
+    
     auto reconstructed =
-          three_jets.Define("event", reconstruct, {"Jet", "FatJet", "Event"}); // Reconstruct Events
+          three_jets.Define("event", reconstruct, {"Jet", "FatJet", "TrackJet", "Event"}); // Reconstruct Events
 
     auto valid_evt =
           reconstructed.Filter(valid_check, {"event"}, "valid events"); // Filter only valid Events
 
     auto signal_result = valid_evt.Filter(signal, {"event"}, "signal"); // Filter Signal Events
-                                                                        /*
-                                                                          auto control_result = valid_evt.Filter(  // Filter Events in the Control
-                                                                          Region
-                                                                              [](const reconstructed_event &event) {
-                                                                                return control(event) && (!signal(event));
-                                                                              },
-                                                                              {"event"}, "control");
-                                                                    
-                                                                          auto sideband_result = valid_evt.Filter(  // Filter Events in the Control
-                                                                          Region
-                                                                              [](const reconstructed_event &event) {
-                                                                                return sideband(event) && !control(event);
-                                                                              },
-                                                                              {"event"}, "sideband");
-                                                                          */
 
     //********************
     // Writing Output Ntuple
@@ -270,9 +285,9 @@ int main(int argc, char* argv[]) {
     fmt::print("Writing to {}\n", output_path);
 
     TFile output_file(output_path.c_str(), "RECREATE");
-
+    
     write_tree(signal_result, "signal", output_file);
-    write_tree(valid_evt, "pre-selection", output_file);
+    write_tree(valid_evt, "preselection", output_file);
     // write_tree(control_result, "control", output_file);
     // write_tree(sideband_result, "sideband", output_file);
 
@@ -281,14 +296,15 @@ int main(int argc, char* argv[]) {
     //********************
     Cutflow intermediate_cutflow("Intermediate Cutflow", output_file);
     intermediate_cutflow.add(
-          u8"2 small good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 2 tagged, 1 large good jet",
+          u8"(Preselection)  ≥ 2 small jets, ≥ 1 large jet",
           three_jets.Count());
     intermediate_cutflow.add(u8"Reconstructed events", reconstructed.Count());
-    intermediate_cutflow.add(u8"(Valid) 1 large jet  and 2 small jets Tagged", valid_evt.Count());
-    intermediate_cutflow.add(u8"Signal", signal_result.Count());
+    intermediate_cutflow.add(u8"(Valid) ≥ 2 small jets", valid_evt.Count());
+    //intermediate_cutflow.add(u8"Signal", signal_result.Count());
     // intermediate_cutflow.add(u8"Control", control_result.Count());
     // intermediate_cutflow.add(u8"Sideband", sideband_result.Count());
     intermediate_cutflow.write();
 
+    std::cout << "Finished processing events." << std::endl;
     return 0;
 }

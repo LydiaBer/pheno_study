@@ -46,7 +46,7 @@ struct higgs {
 class OxJet {
   public:
     TLorentzVector p4; ///< 4-momentum
-    float btag;        ///< B-tagging score
+    double btag;        ///< B-tagging score
     bool tagged;       ///< Is jet B-tagged?
 
     OxJet() : p4(), btag(0), tagged(false) {}
@@ -125,6 +125,10 @@ struct reconstructed_event {
     int64_t n_small_jets; ///< Total number of smallR jets
     int64_t n_large_tag;  ///< Number of B-tagged LargeR jets
     int64_t n_large_jets; ///< Total number of LargeR jets
+    int64_t n_track_tag;  ///< Number of B-tagged track jets
+    int64_t n_track_jets; ///< Total number of track jets
+    int64_t n_assoc_track_tag;  ///< Number of B-tagged track jets associated with fat jet
+    int64_t n_assoc_track_jets; ///< Total number of track jets associated with fat jet
     double wgt;           ///< Event Weight
 
     OxJet large_jet;
@@ -132,13 +136,19 @@ struct reconstructed_event {
 
     higgs higgs1; ///< Leading Higgs
     higgs higgs2; ///< Subleading Higgs
+    
+    OxJet h1_assoTrkJet1;
+    OxJet h1_assoTrkJet2;
 
     reconstructed_event()
         : valid(true), // set to true if pairing is valid
           large_jet(),
           small_jets(),
           higgs1(),
-          higgs2() {}
+          higgs2(),
+          h1_assoTrkJet1(), 
+          h1_assoTrkJet2() {}
+
 };
 
 struct out_format {
@@ -163,6 +173,19 @@ struct out_format {
     double pT_h1_large_jet;  ///< Leading Higgs leading jet p<SUB>T</SUB>
     double eta_h1_large_jet; ///< Leading Higgs leading jet &eta;
     double phi_h1_large_jet; ///< Leading Higgs leading jet &Phi;
+    
+    double pT_h1_trkJet1;        ///< Leading Higgs associated leading track jet pT
+    double eta_h1_trkJet1;       ///< Leading Higgs associated leading track jet eta
+    double phi_h1_trkJet1;       ///< Leading Higgs associated leading track jet eta
+    double dR_trkJet1_large_jet; ///< Delta R between large R jet and associated leading track jet
+    
+    double pT_h1_trkJet2;        ///< Leading Higgs associated subleading track jet pT
+    double eta_h1_trkJet2;       ///< Leading Higgs associated subleading track jet eta
+    double phi_h1_trkJet2;       ///< Leading Higgs associated subleading track jet eta
+    double dR_trkJet2_large_jet; ///< Delta R between large R jet and associated subleading track jet
+    
+    double dR_trkJet1_trkJet2;   ///< Delta R   between leading track jet and subleading track jet associated with large R jet
+    double dPhi_trkJet1_trkJet2; ///< Delta Phi between leading track jet and subleading track jet associated with large R jet
 
     double m_h2_j1;   ///< Subleading Higgs leading jet mass
     double pT_h2_j1;  ///< Subleading Higgs leading jet p<SUB>T</SUB>
@@ -173,6 +196,10 @@ struct out_format {
     double pT_h2_j2;  ///< Subleading Higgs subleading jet p<SUB>T</SUB>
     double eta_h2_j2; ///< Subleading Higgs subleading jet &eta;
     double phi_h2_j2; ///< Subleading Higgs subleading jet &Phi;
+        
+    double dR_h2_j1_j2;   ///< Delta R   between leading small jet and subleading small jet separated from fat jet 
+    double dPhi_h2_j1_j2; ///< Delta Phi between leading small jet and subleading small jet separated from fat jet
+    
 };
 /*
 struct reweight_format {
@@ -197,18 +224,28 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
           "m_h1/D:pT_h1:eta_h1:phi_h1:"
           "m_h2/D:pT_h2:eta_h2:phi_h2:"
           "m_h1_large_jet:pT_h1_large_jet:eta_h1_large_jet:phi_h1_large_jet:"
+          "pT_h1_trkJet1:eta_h1_trkJet1:phi_h1_trkJet1:dR_trkJet1_large_jet:"
+          "pT_h1_trkJet2:eta_h1_trkJet2:phi_h1_trkJet2:dR_trkJet2_large_jet:"
+          "dR_trkJet1_trkJet2:dPhi_trkJet1_trkJet2:"
           "m_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
-          "m_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2";
+          "m_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2:"
+          "dR_h2_j1_j2:dPhi_h2_j1_j2";
 
     // const char *rwgt_leaflist = "pT_4/D:pT_2:eta_i:dRjj_1:dRjj_2";
 
-    int num_threads = ROOT::GetImplicitMTPoolSize();
+    int num_threads = 1;
+    // Uncomment to enable multithreading
+    //int num_threads = ROOT::GetImplicitMTPoolSize();
     vector<unique_ptr<TTree>> out_trees{};
 
     vector<int> n_small_tag_var(num_threads);
     vector<int> n_small_jets_var(num_threads);
     vector<int> n_large_tag_var(num_threads);
     vector<int> n_large_jets_var(num_threads);
+    vector<int> n_track_tag_var(num_threads);
+    vector<int> n_track_jets_var(num_threads);
+    vector<int> n_assoc_track_tag_var(num_threads);
+    vector<int> n_assoc_track_jets_var(num_threads);
     vector<double> mc_sf_var(num_threads);
     vector<unique_ptr<out_format>> out_vars{};
     // vector<unique_ptr<reweight_format>> rwgt_vars{};
@@ -219,10 +256,14 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         out_trees.push_back(make_unique<TTree>(treename, treename));
 
         out_trees[i]->SetDirectory(nullptr);
-        out_trees[i]->Branch("n_small_tag", &n_small_tag_var[i]);
+        out_trees[i]->Branch("n_small_tag",  &n_small_tag_var[i]);
         out_trees[i]->Branch("n_small_jets", &n_small_jets_var[i]);
         out_trees[i]->Branch("n_large_jets", &n_large_jets_var[i]);
-        out_trees[i]->Branch("n_large_tag", &n_large_tag_var[i]);
+        out_trees[i]->Branch("n_large_tag",  &n_large_tag_var[i]);
+        out_trees[i]->Branch("n_track_tag",  &n_track_tag_var[i]);
+        out_trees[i]->Branch("n_track_jets", &n_track_jets_var[i]);
+        out_trees[i]->Branch("n_assoc_track_tag",  &n_assoc_track_tag_var[i]);
+        out_trees[i]->Branch("n_assoc_track_jets", &n_assoc_track_jets_var[i]);
         out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
         out_trees[i]->Branch("event", out_vars[i].get(), out_format_leaflist);
         // out_trees[i]->Branch("rwgt", rwgt_vars[i].get(), rwgt_leaflist);
@@ -235,50 +276,79 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         fmt::print("Collecting Events...\n");
         first_tree = false;
     }
+    
     result.ForeachSlot(
-          [&out_trees, &out_vars, &n_small_tag_var, &n_small_jets_var, &n_large_tag_var,
-           &n_large_jets_var /*, &rwgt_vars*/,
+          [&out_trees, 
+           &out_vars, 
+           &n_small_tag_var, 
+           &n_small_jets_var, 
+           &n_large_tag_var,
+           &n_large_jets_var, /*, &rwgt_vars*/
+           &n_track_tag_var, 
+           &n_track_jets_var, 
+           &n_assoc_track_tag_var, 
+           &n_assoc_track_jets_var, 
            &mc_sf_var](unsigned slot, const reconstructed_event& event) {
               auto&& tree = out_trees[slot];
               auto&& vars = out_vars[slot];
               //  auto &&rwgt = rwgt_vars[slot];
 
-              vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
-              vars->pT_hh = (event.higgs1.p4 + event.higgs2.p4).Pt();
-              vars->dR_hh = event.higgs1.p4.DeltaR(event.higgs2.p4);
+              vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();
+              vars->pT_hh   = (event.higgs1.p4 + event.higgs2.p4).Pt();
+              vars->dR_hh   = event.higgs1.p4.DeltaR(event.higgs2.p4);
               vars->deta_hh = event.higgs1.p4.Eta()-event.higgs2.p4.Eta();
               vars->dphi_hh = event.higgs1.p4.DeltaPhi(event.higgs2.p4);
 
-              n_small_tag_var[slot] = event.n_small_tag;
+              n_small_tag_var[slot]  = event.n_small_tag;
               n_small_jets_var[slot] = event.n_small_jets;
-              n_large_tag_var[slot] = event.n_large_tag;
+              n_large_tag_var[slot]  = event.n_large_tag;
               n_large_jets_var[slot] = event.n_large_jets;
-              mc_sf_var[slot] = event.wgt;
+              n_track_tag_var[slot]  = event.n_track_tag;
+              n_track_jets_var[slot] = event.n_track_jets;
+              n_assoc_track_tag_var[slot]  = event.n_assoc_track_tag;
+              n_assoc_track_jets_var[slot] = event.n_assoc_track_jets;
+              mc_sf_var[slot]        = event.wgt;
 
-              vars->m_h1 = event.higgs1.p4.M();
-              vars->pT_h1 = event.higgs1.p4.Pt();
+              vars->m_h1   = event.higgs1.p4.M();
+              vars->pT_h1  = event.higgs1.p4.Pt();
               vars->eta_h1 = event.higgs1.p4.Eta();
               vars->phi_h1 = event.higgs1.p4.Phi();
-              vars->m_h2 = event.higgs2.p4.M();
-              vars->pT_h2 = event.higgs2.p4.Pt();
+              vars->m_h2   = event.higgs2.p4.M();
+              vars->pT_h2  = event.higgs2.p4.Pt();
               vars->eta_h2 = event.higgs2.p4.Eta();
               vars->phi_h2 = event.higgs2.p4.Phi();
 
-              vars->m_h1_large_jet = event.large_jet.p4.M();
-              vars->pT_h1_large_jet = event.large_jet.p4.Pt();
+              vars->m_h1_large_jet   = event.large_jet.p4.M();
+              vars->pT_h1_large_jet  = event.large_jet.p4.Pt();
               vars->eta_h1_large_jet = event.large_jet.p4.Eta();
               vars->phi_h1_large_jet = event.large_jet.p4.Phi();
+              
+              vars->pT_h1_trkJet1        = event.h1_assoTrkJet1.p4.Pt();
+              vars->eta_h1_trkJet1       = event.h1_assoTrkJet1.p4.Eta();
+              vars->phi_h1_trkJet1       = event.h1_assoTrkJet1.p4.Phi();
+              vars->dR_trkJet1_large_jet = event.h1_assoTrkJet1.p4.DeltaR( event.large_jet.p4 );
+              
+              vars->pT_h1_trkJet2        = event.h1_assoTrkJet2.p4.Pt();
+              vars->eta_h1_trkJet2       = event.h1_assoTrkJet2.p4.Eta();
+              vars->phi_h1_trkJet2       = event.h1_assoTrkJet2.p4.Phi();
+              vars->dR_trkJet2_large_jet = event.h1_assoTrkJet2.p4.DeltaR( event.large_jet.p4 );
+              
+              vars->dR_trkJet1_trkJet2   = event.h1_assoTrkJet1.p4.DeltaR(   event.h1_assoTrkJet2.p4 );
+              vars->dPhi_trkJet1_trkJet2 = event.h1_assoTrkJet1.p4.DeltaPhi( event.h1_assoTrkJet2.p4 );
 
-              vars->m_h2_j1 = event.small_jets[0].p4.M();
-              vars->pT_h2_j1 = event.small_jets[0].p4.Pt();
+              vars->m_h2_j1   = event.small_jets[0].p4.M();
+              vars->pT_h2_j1  = event.small_jets[0].p4.Pt();
               vars->eta_h2_j1 = event.small_jets[0].p4.Eta();
               vars->phi_h2_j1 = event.small_jets[0].p4.Phi();
 
-              vars->m_h2_j2 = event.small_jets[1].p4.M();
-              vars->pT_h2_j2 = event.small_jets[1].p4.Pt();
+              vars->m_h2_j2   = event.small_jets[1].p4.M();
+              vars->pT_h2_j2  = event.small_jets[1].p4.Pt();
               vars->eta_h2_j2 = event.small_jets[1].p4.Eta();
               vars->phi_h2_j2 = event.small_jets[1].p4.Phi();
-
+              
+              vars->dR_h2_j1_j2   = event.small_jets[0].p4.DeltaR(   event.small_jets[1].p4 );
+              vars->dPhi_h2_j1_j2 = event.small_jets[0].p4.DeltaPhi( event.small_jets[1].p4 );
+        
               /*
                       auto rwgt_jets = event.jets;
                       rwgt_jets |=
