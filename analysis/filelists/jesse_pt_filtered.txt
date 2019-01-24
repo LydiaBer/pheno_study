@@ -1,3 +1,0 @@
-/data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/all_merged_delphes/OxHHPh_13Sep2018_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_xptb200_2b2j.root
-/data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/all_merged_delphes/OxHHPh_13Sep2018_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_xptb200_4b.root
-/data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/all_merged_delphes/OxHHPh_13Sep2018_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_xptj200_4j.root
