@@ -100,10 +100,10 @@ reconstruct(VecOps::RVec<Jet>& jet,       // Input Jet of FastJet <Jet> type
     std::vector<OxJet> h2_assoTrkJet;
 
     for(auto trackJet : tj_vec){
-      if (trackJet.p4.DeltaR(leading.p4) <= 0.4){
+      if (trackJet.p4.DeltaR(leading.p4) <= 0.8){
         h1_assoTrkJet.push_back(trackJet);
       }
-      if (trackJet.p4.DeltaR(subleading.p4) <= 0.4){
+      if (trackJet.p4.DeltaR(subleading.p4) <= 0.8){
         h2_assoTrkJet.push_back(trackJet);
       }
     } 
