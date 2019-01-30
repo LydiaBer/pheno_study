@@ -11,7 +11,6 @@ import os
 
 TAG = "280119"
 FILE_LISTS = ["../filelists/signal_{0}.txt".format(TAG), "../filelists/background_{0}.txt".format(TAG)]
-FILE_LISTS = ["../filelists/signal_{0}.txt".format(TAG)]
 OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/"+TAG
 
 USE_BATCH = True
