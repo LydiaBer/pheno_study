@@ -100,10 +100,10 @@ reconstruct(VecOps::RVec<Jet>& jet,       // Input Jet of FastJet <Jet> type
     std::vector<OxJet> h2_assoTrkJet;
 
     for(auto trackJet : tj_vec){
-      if (trackJet.p4.DeltaR(leading.p4) <= 0.8){
+      if (leading.p4.DeltaR(trackJet.p4) <= 0.8){
         h1_assoTrkJet.push_back(trackJet);
       }
-      if (trackJet.p4.DeltaR(subleading.p4) <= 0.8){
+      if (subleading.p4.DeltaR(trackJet.p4) <= 0.8){
         h2_assoTrkJet.push_back(trackJet);
       }
     } 
@@ -155,7 +155,7 @@ bool fatJetMass_check(const reconstructed_event& evt) { return evt.higgs1.p4.M()
 bool diJetEta_check(const reconstructed_event& evt) { return evt.higgs1.p4.Eta() < 2.0 && evt.higgs2.p4.Eta() < 2.0; } 
 bool fatJetPt_check(const reconstructed_event& evt) { return evt.higgs1.p4.Pt() > leadPtCut && evt.higgs2.p4.Pt() > sublPtCut;} 
 bool dEtaHH_check(const reconstructed_event& evt) { return std::abs(evt.higgs1.p4.Eta() - evt.higgs2.p4.Eta()) < 1.7;} 
-bool bJetSkim_check(const reconstructed_event& evt) { return evt.higgs1.ntags + evt.higgs2.ntags >= 2;} 
+bool bJetSkim_check(const reconstructed_event& evt) { return (evt.higgs1.ntags + evt.higgs2.ntags ) >= 2;} 
 bool lowTag_check(const reconstructed_event& evt) { return evt.lowTag; } // Filter Only lower tagged Events
 bool overTag_check(const reconstructed_event& evt) { return evt.overTag; } // Filter Only lower tagged Events
 Float_t getWeight(const reconstructed_event& evt) { return evt.wgt; } 
@@ -182,7 +182,7 @@ bool control(const reconstructed_event& evt) {
      */
     double Xhh = sqrt((pow(((evt.higgs1.p4.M() - 124) / (0.1 * evt.higgs1.p4.M())), 2) + (pow(((evt.higgs2.p4.M() - 115) / (0.1 * evt.higgs2.p4.M())), 2))));
     bool isSR = Xhh < xhhcut;
-    return (!isSR && (sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) < 33));
+    return ((sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) < 33));
 }
 
 bool sideband(const reconstructed_event& evt) {
@@ -195,7 +195,7 @@ bool sideband(const reconstructed_event& evt) {
     double Xhh = sqrt((pow(((evt.higgs1.p4.M() - 124) / (0.1 * evt.higgs1.p4.M())), 2) + (pow(((evt.higgs2.p4.M() - 115) / (0.1 * evt.higgs2.p4.M())), 2))));
     bool isSR = Xhh < xhhcut;
 
-    return (!isSR && (sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) > 33.0) &&(sqrt(pow(evt.higgs1.p4.M() - 134.0, 2) + pow(evt.higgs2.p4.M() - 125.0, 2)) < 58.0));
+    return ((sqrt(pow(evt.higgs1.p4.M() - 124.0, 2) + pow(evt.higgs2.p4.M() - 115.0, 2)) > 33.0) &&(sqrt(pow(evt.higgs1.p4.M() - 134.0, 2) + pow(evt.higgs2.p4.M() - 125.0, 2)) < 58.0));
 
 }
 
@@ -255,28 +255,28 @@ int main(int arc, char* argv[]) {
     auto signal_result = valid_evt.Filter(signal, {"event"}, "signal"); 
 
     auto control_result = valid_evt.Filter(
-          [](const reconstructed_event& event) { return control(event) && (!signal(event)); },
+          [](const reconstructed_event& event) { return control(event) && (!sideband(event)) && (!signal(event)); },
           {"event"}, "control"); // Filter Events in the Control Region
 
     auto sideband_result = valid_evt.Filter(
-          [](const reconstructed_event& event) { return sideband(event) && !control(event); },
+          [](const reconstructed_event& event) { return sideband(event) && (!signal(event)) && (!control(event)); },
           {"event"}, "sideband"); // Filter Events int the Sideband Region
 
     auto lowTag_signal_result = lowTag_evt.Filter(signal, {"event"}, "signal, low tag"); 
 
     auto lowTag_control_result = lowTag_evt.Filter(
-          [](const reconstructed_event& event) { return control(event) && (!signal(event)); },
+          [](const reconstructed_event& event) { return control(event) && (!sideband(event)) && (!signal(event)); },
           {"event"}, "control, low tag"); // Filter Events in the Control Region
     auto lowTag_sideband_result = lowTag_evt.Filter(
-          [](const reconstructed_event& event) { return sideband(event) && !control(event); },
+          [](const reconstructed_event& event) { return sideband(event) && (!signal(event)) && (!control(event)); },
           {"event"}, "sideband, low tag"); // Filter Events int the Sideband Region
 
     auto overTag_signal_result = overTag_evt.Filter(signal, {"event"}, "signal, over tag"); 
     auto overTag_control_result = overTag_evt.Filter(
-          [](const reconstructed_event& event) { return control(event) && (!signal(event)); },
+          [](const reconstructed_event& event) { return control(event) && (!sideband(event)) && (!signal(event)); },
           {"event"}, "control, over tag"); // Filter Events in the Control Region
     auto overTag_sideband_result = overTag_evt.Filter(
-          [](const reconstructed_event& event) { return sideband(event) && !control(event); },
+          [](const reconstructed_event& event) { return sideband(event) && (!signal(event)) && (!control(event)); },
           {"event"}, "sideband, over tag"); // Filter Events int the Sideband Region
 
     ////*********************
@@ -336,198 +336,200 @@ int main(int arc, char* argv[]) {
     auto getH2J1phi = [](const reconstructed_event& evt){return evt.jets[0].p4.Phi();};
     auto getH2J2phi = [](const reconstructed_event& evt){return evt.jets[1].p4.Phi();};
 
-    auto h_SB_hh_m = sideband_result.Define("SB_hh_m",getHHmass,{"event"}).Histo1D({"SB_hh_m", "", 45, 0, 500}, "SB_hh_m","mc_weight");
+    std::vector <ROOT::RDF::RResultPtr<TH1D>> hvec;
 
-    auto h_SB_hcand1_m = sideband_result.Define("SB_hcand1_m",getH1mass,{"event"}).Histo1D({"SB_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SB_hcand1_m","mc_weight");
-    auto h_SB_hcand2_m = sideband_result.Define("SB_hcand2_m",getH2mass,{"event"}).Histo1D({"SB_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SB_hcand2_m","mc_weight");
-    auto h_SB_hcand1_pt = sideband_result.Define("SB_hcand1_pt",getH1pt,{"event"}).Histo1D({"SB_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SB_hcand1_pt","mc_weight");
-    auto h_SB_hcand2_pt = sideband_result.Define("SB_hcand2_pt",getH2pt,{"event"}).Histo1D({"SB_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SB_hcand2_pt","mc_weight");
-    auto h_SB_hcand1_eta = sideband_result.Define("SB_hcand1_eta",getH1eta,{"event"}).Histo1D({"SB_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand1_eta","mc_weight");
-    auto h_SB_hcand2_eta = sideband_result.Define("SB_hcand2_eta",getH2eta,{"event"}).Histo1D({"SB_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand2_eta","mc_weight");
-    auto h_SB_hcand1_phi = sideband_result.Define("SB_hcand1_phi",getH1phi,{"event"}).Histo1D({"SB_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand1_phi","mc_weight");
-    auto h_SB_hcand2_phi = sideband_result.Define("SB_hcand2_phi",getH2phi,{"event"}).Histo1D({"SB_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand2_phi","mc_weight");
+    hvec.push_back(sideband_result.Define("SB_hh_m",getHHmass,{"event"}).Histo1D({"SB_hh_m", "", 45,500, 1400}, "SB_hh_m","mc_weight"));
 
-    auto h_SB_hcand1jet1_m = sideband_result.Define("SB_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"SB_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand1jet1_m","mc_weight");
-    auto h_SB_hcand1jet2_m = sideband_result.Define("SB_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"SB_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand1jet2_m","mc_weight");
-    auto h_SB_hcand1jet1_pt = sideband_result.Define("SB_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"SB_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand1jet1_pt","mc_weight");
-    auto h_SB_hcand1jet2_pt = sideband_result.Define("SB_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"SB_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand1jet2_pt","mc_weight");
-    auto h_SB_hcand1jet1_eta = sideband_result.Define("SB_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"SB_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand1jet1_eta","mc_weight");
-    auto h_SB_hcand1jet2_eta = sideband_result.Define("SB_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"SB_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand1jet2_eta","mc_weight");
-    auto h_SB_hcand1jet1_phi = sideband_result.Define("SB_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"SB_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand1jet1_phi","mc_weight");
-    auto h_SB_hcand1jet2_phi = sideband_result.Define("SB_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"SB_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand1jet2_phi","mc_weight");
+    hvec.push_back(sideband_result.Define("SB_hcand1_m",getH1mass,{"event"}).Histo1D({"SB_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SB_hcand1_m","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2_m",getH2mass,{"event"}).Histo1D({"SB_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SB_hcand2_m","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1_pt",getH1pt,{"event"}).Histo1D({"SB_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SB_hcand1_pt","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2_pt",getH2pt,{"event"}).Histo1D({"SB_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SB_hcand2_pt","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1_eta",getH1eta,{"event"}).Histo1D({"SB_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand1_eta","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2_eta",getH2eta,{"event"}).Histo1D({"SB_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand2_eta","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1_phi",getH1phi,{"event"}).Histo1D({"SB_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand1_phi","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2_phi",getH2phi,{"event"}).Histo1D({"SB_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand2_phi","mc_weight"));
 
-    auto h_SB_hcand2jet1_m = sideband_result.Define("SB_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"SB_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand2jet1_m","mc_weight");
-    auto h_SB_hcand2jet2_m = sideband_result.Define("SB_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"SB_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand2jet2_m","mc_weight");
-    auto h_SB_hcand2jet1_pt = sideband_result.Define("SB_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"SB_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand2jet1_pt","mc_weight");
-    auto h_SB_hcand2jet2_pt = sideband_result.Define("SB_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"SB_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand2jet2_pt","mc_weight");
-    auto h_SB_hcand2jet1_eta = sideband_result.Define("SB_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"SB_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand2jet1_eta","mc_weight");
-    auto h_SB_hcand2jet2_eta = sideband_result.Define("SB_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"SB_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand2jet2_eta","mc_weight");
-    auto h_SB_hcand2jet1_phi = sideband_result.Define("SB_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"SB_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand2jet1_phi","mc_weight");
-    auto h_SB_hcand2jet2_phi = sideband_result.Define("SB_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"SB_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand2jet2_phi","mc_weight");
+    hvec.push_back(sideband_result.Define("SB_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"SB_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand1jet1_m","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"SB_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand1jet2_m","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"SB_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand1jet1_pt","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"SB_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand1jet2_pt","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"SB_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand1jet1_eta","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"SB_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand1jet2_eta","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"SB_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand1jet1_phi","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"SB_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand1jet2_phi","mc_weight"));
+
+    hvec.push_back(sideband_result.Define("SB_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"SB_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand2jet1_m","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"SB_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SB_hcand2jet2_m","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"SB_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand2jet1_pt","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"SB_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SB_hcand2jet2_pt","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"SB_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand2jet1_eta","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"SB_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SB_hcand2jet2_eta","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"SB_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand2jet1_phi","mc_weight"));
+    hvec.push_back(sideband_result.Define("SB_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"SB_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "SB_hcand2jet2_phi","mc_weight"));
     
 
-    auto h_CR_hh_m = sideband_result.Define("CR_hh_m",getHHmass,{"event"}).Histo1D({"CR_hh_m", "", 45, 0, 500}, "CR_hh_m","mc_weight");
+    hvec.push_back(control_result.Define("CR_hh_m",getHHmass,{"event"}).Histo1D({"CR_hh_m", "", 45,500, 1400}, "CR_hh_m","mc_weight"));
 
-    auto h_CR_hcand1_m = control_result.Define("CR_hcand1_m",getH1mass,{"event"}).Histo1D({"CR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "CR_hcand1_m","mc_weight");
-    auto h_CR_hcand2_m = control_result.Define("CR_hcand2_m",getH2mass,{"event"}).Histo1D({"CR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "CR_hcand2_m","mc_weight");
-    auto h_CR_hcand1_pt = control_result.Define("CR_hcand1_pt",getH1pt,{"event"}).Histo1D({"CR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "CR_hcand1_pt","mc_weight");
-    auto h_CR_hcand2_pt = control_result.Define("CR_hcand2_pt",getH2pt,{"event"}).Histo1D({"CR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "CR_hcand2_pt","mc_weight");
-    auto h_CR_hcand1_eta = control_result.Define("CR_hcand1_eta",getH1eta,{"event"}).Histo1D({"CR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand1_eta","mc_weight");
-    auto h_CR_hcand2_eta = control_result.Define("CR_hcand2_eta",getH2eta,{"event"}).Histo1D({"CR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand2_eta","mc_weight");
-    auto h_CR_hcand1_phi = control_result.Define("CR_hcand1_phi",getH1phi,{"event"}).Histo1D({"CR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand1_phi","mc_weight");
-    auto h_CR_hcand2_phi = control_result.Define("CR_hcand2_phi",getH2phi,{"event"}).Histo1D({"CR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand2_phi","mc_weight");
+    hvec.push_back(control_result.Define("CR_hcand1_m",getH1mass,{"event"}).Histo1D({"CR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "CR_hcand1_m","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2_m",getH2mass,{"event"}).Histo1D({"CR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "CR_hcand2_m","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1_pt",getH1pt,{"event"}).Histo1D({"CR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "CR_hcand1_pt","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2_pt",getH2pt,{"event"}).Histo1D({"CR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "CR_hcand2_pt","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1_eta",getH1eta,{"event"}).Histo1D({"CR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand1_eta","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2_eta",getH2eta,{"event"}).Histo1D({"CR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand2_eta","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1_phi",getH1phi,{"event"}).Histo1D({"CR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand1_phi","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2_phi",getH2phi,{"event"}).Histo1D({"CR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand2_phi","mc_weight"));
 
-    auto h_CR_hcand1jet1_m = control_result.Define("CR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"CR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand1jet1_m","mc_weight");
-    auto h_CR_hcand1jet2_m = control_result.Define("CR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"CR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand1jet2_m","mc_weight");
-    auto h_CR_hcand1jet1_pt = control_result.Define("CR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"CR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand1jet1_pt","mc_weight");
-    auto h_CR_hcand1jet2_pt = control_result.Define("CR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"CR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand1jet2_pt","mc_weight");
-    auto h_CR_hcand1jet1_eta = control_result.Define("CR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"CR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand1jet1_eta","mc_weight");
-    auto h_CR_hcand1jet2_eta = control_result.Define("CR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"CR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand1jet2_eta","mc_weight");
-    auto h_CR_hcand1jet1_phi = control_result.Define("CR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"CR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand1jet1_phi","mc_weight");
-    auto h_CR_hcand1jet2_phi = control_result.Define("CR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"CR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand1jet2_phi","mc_weight");
+    hvec.push_back(control_result.Define("CR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"CR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand1jet1_m","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"CR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand1jet2_m","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"CR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand1jet1_pt","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"CR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand1jet2_pt","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"CR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand1jet1_eta","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"CR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand1jet2_eta","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"CR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand1jet1_phi","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"CR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand1jet2_phi","mc_weight"));
 
-    auto h_CR_hcand2jet1_m = control_result.Define("CR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"CR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand2jet1_m","mc_weight");
-    auto h_CR_hcand2jet2_m = control_result.Define("CR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"CR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand2jet2_m","mc_weight");
-    auto h_CR_hcand2jet1_pt = control_result.Define("CR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"CR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand2jet1_pt","mc_weight");
-    auto h_CR_hcand2jet2_pt = control_result.Define("CR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"CR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand2jet2_pt","mc_weight");
-    auto h_CR_hcand2jet1_eta = control_result.Define("CR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"CR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand2jet1_eta","mc_weight");
-    auto h_CR_hcand2jet2_eta = control_result.Define("CR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"CR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand2jet2_eta","mc_weight");
-    auto h_CR_hcand2jet1_phi = control_result.Define("CR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"CR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand2jet1_phi","mc_weight");
-    auto h_CR_hcand2jet2_phi = control_result.Define("CR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"CR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand2jet2_phi","mc_weight");
+    hvec.push_back(control_result.Define("CR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"CR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand2jet1_m","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"CR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "CR_hcand2jet2_m","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"CR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand2jet1_pt","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"CR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "CR_hcand2jet2_pt","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"CR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand2jet1_eta","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"CR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "CR_hcand2jet2_eta","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"CR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand2jet1_phi","mc_weight"));
+    hvec.push_back(control_result.Define("CR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"CR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "CR_hcand2jet2_phi","mc_weight"));
 
-    auto h_SR_hh_m = sideband_result.Define("SR_hh_m",getHHmass,{"event"}).Histo1D({"SR_hh_m", "", 45, 0, 500}, "SR_hh_m","mc_weight");
+    hvec.push_back(signal_result.Define("SR_hh_m",getHHmass,{"event"}).Histo1D({"SR_hh_m", "", 45,500, 1400}, "SR_hh_m","mc_weight"));
 
-    auto h_SR_hcand1_m = signal_result.Define("SR_hcand1_m",getH1mass,{"event"}).Histo1D({"SR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SR_hcand1_m","mc_weight");
-    auto h_SR_hcand2_m = signal_result.Define("SR_hcand2_m",getH2mass,{"event"}).Histo1D({"SR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SR_hcand2_m","mc_weight");
-    auto h_SR_hcand1_pt = signal_result.Define("SR_hcand1_pt",getH1pt,{"event"}).Histo1D({"SR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SR_hcand1_pt","mc_weight");
-    auto h_SR_hcand2_pt = signal_result.Define("SR_hcand2_pt",getH2pt,{"event"}).Histo1D({"SR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SR_hcand2_pt","mc_weight");
-    auto h_SR_hcand1_eta = signal_result.Define("SR_hcand1_eta",getH1eta,{"event"}).Histo1D({"SR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand1_eta","mc_weight");
-    auto h_SR_hcand2_eta = signal_result.Define("SR_hcand2_eta",getH2eta,{"event"}).Histo1D({"SR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand2_eta","mc_weight");
-    auto h_SR_hcand1_phi = signal_result.Define("SR_hcand1_phi",getH1phi,{"event"}).Histo1D({"SR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand1_phi","mc_weight");
-    auto h_SR_hcand2_phi = signal_result.Define("SR_hcand2_phi",getH2phi,{"event"}).Histo1D({"SR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand2_phi","mc_weight");
+    hvec.push_back(signal_result.Define("SR_hcand1_m",getH1mass,{"event"}).Histo1D({"SR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SR_hcand1_m","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2_m",getH2mass,{"event"}).Histo1D({"SR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "SR_hcand2_m","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1_pt",getH1pt,{"event"}).Histo1D({"SR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SR_hcand1_pt","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2_pt",getH2pt,{"event"}).Histo1D({"SR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "SR_hcand2_pt","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1_eta",getH1eta,{"event"}).Histo1D({"SR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand1_eta","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2_eta",getH2eta,{"event"}).Histo1D({"SR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand2_eta","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1_phi",getH1phi,{"event"}).Histo1D({"SR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand1_phi","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2_phi",getH2phi,{"event"}).Histo1D({"SR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand2_phi","mc_weight"));
 
-    auto h_SR_hcand1jet1_m = signal_result.Define("SR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"SR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand1jet1_m","mc_weight");
-    auto h_SR_hcand1jet2_m = signal_result.Define("SR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"SR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand1jet2_m","mc_weight");
-    auto h_SR_hcand1jet1_pt = signal_result.Define("SR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"SR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand1jet1_pt","mc_weight");
-    auto h_SR_hcand1jet2_pt = signal_result.Define("SR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"SR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand1jet2_pt","mc_weight");
-    auto h_SR_hcand1jet1_eta = signal_result.Define("SR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"SR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand1jet1_eta","mc_weight");
-    auto h_SR_hcand1jet2_eta = signal_result.Define("SR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"SR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand1jet2_eta","mc_weight");
-    auto h_SR_hcand1jet1_phi = signal_result.Define("SR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"SR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand1jet1_phi","mc_weight");
-    auto h_SR_hcand1jet2_phi = signal_result.Define("SR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"SR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand1jet2_phi","mc_weight");
+    hvec.push_back(signal_result.Define("SR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"SR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand1jet1_m","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"SR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand1jet2_m","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"SR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand1jet1_pt","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"SR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand1jet2_pt","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"SR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand1jet1_eta","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"SR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand1jet2_eta","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"SR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand1jet1_phi","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"SR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand1jet2_phi","mc_weight"));
 
-    auto h_SR_hcand2jet1_m = signal_result.Define("SR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"SR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand2jet1_m","mc_weight");
-    auto h_SR_hcand2jet2_m = signal_result.Define("SR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"SR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand2jet2_m","mc_weight");
-    auto h_SR_hcand2jet1_pt = signal_result.Define("SR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"SR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand2jet1_pt","mc_weight");
-    auto h_SR_hcand2jet2_pt = signal_result.Define("SR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"SR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand2jet2_pt","mc_weight");
-    auto h_SR_hcand2jet1_eta = signal_result.Define("SR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"SR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand2jet1_eta","mc_weight");
-    auto h_SR_hcand2jet2_eta = signal_result.Define("SR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"SR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand2jet2_eta","mc_weight");
-    auto h_SR_hcand2jet1_phi = signal_result.Define("SR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"SR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand2jet1_phi","mc_weight");
-    auto h_SR_hcand2jet2_phi = signal_result.Define("SR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"SR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand2jet2_phi","mc_weight");
+    hvec.push_back(signal_result.Define("SR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"SR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand2jet1_m","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"SR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "SR_hcand2jet2_m","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"SR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand2jet1_pt","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"SR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "SR_hcand2jet2_pt","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"SR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand2jet1_eta","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"SR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "SR_hcand2jet2_eta","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"SR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand2jet1_phi","mc_weight"));
+    hvec.push_back(signal_result.Define("SR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"SR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "SR_hcand2jet2_phi","mc_weight"));
 
     ///overTag region
-    auto h_overTag_SB_hh_m = overTag_sideband_result.Define("overTag_SB_hh_m",getHHmass,{"event"}).Histo1D({"overTag_SB_hh_m", "", 45, 0, 500}, "overTag_SB_hh_m","mc_weight");
+    hvec.push_back(overTag_sideband_result.Define("overTag_SB_hh_m",getHHmass,{"event"}).Histo1D({"overTag_SB_hh_m", "", 45,500, 1400}, "overTag_SB_hh_m","mc_weight"));
 
-    auto h_overTag_SB_hcand1_m = overTag_sideband_result.Define("overTag_SB_hcand1_m",getH1mass,{"event"}).Histo1D({"overTag_SB_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SB_hcand1_m","mc_weight");
-    auto h_overTag_SB_hcand2_m = overTag_sideband_result.Define("overTag_SB_hcand2_m",getH2mass,{"event"}).Histo1D({"overTag_SB_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SB_hcand2_m","mc_weight");
+    hvec.push_back(overTag_sideband_result.Define("overTag_SB_hcand1_m",getH1mass,{"event"}).Histo1D({"overTag_SB_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SB_hcand1_m","mc_weight"));
+    hvec.push_back(overTag_sideband_result.Define("overTag_SB_hcand2_m",getH2mass,{"event"}).Histo1D({"overTag_SB_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SB_hcand2_m","mc_weight"));
 
-    auto h_overTag_CR_hh_m = overTag_control_result.Define("overTag_CR_hh_m",getHHmass,{"event"}).Histo1D({"overTag_CR_hh_m", "", 45, 0, 500}, "overTag_CR_hh_m","mc_weight");
+    hvec.push_back(overTag_control_result.Define("overTag_CR_hh_m",getHHmass,{"event"}).Histo1D({"overTag_CR_hh_m", "", 45,500, 1400}, "overTag_CR_hh_m","mc_weight"));
 
-    auto h_overTag_CR_hcand1_m = overTag_control_result.Define("overTag_CR_hcand1_m",getH1mass,{"event"}).Histo1D({"overTag_CR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_CR_hcand1_m","mc_weight");
-    auto h_overTag_CR_hcand2_m = overTag_control_result.Define("overTag_CR_hcand2_m",getH2mass,{"event"}).Histo1D({"overTag_CR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_CR_hcand2_m","mc_weight");
+    hvec.push_back(overTag_control_result.Define("overTag_CR_hcand1_m",getH1mass,{"event"}).Histo1D({"overTag_CR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_CR_hcand1_m","mc_weight"));
+    hvec.push_back(overTag_control_result.Define("overTag_CR_hcand2_m",getH2mass,{"event"}).Histo1D({"overTag_CR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_CR_hcand2_m","mc_weight"));
 
-    auto h_overTag_SR_hh_m = overTag_signal_result.Define("overTag_SR_hh_m",getHHmass,{"event"}).Histo1D({"overTag_SR_hh_m", "", 45, 0, 500}, "overTag_SR_hh_m","mc_weight");
+    hvec.push_back(overTag_signal_result.Define("overTag_SR_hh_m",getHHmass,{"event"}).Histo1D({"overTag_SR_hh_m", "", 45,500, 1400}, "overTag_SR_hh_m","mc_weight"));
 
-    auto h_overTag_SR_hcand1_m = overTag_signal_result.Define("overTag_SR_hcand1_m",getH1mass,{"event"}).Histo1D({"overTag_SR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SR_hcand1_m","mc_weight");
-    auto h_overTag_SR_hcand2_m = overTag_signal_result.Define("overTag_SR_hcand2_m",getH2mass,{"event"}).Histo1D({"overTag_SR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SR_hcand2_m","mc_weight");
+    hvec.push_back(overTag_signal_result.Define("overTag_SR_hcand1_m",getH1mass,{"event"}).Histo1D({"overTag_SR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SR_hcand1_m","mc_weight"));
+    hvec.push_back(overTag_signal_result.Define("overTag_SR_hcand2_m",getH2mass,{"event"}).Histo1D({"overTag_SR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "overTag_SR_hcand2_m","mc_weight"));
 
     ///LowTag region
-    auto h_lowTag_SB_hh_m = lowTag_sideband_result.Define("lowTag_SB_hh_m",getHHmass,{"event"}).Histo1D({"lowTag_SB_hh_m", "", 45, 0, 500}, "lowTag_SB_hh_m","mc_weight");
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hh_m",getHHmass,{"event"}).Histo1D({"lowTag_SB_hh_m", "", 45,500, 1400}, "lowTag_SB_hh_m","mc_weight"));
 
-    auto h_lowTag_SB_hcand1_m = lowTag_sideband_result.Define("lowTag_SB_hcand1_m",getH1mass,{"event"}).Histo1D({"lowTag_SB_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SB_hcand1_m","mc_weight");
-    auto h_lowTag_SB_hcand2_m = lowTag_sideband_result.Define("lowTag_SB_hcand2_m",getH2mass,{"event"}).Histo1D({"lowTag_SB_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SB_hcand2_m","mc_weight");
-    auto h_lowTag_SB_hcand1_pt = lowTag_sideband_result.Define("lowTag_SB_hcand1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SB_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SB_hcand1_pt","mc_weight");
-    auto h_lowTag_SB_hcand2_pt = lowTag_sideband_result.Define("lowTag_SB_hcand2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SB_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SB_hcand2_pt","mc_weight");
-    auto h_lowTag_SB_hcand1_eta = lowTag_sideband_result.Define("lowTag_SB_hcand1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SB_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand1_eta","mc_weight");
-    auto h_lowTag_SB_hcand2_eta = lowTag_sideband_result.Define("lowTag_SB_hcand2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SB_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand2_eta","mc_weight");
-    auto h_lowTag_SB_hcand1_phi = lowTag_sideband_result.Define("lowTag_SB_hcand1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SB_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand1_phi","mc_weight");
-    auto h_lowTag_SB_hcand2_phi = lowTag_sideband_result.Define("lowTag_SB_hcand2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SB_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand2_phi","mc_weight");
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1_m",getH1mass,{"event"}).Histo1D({"lowTag_SB_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SB_hcand1_m","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2_m",getH2mass,{"event"}).Histo1D({"lowTag_SB_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SB_hcand2_m","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SB_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SB_hcand1_pt","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SB_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SB_hcand2_pt","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SB_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand1_eta","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SB_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand2_eta","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SB_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand1_phi","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SB_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand2_phi","mc_weight"));
 
-    auto h_lowTag_SB_hcand1jet1_m = lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand1jet1_m","mc_weight");
-    auto h_lowTag_SB_hcand1jet2_m = lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand1jet2_m","mc_weight");
-    auto h_lowTag_SB_hcand1jet1_pt = lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand1jet1_pt","mc_weight");
-    auto h_lowTag_SB_hcand1jet2_pt = lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand1jet2_pt","mc_weight");
-    auto h_lowTag_SB_hcand1jet1_eta = lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand1jet1_eta","mc_weight");
-    auto h_lowTag_SB_hcand1jet2_eta = lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand1jet2_eta","mc_weight");
-    auto h_lowTag_SB_hcand1jet1_phi = lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand1jet1_phi","mc_weight");
-    auto h_lowTag_SB_hcand1jet2_phi = lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand1jet2_phi","mc_weight");
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand1jet1_m","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand1jet2_m","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand1jet1_pt","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand1jet2_pt","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand1jet1_eta","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand1jet2_eta","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SB_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand1jet1_phi","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SB_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand1jet2_phi","mc_weight"));
 
-    auto h_lowTag_SB_hcand2jet1_m = lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand2jet1_m","mc_weight");
-    auto h_lowTag_SB_hcand2jet2_m = lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand2jet2_m","mc_weight");
-    auto h_lowTag_SB_hcand2jet1_pt = lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand2jet1_pt","mc_weight");
-    auto h_lowTag_SB_hcand2jet2_pt = lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand2jet2_pt","mc_weight");
-    auto h_lowTag_SB_hcand2jet1_eta = lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand2jet1_eta","mc_weight");
-    auto h_lowTag_SB_hcand2jet2_eta = lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand2jet2_eta","mc_weight");
-    auto h_lowTag_SB_hcand2jet1_phi = lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand2jet1_phi","mc_weight");
-    auto h_lowTag_SB_hcand2jet2_phi = lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand2jet2_phi","mc_weight");
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand2jet1_m","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SB_hcand2jet2_m","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand2jet1_pt","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SB_hcand2jet2_pt","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand2jet1_eta","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SB_hcand2jet2_eta","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SB_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand2jet1_phi","mc_weight"));
+    hvec.push_back(lowTag_sideband_result.Define("lowTag_SB_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SB_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SB_hcand2jet2_phi","mc_weight"));
     
 
-    auto h_lowTag_CR_hh_m = lowTag_control_result.Define("lowTag_CR_hh_m",getHHmass,{"event"}).Histo1D({"lowTag_CR_hh_m", "", 45, 0, 500}, "lowTag_CR_hh_m","mc_weight");
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hh_m",getHHmass,{"event"}).Histo1D({"lowTag_CR_hh_m", "", 45,500, 1400}, "lowTag_CR_hh_m","mc_weight"));
 
-    auto h_lowTag_CR_hcand1_m = lowTag_control_result.Define("lowTag_CR_hcand1_m",getH1mass,{"event"}).Histo1D({"lowTag_CR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_CR_hcand1_m","mc_weight");
-    auto h_lowTag_CR_hcand2_m = lowTag_control_result.Define("lowTag_CR_hcand2_m",getH2mass,{"event"}).Histo1D({"lowTag_CR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_CR_hcand2_m","mc_weight");
-    auto h_lowTag_CR_hcand1_pt = lowTag_control_result.Define("lowTag_CR_hcand1_pt",getH1pt,{"event"}).Histo1D({"lowTag_CR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_CR_hcand1_pt","mc_weight");
-    auto h_lowTag_CR_hcand2_pt = lowTag_control_result.Define("lowTag_CR_hcand2_pt",getH2pt,{"event"}).Histo1D({"lowTag_CR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_CR_hcand2_pt","mc_weight");
-    auto h_lowTag_CR_hcand1_eta = lowTag_control_result.Define("lowTag_CR_hcand1_eta",getH1eta,{"event"}).Histo1D({"lowTag_CR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand1_eta","mc_weight");
-    auto h_lowTag_CR_hcand2_eta = lowTag_control_result.Define("lowTag_CR_hcand2_eta",getH2eta,{"event"}).Histo1D({"lowTag_CR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand2_eta","mc_weight");
-    auto h_lowTag_CR_hcand1_phi = lowTag_control_result.Define("lowTag_CR_hcand1_phi",getH1phi,{"event"}).Histo1D({"lowTag_CR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand1_phi","mc_weight");
-    auto h_lowTag_CR_hcand2_phi = lowTag_control_result.Define("lowTag_CR_hcand2_phi",getH2phi,{"event"}).Histo1D({"lowTag_CR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand2_phi","mc_weight");
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1_m",getH1mass,{"event"}).Histo1D({"lowTag_CR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_CR_hcand1_m","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2_m",getH2mass,{"event"}).Histo1D({"lowTag_CR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_CR_hcand2_m","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1_pt",getH1pt,{"event"}).Histo1D({"lowTag_CR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_CR_hcand1_pt","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2_pt",getH2pt,{"event"}).Histo1D({"lowTag_CR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_CR_hcand2_pt","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1_eta",getH1eta,{"event"}).Histo1D({"lowTag_CR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand1_eta","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2_eta",getH2eta,{"event"}).Histo1D({"lowTag_CR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand2_eta","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1_phi",getH1phi,{"event"}).Histo1D({"lowTag_CR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand1_phi","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2_phi",getH2phi,{"event"}).Histo1D({"lowTag_CR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand2_phi","mc_weight"));
 
-    auto h_lowTag_CR_hcand1jet1_m = lowTag_control_result.Define("lowTag_CR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand1jet1_m","mc_weight");
-    auto h_lowTag_CR_hcand1jet2_m = lowTag_control_result.Define("lowTag_CR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand1jet2_m","mc_weight");
-    auto h_lowTag_CR_hcand1jet1_pt = lowTag_control_result.Define("lowTag_CR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand1jet1_pt","mc_weight");
-    auto h_lowTag_CR_hcand1jet2_pt = lowTag_control_result.Define("lowTag_CR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand1jet2_pt","mc_weight");
-    auto h_lowTag_CR_hcand1jet1_eta = lowTag_control_result.Define("lowTag_CR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand1jet1_eta","mc_weight");
-    auto h_lowTag_CR_hcand1jet2_eta = lowTag_control_result.Define("lowTag_CR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand1jet2_eta","mc_weight");
-    auto h_lowTag_CR_hcand1jet1_phi = lowTag_control_result.Define("lowTag_CR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand1jet1_phi","mc_weight");
-    auto h_lowTag_CR_hcand1jet2_phi = lowTag_control_result.Define("lowTag_CR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand1jet2_phi","mc_weight");
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand1jet1_m","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand1jet2_m","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand1jet1_pt","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand1jet2_pt","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand1jet1_eta","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand1jet2_eta","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_CR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand1jet1_phi","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_CR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand1jet2_phi","mc_weight"));
 
-    auto h_lowTag_CR_hcand2jet1_m = lowTag_control_result.Define("lowTag_CR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand2jet1_m","mc_weight");
-    auto h_lowTag_CR_hcand2jet2_m = lowTag_control_result.Define("lowTag_CR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand2jet2_m","mc_weight");
-    auto h_lowTag_CR_hcand2jet1_pt = lowTag_control_result.Define("lowTag_CR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand2jet1_pt","mc_weight");
-    auto h_lowTag_CR_hcand2jet2_pt = lowTag_control_result.Define("lowTag_CR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand2jet2_pt","mc_weight");
-    auto h_lowTag_CR_hcand2jet1_eta = lowTag_control_result.Define("lowTag_CR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand2jet1_eta","mc_weight");
-    auto h_lowTag_CR_hcand2jet2_eta = lowTag_control_result.Define("lowTag_CR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand2jet2_eta","mc_weight");
-    auto h_lowTag_CR_hcand2jet1_phi = lowTag_control_result.Define("lowTag_CR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand2jet1_phi","mc_weight");
-    auto h_lowTag_CR_hcand2jet2_phi = lowTag_control_result.Define("lowTag_CR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand2jet2_phi","mc_weight");
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand2jet1_m","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_CR_hcand2jet2_m","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand2jet1_pt","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_CR_hcand2jet2_pt","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand2jet1_eta","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_CR_hcand2jet2_eta","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_CR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand2jet1_phi","mc_weight"));
+    hvec.push_back(lowTag_control_result.Define("lowTag_CR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_CR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_CR_hcand2jet2_phi","mc_weight"));
 
-    auto h_lowTag_SR_hh_m = lowTag_signal_result.Define("lowTag_SR_hh_m",getHHmass,{"event"}).Histo1D({"lowTag_SR_hh_m", "", 45, 0, 500}, "lowTag_SR_hh_m","mc_weight");
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hh_m",getHHmass,{"event"}).Histo1D({"lowTag_SR_hh_m", "", 45,500, 1400}, "lowTag_SR_hh_m","mc_weight"));
 
-    auto h_lowTag_SR_hcand1_m = lowTag_signal_result.Define("lowTag_SR_hcand1_m",getH1mass,{"event"}).Histo1D({"lowTag_SR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SR_hcand1_m","mc_weight");
-    auto h_lowTag_SR_hcand2_m = lowTag_signal_result.Define("lowTag_SR_hcand2_m",getH2mass,{"event"}).Histo1D({"lowTag_SR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SR_hcand2_m","mc_weight");
-    auto h_lowTag_SR_hcand1_pt = lowTag_signal_result.Define("lowTag_SR_hcand1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SR_hcand1_pt","mc_weight");
-    auto h_lowTag_SR_hcand2_pt = lowTag_signal_result.Define("lowTag_SR_hcand2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SR_hcand2_pt","mc_weight");
-    auto h_lowTag_SR_hcand1_eta = lowTag_signal_result.Define("lowTag_SR_hcand1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand1_eta","mc_weight");
-    auto h_lowTag_SR_hcand2_eta = lowTag_signal_result.Define("lowTag_SR_hcand2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand2_eta","mc_weight");
-    auto h_lowTag_SR_hcand1_phi = lowTag_signal_result.Define("lowTag_SR_hcand1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand1_phi","mc_weight");
-    auto h_lowTag_SR_hcand2_phi = lowTag_signal_result.Define("lowTag_SR_hcand2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand2_phi","mc_weight");
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1_m",getH1mass,{"event"}).Histo1D({"lowTag_SR_hcand1_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SR_hcand1_m","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2_m",getH2mass,{"event"}).Histo1D({"lowTag_SR_hcand2_m", "", hcandmass_nbins, hcandmass_min, hcandmass_max}, "lowTag_SR_hcand2_m","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SR_hcand1_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SR_hcand1_pt","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SR_hcand2_pt", "",hcandpt_nbins, hcandpt_min, hcandpt_max}, "lowTag_SR_hcand2_pt","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SR_hcand1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand1_eta","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SR_hcand2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand2_eta","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SR_hcand1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand1_phi","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SR_hcand2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand2_phi","mc_weight"));
 
-    auto h_lowTag_SR_hcand1jet1_m = lowTag_signal_result.Define("lowTag_SR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand1jet1_m","mc_weight");
-    auto h_lowTag_SR_hcand1jet2_m = lowTag_signal_result.Define("lowTag_SR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand1jet2_m","mc_weight");
-    auto h_lowTag_SR_hcand1jet1_pt = lowTag_signal_result.Define("lowTag_SR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand1jet1_pt","mc_weight");
-    auto h_lowTag_SR_hcand1jet2_pt = lowTag_signal_result.Define("lowTag_SR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand1jet2_pt","mc_weight");
-    auto h_lowTag_SR_hcand1jet1_eta = lowTag_signal_result.Define("lowTag_SR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand1jet1_eta","mc_weight");
-    auto h_lowTag_SR_hcand1jet2_eta = lowTag_signal_result.Define("lowTag_SR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand1jet2_eta","mc_weight");
-    auto h_lowTag_SR_hcand1jet1_phi = lowTag_signal_result.Define("lowTag_SR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand1jet1_phi","mc_weight");
-    auto h_lowTag_SR_hcand1jet2_phi = lowTag_signal_result.Define("lowTag_SR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand1jet2_phi","mc_weight");
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand1jet1_m","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand1jet2_m","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand1jet1_pt","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand1jet2_pt","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand1jet1_eta","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand1jet2_eta","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SR_hcand1jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand1jet1_phi","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand1jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SR_hcand1jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand1jet2_phi","mc_weight"));
 
-    auto h_lowTag_SR_hcand2jet1_m = lowTag_signal_result.Define("lowTag_SR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand2jet1_m","mc_weight");
-    auto h_lowTag_SR_hcand2jet2_m = lowTag_signal_result.Define("lowTag_SR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand2jet2_m","mc_weight");
-    auto h_lowTag_SR_hcand2jet1_pt = lowTag_signal_result.Define("lowTag_SR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand2jet1_pt","mc_weight");
-    auto h_lowTag_SR_hcand2jet2_pt = lowTag_signal_result.Define("lowTag_SR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand2jet2_pt","mc_weight");
-    auto h_lowTag_SR_hcand2jet1_eta = lowTag_signal_result.Define("lowTag_SR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand2jet1_eta","mc_weight");
-    auto h_lowTag_SR_hcand2jet2_eta = lowTag_signal_result.Define("lowTag_SR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand2jet2_eta","mc_weight");
-    auto h_lowTag_SR_hcand2jet1_phi = lowTag_signal_result.Define("lowTag_SR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand2jet1_phi","mc_weight");
-    auto h_lowTag_SR_hcand2jet2_phi = lowTag_signal_result.Define("lowTag_SR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand2jet2_phi","mc_weight");
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet1_m",getH1mass,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand2jet1_m","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet2_m",getH2mass,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_m", "", jetmass_nbins, jetmass_min, jetmass_max}, "lowTag_SR_hcand2jet2_m","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet1_pt",getH1pt,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand2jet1_pt","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet2_pt",getH2pt,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_pt", "",jetpt_nbins, jetpt_min, jetpt_max}, "lowTag_SR_hcand2jet2_pt","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet1_eta",getH1eta,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand2jet1_eta","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet2_eta",getH2eta,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_eta", "",  eta_nbins, eta_min, eta_max}, "lowTag_SR_hcand2jet2_eta","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet1_phi",getH1phi,{"event"}).Histo1D({"lowTag_SR_hcand2jet1_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand2jet1_phi","mc_weight"));
+    hvec.push_back(lowTag_signal_result.Define("lowTag_SR_hcand2jet2_phi",getH2phi,{"event"}).Histo1D({"lowTag_SR_hcand2jet2_phi", "", phi_nbins, phi_min, phi_max}, "lowTag_SR_hcand2jet2_phi","mc_weight"));
 
     std::cout<<"printing histogram\n";
 
@@ -536,196 +538,9 @@ int main(int arc, char* argv[]) {
     TFile hist_file(filePath, "RECREATE");   // Opening Ouput File
     std::cout<<"plotting histogram\n";
 
-    h_SB_hh_m->Write();
-
-    h_SB_hcand1_m->Write(); 
-    h_SB_hcand2_m->Write();
-    h_SB_hcand1_pt->Write();
-    h_SB_hcand2_pt->Write();
-    h_SB_hcand1_eta->Write();
-    h_SB_hcand2_eta->Write();
-    h_SB_hcand1_phi->Write();
-    h_SB_hcand2_phi->Write();
-
-    h_SB_hcand1jet1_m->Write();
-    h_SB_hcand1jet2_m->Write();
-    h_SB_hcand1jet1_pt->Write();
-    h_SB_hcand1jet2_pt->Write(); 
-    h_SB_hcand1jet1_eta->Write();
-    h_SB_hcand1jet2_eta->Write();
-    h_SB_hcand1jet1_phi->Write();
-    h_SB_hcand1jet2_phi->Write();
-
-    h_SB_hcand2jet1_m->Write();
-    h_SB_hcand2jet2_m->Write();
-    h_SB_hcand2jet1_pt->Write();
-    h_SB_hcand2jet2_pt->Write(); 
-    h_SB_hcand2jet1_eta->Write();
-    h_SB_hcand2jet2_eta->Write();
-    h_SB_hcand2jet1_phi->Write();
-    h_SB_hcand2jet2_phi->Write();
-
-    h_CR_hh_m->Write();
-
-    h_CR_hcand1_m->Write(); 
-    h_CR_hcand2_m->Write();
-    h_CR_hcand1_pt->Write();
-    h_CR_hcand2_pt->Write();
-    h_CR_hcand1_eta->Write();
-    h_CR_hcand2_eta->Write();
-    h_CR_hcand1_phi->Write();
-    h_CR_hcand2_phi->Write();
-
-    h_CR_hcand1jet1_m->Write();
-    h_CR_hcand1jet2_m->Write();
-    h_CR_hcand1jet1_pt->Write();
-    h_CR_hcand1jet2_pt->Write(); 
-    h_CR_hcand1jet1_eta->Write();
-    h_CR_hcand1jet2_eta->Write();
-    h_CR_hcand1jet1_phi->Write();
-    h_CR_hcand1jet2_phi->Write();
-
-    h_CR_hcand2jet1_m->Write();
-    h_CR_hcand2jet2_m->Write();
-    h_CR_hcand2jet1_pt->Write();
-    h_CR_hcand2jet2_pt->Write(); 
-    h_CR_hcand2jet1_eta->Write();
-    h_CR_hcand2jet2_eta->Write();
-    h_CR_hcand2jet1_phi->Write();
-    h_CR_hcand2jet2_phi->Write();
-
-    h_SR_hh_m->Write();
-
-    h_SR_hcand1_m->Write(); 
-    h_SR_hcand2_m->Write();
-    h_SR_hcand1_pt->Write();
-    h_SR_hcand2_pt->Write();
-    h_SR_hcand1_eta->Write();
-    h_SR_hcand2_eta->Write();
-    h_SR_hcand1_phi->Write();
-    h_SR_hcand2_phi->Write();
-
-    h_SR_hcand1jet1_m->Write();
-    h_SR_hcand1jet2_m->Write();
-    h_SR_hcand1jet1_pt->Write();
-    h_SR_hcand1jet2_pt->Write(); 
-    h_SR_hcand1jet1_eta->Write();
-    h_SR_hcand1jet2_eta->Write();
-    h_SR_hcand1jet1_phi->Write();
-    h_SR_hcand1jet2_phi->Write();
-
-    h_SR_hcand2jet1_m->Write();
-    h_SR_hcand2jet2_m->Write();
-    h_SR_hcand2jet1_pt->Write();
-    h_SR_hcand2jet2_pt->Write(); 
-    h_SR_hcand2jet1_eta->Write();
-    h_SR_hcand2jet2_eta->Write();
-    h_SR_hcand2jet1_phi->Write();
-    h_SR_hcand2jet2_phi->Write();
-
-
-    h_overTag_SB_hh_m->Write();
-
-    h_overTag_SB_hcand1_m->Write(); 
-    h_overTag_SB_hcand2_m->Write();
-
-    h_overTag_CR_hh_m->Write();
-
-    h_overTag_CR_hcand1_m->Write(); 
-    h_overTag_CR_hcand2_m->Write();
-
-    h_overTag_SR_hh_m->Write();
-
-    h_overTag_SR_hcand1_m->Write(); 
-    h_overTag_SR_hcand2_m->Write();
-
-    h_lowTag_SB_hh_m->Write();
-     
-
-    h_lowTag_SB_hcand1_m->Write(); 
-    h_lowTag_SB_hcand2_m->Write();
-    h_lowTag_SB_hcand1_pt->Write();
-    h_lowTag_SB_hcand2_pt->Write();
-    h_lowTag_SB_hcand1_eta->Write();
-    h_lowTag_SB_hcand2_eta->Write();
-    h_lowTag_SB_hcand1_phi->Write();
-    h_lowTag_SB_hcand2_phi->Write();
-
-    h_lowTag_SB_hcand1jet1_m->Write();
-    h_lowTag_SB_hcand1jet2_m->Write();
-    h_lowTag_SB_hcand1jet1_pt->Write();
-    h_lowTag_SB_hcand1jet2_pt->Write(); 
-    h_lowTag_SB_hcand1jet1_eta->Write();
-    h_lowTag_SB_hcand1jet2_eta->Write();
-    h_lowTag_SB_hcand1jet1_phi->Write();
-    h_lowTag_SB_hcand1jet2_phi->Write();
-
-    h_lowTag_SB_hcand2jet1_m->Write();
-    h_lowTag_SB_hcand2jet2_m->Write();
-    h_lowTag_SB_hcand2jet1_pt->Write();
-    h_lowTag_SB_hcand2jet2_pt->Write(); 
-    h_lowTag_SB_hcand2jet1_eta->Write();
-    h_lowTag_SB_hcand2jet2_eta->Write();
-    h_lowTag_SB_hcand2jet1_phi->Write();
-    h_lowTag_SB_hcand2jet2_phi->Write();
-
-    h_lowTag_CR_hh_m->Write();
-
-    h_lowTag_CR_hcand1_m->Write(); 
-    h_lowTag_CR_hcand2_m->Write();
-    h_lowTag_CR_hcand1_pt->Write();
-    h_lowTag_CR_hcand2_pt->Write();
-    h_lowTag_CR_hcand1_eta->Write();
-    h_lowTag_CR_hcand2_eta->Write();
-    h_lowTag_CR_hcand1_phi->Write();
-    h_lowTag_CR_hcand2_phi->Write();
-
-    h_lowTag_CR_hcand1jet1_m->Write();
-    h_lowTag_CR_hcand1jet2_m->Write();
-    h_lowTag_CR_hcand1jet1_pt->Write();
-    h_lowTag_CR_hcand1jet2_pt->Write(); 
-    h_lowTag_CR_hcand1jet1_eta->Write();
-    h_lowTag_CR_hcand1jet2_eta->Write();
-    h_lowTag_CR_hcand1jet1_phi->Write();
-    h_lowTag_CR_hcand1jet2_phi->Write();
-
-    h_lowTag_CR_hcand2jet1_m->Write();
-    h_lowTag_CR_hcand2jet2_m->Write();
-    h_lowTag_CR_hcand2jet1_pt->Write();
-    h_lowTag_CR_hcand2jet2_pt->Write(); 
-    h_lowTag_CR_hcand2jet1_eta->Write();
-    h_lowTag_CR_hcand2jet2_eta->Write();
-    h_lowTag_CR_hcand2jet1_phi->Write();
-    h_lowTag_CR_hcand2jet2_phi->Write();
-
-    h_lowTag_SR_hh_m->Write();
-
-    h_lowTag_SR_hcand1_m->Write(); 
-    h_lowTag_SR_hcand2_m->Write();
-    h_lowTag_SR_hcand1_pt->Write();
-    h_lowTag_SR_hcand2_pt->Write();
-    h_lowTag_SR_hcand1_eta->Write();
-    h_lowTag_SR_hcand2_eta->Write();
-    h_lowTag_SR_hcand1_phi->Write();
-    h_lowTag_SR_hcand2_phi->Write();
-
-    h_lowTag_SR_hcand1jet1_m->Write();
-    h_lowTag_SR_hcand1jet2_m->Write();
-    h_lowTag_SR_hcand1jet1_pt->Write();
-    h_lowTag_SR_hcand1jet2_pt->Write(); 
-    h_lowTag_SR_hcand1jet1_eta->Write();
-    h_lowTag_SR_hcand1jet2_eta->Write();
-    h_lowTag_SR_hcand1jet1_phi->Write();
-    h_lowTag_SR_hcand1jet2_phi->Write();
-
-    h_lowTag_SR_hcand2jet1_m->Write();
-    h_lowTag_SR_hcand2jet2_m->Write();
-    h_lowTag_SR_hcand2jet1_pt->Write();
-    h_lowTag_SR_hcand2jet2_pt->Write(); 
-    h_lowTag_SR_hcand2jet1_eta->Write();
-    h_lowTag_SR_hcand2jet2_eta->Write();
-    h_lowTag_SR_hcand2jet1_phi->Write();
-    h_lowTag_SR_hcand2jet2_phi->Write();
+    for(auto  hist: hvec) {
+      hist->Write();
+    }
 
     h_dRjj_h1->Write(); 
     h_dRjj_h2->Write();
