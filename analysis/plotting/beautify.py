@@ -102,8 +102,8 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
     yax.SetNdivisions(505) 
     if IsLogY:
       if enlargeYaxis:
-        ymax = 2 * 10 ** 13
-        ymin = 20
+        ymax = 10 ** 6
+        ymin = 0.1
       else:
         #ymax = 3 * 10 ** 4
         #ymin = 0.5

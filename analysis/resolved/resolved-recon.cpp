@@ -90,6 +90,25 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>
                  | action::reverse | action::take(4));
     }
 
+    double lead_low = 0.;
+    double lead_high = 0.;
+    double sublead_low = 0.;
+    double sublead_high = 0.;
+
+    // Try exact numbers from old code
+    double m4j = (jets[0].p4 + jets[1].p4 + jets[2].p4 + jets[3].p4).M();
+    if (m4j < 1250 * GeV) {
+        lead_low = 360 / (m4j / GeV) - 0.5;
+        lead_high = 652.863 / (m4j / GeV) + 0.474449;
+        sublead_low = 235.242 / (m4j / GeV) + 0.0162996;
+        sublead_high = 874.890 / (m4j / GeV) + 0.347137;
+    }
+    else {
+        lead_low = sublead_low = 0.;
+        lead_high = 0.9967394;
+        sublead_high = 1.047049;
+    }
+
     // All possible combinations of forming two pairs of jets
 
     const int pairings[3][2][2] = {{{0, 1}, {2, 3}}, {{0, 2}, {1, 3}}, {{0, 3}, {1, 2}}};
@@ -115,6 +134,11 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>
             std::swap(deltaRjj_lead, deltaRjj_sublead);
             std::swap(higgs1_1, higgs2_1);
             std::swap(higgs1_2, higgs2_2);
+        }
+
+        if (!(lead_low <= deltaRjj_lead && lead_high >= deltaRjj_lead &&
+              sublead_low <= deltaRjj_sublead && sublead_high >= deltaRjj_sublead)) {
+            continue;
         }
 
         pair_candidates.push_back(
@@ -303,8 +327,8 @@ int main(int argc, char* argv[]) {
 
     auto valid_evt = reconstructed.Filter(valid_check, {"event"}, u8"ΔR_jj");
     auto pT_higgs = valid_evt.Filter(pT_hs, {"event"}, u8"pT Higgs");
-    auto dEta_hh = valid_evt.Filter(delta_eta_hh, {"event"}, u8"Delta eta HH");
-    auto ttbar_veto = valid_evt.Filter(remove_ttbar, {"event", "Jet"}, u8"ttbar veto");
+    auto dEta_hh = pT_higgs.Filter(delta_eta_hh, {"event"}, u8"Delta eta HH");
+    auto ttbar_veto = dEta_hh.Filter(remove_ttbar, {"event", "Jet"}, u8"ttbar veto");
 
     auto signal_result = ttbar_veto.Filter(signal, {"event"}, "signal");
 
@@ -338,7 +362,10 @@ int main(int argc, char* argv[]) {
     Cutflow two_tag_cutflow("TwoTagCutflow", output_file);
     two_tag_cutflow.add(u8"4 good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 2 tagged", four_jets.Count());
     two_tag_cutflow.add(u8"Two Tagged", reconstructed.Filter(two_tag_filter, {"event"}).Count());
-    two_tag_cutflow.add(u8"ΔR_jj", valid_evt.Filter(two_tag_filter, {"event"}).Count());
+    two_tag_cutflow.add(u8"dR_jj", valid_evt.Filter(two_tag_filter, {"event"}).Count());
+    two_tag_cutflow.add(u8"pT_higgs", pT_higgs.Filter(two_tag_filter, {"event"}).Count());
+    two_tag_cutflow.add(u8"dEta_hh", dEta_hh.Filter(two_tag_filter, {"event"}).Count());
+    two_tag_cutflow.add(u8"ttbar veto", ttbar_veto.Filter(two_tag_filter, {"event"}).Count());
     two_tag_cutflow.add(u8"Signal", signal_result.Filter(two_tag_filter, {"event"}).Count());
     two_tag_cutflow.add(u8"Control", control_result.Filter(two_tag_filter, {"event"}).Count());
     two_tag_cutflow.add(u8"Sideband", sideband_result.Filter(two_tag_filter, {"event"}).Count());
@@ -347,7 +374,10 @@ int main(int argc, char* argv[]) {
     Cutflow four_tag_cutflow("FourTagCutflow", output_file);
     four_tag_cutflow.add(u8"4 good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 4 tagged", four_jets.Count());
     four_tag_cutflow.add(u8"Four Tagged", reconstructed.Filter(four_tag_filter, {"event"}).Count());
-    four_tag_cutflow.add(u8"ΔR_jj", valid_evt.Filter(four_tag_filter, {"event"}).Count());
+    four_tag_cutflow.add(u8"dR_jj", valid_evt.Filter(four_tag_filter, {"event"}).Count());
+    four_tag_cutflow.add(u8"pT_higgs", pT_higgs.Filter(four_tag_filter, {"event"}).Count());
+    four_tag_cutflow.add(u8"dEta_hh", dEta_hh.Filter(four_tag_filter, {"event"}).Count());
+    four_tag_cutflow.add(u8"ttbar veto", ttbar_veto.Filter(four_tag_filter, {"event"}).Count());
     four_tag_cutflow.add(u8"Signal", signal_result.Filter(four_tag_filter, {"event"}).Count());
     four_tag_cutflow.add(u8"Control", control_result.Filter(four_tag_filter, {"event"}).Count());
     four_tag_cutflow.add(u8"Sideband", sideband_result.Filter(four_tag_filter, {"event"}).Count());

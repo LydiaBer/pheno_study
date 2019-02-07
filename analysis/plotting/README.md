@@ -20,14 +20,9 @@ In the ```pheno_study``` directory the ```setup.sh``` script should first be sou
 
 ```cd analysis/outputs```
 
-You then move the scripts to the directory containing your ntuples e.g. TO BE UPDATED: should modify scripts to run on directory of choice rather than manually as explained below
-
-```mv haddme_ktkl.py jesse_linked_delphes```
-```mv haddme.sh jesse_linked_delphes```
-
 and run in the following order:
-```python haddme_ktkl.py```
-```source haddme.sh```
+```python haddme_ktkl.py DIRNAME```
+```source haddme.sh``` (only needed for jesse_linked_delphes files not latest) 
 
 ## Using existing ntuples
 

@@ -204,6 +204,11 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     const char* rwgt_leaflist = "pT_4/D:pT_2:eta_i:dRjj_1:dRjj_2";
 
     int num_threads = ROOT::GetImplicitMTPoolSize();
+    // ROOT bug (/ peculiarity): num_threads is 0 if multithreading switched off
+    if (num_threads==0) {
+        num_threads = 1;
+    }
+
     vector<unique_ptr<TTree>> out_trees{};
     vector<int> ntag_var(num_threads);
     vector<int> njets_var(num_threads);
