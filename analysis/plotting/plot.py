@@ -62,10 +62,11 @@ def main():
   #================================================
   # user set values
   dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in
-  #dir = 'jesse_linked_delphes' # directory input files to plot are in
+  dir = '280119/varied_couplings' # directory input files to plot are in
+  dir = '280119' # directory input files to plot are in
 
   l_vars     = ['m_hh']#,'m_h1']#,'m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
-  l_analyses = ['resolved_SlfCoup']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
+  l_analyses = ['resolved_crosscheck']#'resolved_SlfCoup']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
   l_sig_regs = ['signal']#,'pre-selection'] # gets specific region from input ROOT file
 
   cut_sel = 'ntag4' # corresponds to set of cuts in cuts.py 
@@ -73,13 +74,15 @@ def main():
   savedir = 'figs'+"/"+dir
   yield_var = "m_hh" # Will plot multiple variables but only want to save yield file for a single variable
 
-  IsLogY   = False
+  IsLogY   = True
   annotate_text = 'MC Pileup 0, No k-factors'
+
+  #FIXME slicing matching use nEvents not manual number
 
   # Slicing weight (weight down by number of slices run over)
   # Don't include resolved, intermediate, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
-               'loop_hh' : 100000./50000.,
+               'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
                'noGenFilt_4b' : 1200000./50000.,
                'noGenFilt_2b2j' : 1200000./50000.,
                'noGenFilt_4j' :  1200000./50000.,
@@ -87,6 +90,22 @@ def main():
                'xpt200_4b' : 1200000./50000.,
                'xpt200_2b2j' : 1200000./50000.,
                'xpt200_4j' : 1200000./50000.,
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
+               'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
+               # Old sample names below for making comparison plots
+               'loop_hh' : 100000./50000.,
                'hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
                'hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
                'hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
@@ -113,6 +132,7 @@ def main():
   # /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/pp2bbjj/01/Events/pp_1/pp_1_tag_1_banner.txt
 
   d_matching_weight = {
+               'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 1.,
                'noGenFilt_4j' : 106811.992819/887124.3069,
                'noGenFilt_2b2j' : 38165.8048156/116266.19204,
                'xpt200_4j' :13515.2473531/71702.662768,
@@ -120,6 +140,21 @@ def main():
                'noGenFilt_ttbar' : 1.,
                'noGenFilt_4b' : 1.,
                'xpt200_4b' : 1.,
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
+               # Old sample names below for making comparison plots
                'loop_hh' : 1.,
                'hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
@@ -326,8 +361,8 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
 
     # hh weight so visible on plots
     my_weight = 1.
-    if "hh" in samp:
-      my_weight = 10000.0
+    #if "hh" in samp:
+    #  my_weight = 10000.0
 
     # Get TH1F histogram from the TTree in the TFile and store to dictionary entry
     d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_matching_weight[no_ana_name_samp], my_weight, samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
@@ -450,11 +485,6 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, hname, var, sig
   h_AfterCut.Sumw2()
   
   lumi     = lumifb * 1000 # convert to [pb^{-1}]
-
-  # hh weight so visible on plots
-  my_weight = 1.
-  if "hh" in hname:
-    my_weight = 10000.0
 
   mc_weight = "mc_sf"
   if cutsAfter is '':
@@ -686,8 +716,8 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
     hist        = d_hists[samp][0]
     sample_type = d_samp[samp]['type']
     leg_entry   = d_samp[samp]['leg']
-    if "HH" in leg_entry:
-      leg_entry = leg_entry+" x10000"
+    #if "HH" in leg_entry:
+    #  leg_entry = leg_entry+" x10000"
     legMk       = d_legMk[sample_type]
   
     #print('samp: {0}, type: {1}, legMk: {2}'.format(samp, sample_type, legMk) ) 
