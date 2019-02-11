@@ -212,7 +212,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet, // Delphes Jet
 }
 
 // Select Only Valid Events
-
+//
 bool valid_check(const reconstructed_event& evt) { return evt.valid; }
 
 bool signal(const reconstructed_event& evt) {
@@ -265,7 +265,6 @@ int main(int argc, char* argv[]) {
     //******************
     // Run Intermediate Analysis
     //******************
-
     auto three_jets =
           frame.Filter(one_large_two_b_small_cuts, {"Jet", "FatJet"},
                        u8"Intermediate analysis cuts"); // Apply Intermediate Events Filter
@@ -294,12 +293,11 @@ int main(int argc, char* argv[]) {
     //*********************
     // Writing Cutflows
     //********************
-    Cutflow intermediate_cutflow("Intermediate Cutflow", output_file);
-    intermediate_cutflow.add(
-          u8"(Preselection)  ≥ 2 small jets, ≥ 1 large jet",
-          three_jets.Count());
-    intermediate_cutflow.add(u8"Reconstructed events", reconstructed.Count());
-    intermediate_cutflow.add(u8"(Valid) ≥ 2 small jets", valid_evt.Count());
+    Cutflow intermediate_cutflow("intermediate_cutflow", output_file);
+    intermediate_cutflow.add(u8"All", frame.Count());
+    intermediate_cutflow.add(u8"(Preselection)  ≥ 2 small jets, ≥ 1 large jet", three_jets.Count());
+    //intermediate_cutflow.add(u8"Reconstructed events", reconstructed.Count());
+    //intermediate_cutflow.add(u8"(Valid) ≥ 2 small jets", valid_evt.Count());
     //intermediate_cutflow.add(u8"Signal", signal_result.Count());
     // intermediate_cutflow.add(u8"Control", control_result.Count());
     // intermediate_cutflow.add(u8"Sideband", sideband_result.Count());
