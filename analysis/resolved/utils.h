@@ -81,6 +81,9 @@ struct reconstructed_event {
     int64_t njets;             ///< Total number of jets
     double wgt;                ///< Event Weight
     std::array<OxJet, 4> jets; ///< Array of 4 chosen jets
+    std::vector<TLorentzVector> electrons; ///< Electrons
+    std::vector<TLorentzVector> muons; ///< Electrons
+    TLorentzVector met; ///< MET
 
     higgs higgs1; ///< Leading Higgs
     higgs higgs2; ///< Subleading Higgs
@@ -210,10 +213,16 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     vector<double> mc_sf_var(num_threads);
     vector<unique_ptr<out_format>> out_vars{};
     vector<unique_ptr<reweight_format>> rwgt_vars{};
+    vector<unique_ptr<std::vector<TLorentzVector>>> electrons_var{};
+    vector<unique_ptr<std::vector<TLorentzVector>>> muons_var{};
+    vector<unique_ptr<TLorentzVector>> met_var{};
     for (int i = 0; i < num_threads; ++i) {
         gROOT->cd();
         out_vars.push_back(make_unique<out_format>());
         rwgt_vars.push_back(make_unique<reweight_format>());
+        electrons_var.push_back(make_unique<std::vector<TLorentzVector>>());
+        muons_var.push_back(make_unique<std::vector<TLorentzVector>>());
+        met_var.push_back(make_unique<TLorentzVector>());
         out_trees.push_back(make_unique<TTree>(treename, treename));
 
         out_trees[i]->SetDirectory(nullptr);
@@ -222,6 +231,9 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
         out_trees[i]->Branch("event", out_vars[i].get(), out_format_leaflist);
         out_trees[i]->Branch("rwgt", rwgt_vars[i].get(), rwgt_leaflist);
+        out_trees[i]->Branch("electrons", electrons_var[i].get());
+        out_trees[i]->Branch("muons", muons_var[i].get());
+        out_trees[i]->Branch("met", met_var[i].get());
     }
 
     if (first_tree) {
@@ -233,10 +245,14 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     }
     result.ForeachSlot(
           [&out_trees, &out_vars, &ntag_var, &njets_var, &rwgt_vars,
+           &electrons_var, &muons_var, &met_var,
            &mc_sf_var](unsigned slot, const reconstructed_event& event) {
               auto&& tree = out_trees[slot];
               auto&& vars = out_vars[slot];
               auto&& rwgt = rwgt_vars[slot];
+              auto&& electrons = electrons_var[slot];
+              auto&& muons = muons_var[slot];
+              auto&& met = met_var[slot];
 
               vars->m_hh = (event.higgs1.p4 + event.higgs2.p4).M();
               vars->pT_hh = (event.higgs1.p4 + event.higgs2.p4).Pt();
@@ -309,6 +325,13 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               rwgt->dRjj_1 =
                     rwgt_jets[std::get<0>(pair)].p4.DeltaR(rwgt_jets[std::get<1>(pair)].p4);
               rwgt->dRjj_2 = rwgt_jets[other_pair[0]].p4.DeltaR(rwgt_jets[other_pair[1]].p4);
+
+              // Fill electrons and MET
+              electrons->clear();
+              ranges::copy(event.electrons, electrons);
+              muons->clear();
+              ranges::copy(event.muons, muons);
+              met = event.met;
 
               tree->Fill();
           },
