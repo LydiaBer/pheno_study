@@ -32,11 +32,21 @@ def configure_cuts(var, cut_sel, print_cuts=True):
   l_ntag2 = [
     '(ntag>1)',
   ]  
+
+  l_SR_1ibsmall_2ibtrk: ['n_large_jets == 1',
+                         'pT_h1 > 200',
+                         'n_small_jets >= 2',
+                         'n_assoc_track_jets >= 2',
+                         'n_assoc_track_tag >= 2',
+                         'n_small_tag >= 1'
+                         ]
+
   # =============================================
   d_cuts = {
     'ntag4'     : l_ntag4,
     'ntag3'     : l_ntag3,
-    'ntag2'     : l_ntag2
+    'ntag2'     : l_ntag2,
+    'SR-1ibsmall-2ibtrk' : l_SR_1ibsmall_2ibtrk,
   } 
   
   l_cuts = [''] 
