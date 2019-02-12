@@ -11,5 +11,5 @@
 #pragma link C++ class TriggerTest;
 #pragma link C++ class Cutflow;
 #pragma link C++ class TLorentzVector;
-#pragma link C++ class std::vector<TLorentzVector>
+#pragma link C++ class std::vector<TLorentzVector>;
 #endif // __LINKDEF_H_
