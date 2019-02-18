@@ -6,7 +6,8 @@ import matplotlib
 matplotlib.use('PDF')
 ##################################################################
 
-dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in
+#dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in
+dir = '280119/varied_couplings' # directory input files to plot are in
 outdir = "./figs/{0}/lambda_limits/".format(dir)
 
 regimes = ['resolved_SlfCoup']#, 'intermediate','boosted']

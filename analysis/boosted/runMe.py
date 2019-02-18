@@ -9,9 +9,11 @@ import os
 
 ### User inputs
 
-FILE_LIST = "../filelists/signal_240119.txt"
-OUT_DIR = os.getcwd().split("/boosted")[0]+"/outputs/signal_240119"
-USE_BATCH = False
+TAG = "280119"
+FILE_LISTS = ["../filelists/signal_{0}.txt".format(TAG), "../filelists/background_{0}.txt".format(TAG)]
+OUT_DIR = os.getcwd().split("/boosted")[0]+"/outputs/"+TAG
+
+USE_BATCH = True
 
 ### End of user inputs
 
@@ -21,10 +23,11 @@ if not os.path.exists(OUT_DIR):
   os.makedirs(OUT_DIR+"/logs")
 
 # open filelist and read line by line
-with open(FILE_LIST, 'r') as filehandle:  
-  filecontents = filehandle.readlines()
+for FILE_LIST in FILE_LISTS:
+  with open(FILE_LIST, 'r') as filehandle:  
+    filecontents = filehandle.readlines()
 
-  for file_path in filecontents:
+    for file_path in filecontents:
       # skip if commented out with hash
       if '#' in file_path: continue
       # skip if empty line
@@ -34,30 +37,21 @@ with open(FILE_LIST, 'r') as filehandle:
 
       output_dir = OUT_DIR
 
-      # make short output filename of form boosted_sample.root
-      if "signal/nominal" in file_path:
-        output_filename = 'boosted_'+file_path.split('nominal/')[1]  
-
-      elif "signal/varied_coupling" in file_path:
-        TopYuk = file_path.split("TopYuk_")[1].split("/SlfCoup")[0]
-        SlfCoup = file_path.split("SlfCoup_")[1].split("_sample")[0]
-        output_filename = "boosted_hh_"+"TopYuk_"+TopYuk+"_"+"SlfCoup_"+SlfCoup+"trackJetBTag.root"  
-
-      #elif "bkg" in file_path:
-      #  if "unfiltered" in file_path:
-      #    filter = "noGenFilt"
-      #  if "pt200" in file_path:
-      #    filter = "xpt200"
-      #  output_filename = "boosted_{0}_{1}_{2}".format(filter, file_path.split("/")[-2],file)
-
+      # append boosted to front of filename
+      output_filename = "boosted_"+file_path.split(TAG+'/')[1]
+      if "varied_coupling" in file_path:
+        TopYuk = file_path.split("TopYuk_")[1].replace("/","_")
+        output_filename = "boosted_noGenFilt_signal_hh_"+"TopYuk_"+TopYuk
       command =  "./build/boosted-recon {0} {1} {2}".format(file_path, output_dir, output_filename)
+      print file_path
+      print output_filename
       if USE_BATCH:
         batch_script = os.getcwd()+"/tools/batchTemplate.sh"
         logfile = OUT_DIR+"/logs/"+output_filename.split(".root")[0]
         batch_command  = "qsub -N {0} -o {1} -e {2} -v CODEDIR='{3}',CMD='{4}' {5}".format(output_filename.split(".root")[0],logfile+".out",logfile+".err",os.getcwd(), command, batch_script)
         print
         print(batch_command)
-        #os.system(batch_command)
+        os.system(batch_command)
       else: 
         print(command)
         os.system(command)

@@ -1,3 +1,0 @@
-## Signal ##
-# HH nominal
-/data/atlas/atlasdata/DiHiggsPheno/samples/delphes/v2/signal/nominal/loop_hh_trackJetBTag.root
