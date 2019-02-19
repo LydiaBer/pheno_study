@@ -333,10 +333,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
 
               // Fill electrons and MET
               electrons->clear();
-              ranges::copy(event.electrons, electrons);
+              ranges::copy(event.electrons, ranges::back_inserter(*electrons));
               muons->clear();
-              ranges::copy(event.muons, muons);
-              met = event.met;
+              ranges::copy(event.muons, ranges::back_inserter(*muons));
+              (*met) = event.met;
 
               tree->Fill();
           },

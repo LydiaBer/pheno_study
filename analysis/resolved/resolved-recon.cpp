@@ -150,8 +150,8 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>
     if (pair_candidates.empty()) {
         // leave result invalid
         result.valid = false;
-        ranges::copy(electron, result.electrons);
-        ranges::copy(muon, result.muons);
+        ranges::copy(electron | view::transform(&Electron::P4), ranges::back_inserter(result.electrons));
+        ranges::copy(muon | view::transform(&Muon::P4), ranges::back_inserter(result.muons));
         result.met.SetPtEtaPhiE(met[0].MET, met[0].Eta, met[0].Phi, met[0].MET);
         result.ntag = ntag; // For ntag cut
     }
@@ -168,8 +168,8 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>
 
         // build result
         ranges::copy(jets, result.jets.begin());
-        ranges::copy(electron, result.electrons);
-        ranges::copy(muon, result.muons);
+        ranges::copy(electron | view::transform(&Electron::P4), ranges::back_inserter(result.electrons));
+        ranges::copy(muon | view::transform(&Muon::P4), ranges::back_inserter(result.muons));
         result.met.SetPtEtaPhiE(met[0].MET, met[0].Eta, met[0].Phi, met[0].MET);
         result.higgs1 = elem->first;
         result.higgs2 = elem->second;
