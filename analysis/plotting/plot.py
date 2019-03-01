@@ -65,12 +65,13 @@ def main():
   dir = '280119/varied_couplings' # directory input files to plot are in
   dir = '280119' # directory input files to plot are in
 
-  l_vars     = ['m_hh']#,'m_h1']#,'m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
-  l_analyses = ['resolved_crosscheck']#'resolved_SlfCoup']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
+  l_vars     = ['m_hh']#,'m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
+  l_analyses = ['resolved_slicedsamples']#'resolved_SlfCoup']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
   l_sig_regs = ['signal']#,'pre-selection'] # gets specific region from input ROOT file
 
   cut_sel = 'ntag4' # corresponds to set of cuts in cuts.py 
   lumi    =  3000.0 
+  #lumi    =  24.3 
   savedir = 'figs'+"/"+dir
   yield_var = "m_hh" # Will plot multiple variables but only want to save yield file for a single variable
 
@@ -83,13 +84,15 @@ def main():
   # Don't include resolved, intermediate, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
-               'noGenFilt_4b' : 1200000./50000.,
-               'noGenFilt_2b2j' : 1200000./50000.,
-               'noGenFilt_4j' :  1200000./50000.,
-               'noGenFilt_ttbar' : 1200000./50000.,
-               'xpt200_4b' : 1200000./50000.,
-               'xpt200_2b2j' : 1200000./50000.,
-               'xpt200_4j' : 1200000./50000.,
+               'noGenFilt_bkg_ttbar_trackJetBTag' : 2100000./50000.,
+               'ptj1_20_to_200_bkg_2b2j': 1850000./50000.,
+               'ptj1_200_to_500_bkg_2b2j': 2000000./50000.,
+               'ptj1_500_to_1000_bkg_2b2j': 1850000./50000.,
+               'ptj1_1000_to_infty_bkg_2b2j': 1100000./50000.,
+               'ptj1_20_to_200_bkg_4b': 2000000./50000.,
+               'ptj1_200_to_500_bkg_4b': 2000000./50000.,
+               'ptj1_500_to_1000_bkg_4b': 1750000./50000.,
+               'ptj1_1000_to_infty_bkg_4b': 2000000./50000.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
@@ -106,6 +109,12 @@ def main():
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
                # Old sample names below for making comparison plots
                'loop_hh' : 100000./50000.,
+               'noGenFilt_4b' : 1200000./50000.,
+               'noGenFilt_2b2j' : 1200000./50000.,
+               'noGenFilt_4j' :  1200000./50000.,
+               'xpt200_4b' : 1200000./50000.,
+               'xpt200_2b2j' : 1200000./50000.,
+               'xpt200_4j' : 1200000./50000.,
                'hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
                'hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
                'hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
@@ -120,6 +129,7 @@ def main():
                'hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
                'hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
                'hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
+               'noGenFilt_ttbar' : 2100000./50000.,
   }
 
   # Matching weight (Delphes saves unmatched xsec not matched xsec which is lower)
@@ -133,13 +143,15 @@ def main():
 
   d_matching_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 1.,
-               'noGenFilt_4j' : 106811.992819/887124.3069,
-               'noGenFilt_2b2j' : 38165.8048156/116266.19204,
-               'xpt200_4j' :13515.2473531/71702.662768,
-               'xpt200_2b2j' :655.237254906/1799.7624417,
-               'noGenFilt_ttbar' : 1.,
-               'noGenFilt_4b' : 1.,
-               'xpt200_4b' : 1.,
+               'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
+               'ptj1_20_to_200_bkg_2b2j': 1.,
+               'ptj1_200_to_500_bkg_2b2j': 1.,
+               'ptj1_500_to_1000_bkg_2b2j': 1.,
+               'ptj1_1000_to_infty_bkg_2b2j': 1.,
+               'ptj1_20_to_200_bkg_4b': 1.,
+               'ptj1_200_to_500_bkg_4b': 1.,
+               'ptj1_500_to_1000_bkg_4b': 1.,
+               'ptj1_1000_to_infty_bkg_4b': 1.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -156,6 +168,68 @@ def main():
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
                # Old sample names below for making comparison plots
                'loop_hh' : 1.,
+               'noGenFilt_ttbar' : 1.,
+               'noGenFilt_4j' : 106811.992819/887124.3069,
+               'noGenFilt_2b2j' : 38165.8048156/116266.19204,
+               'xpt200_4j' :13515.2473531/71702.662768,
+               'xpt200_2b2j' :655.237254906/1799.7624417,
+               'noGenFilt_4b' : 1.,
+               'xpt200_4b' : 1.,
+               'hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
+               'hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
+               'hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
+}
+
+
+  # K-factors xsec NNLO / xsec LO 
+
+  # xsecs for signal from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH
+  # FIXME only done for HH signal for now!! 36.69/16.244 
+  d_k_factor = {
+               'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26,
+               'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
+               'ptj1_20_to_200_bkg_2b2j': 1.,
+               'ptj1_200_to_500_bkg_2b2j': 1.,
+               'ptj1_500_to_1000_bkg_2b2j': 1.,
+               'ptj1_1000_to_infty_bkg_2b2j': 1.,
+               'ptj1_20_to_200_bkg_4b': 1.,
+               'ptj1_200_to_500_bkg_4b': 1.,
+               'ptj1_500_to_1000_bkg_4b': 1.,
+               'ptj1_1000_to_infty_bkg_4b': 1.,
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
+               'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
+               # Old sample names below for making comparison plots
+               'loop_hh' : 1.,
+               'noGenFilt_ttbar' : 1.,
+               'noGenFilt_4j' : 1.,
+               'noGenFilt_2b2j' : 1.,
+               'xpt200_4j' : 1.,
+               'xpt200_2b2j' : 1.,
+               'noGenFilt_4b' : 1.,
+               'xpt200_4b' : 1.,
                'hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -232,7 +306,7 @@ def main():
         print_lumi = lumi # [1/fb]
         print('Lumi to print: {0}'.format(print_lumi))
       
-        calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
+        calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
 
   tfinish = time.time()
   telapse = tfinish - t0
@@ -243,7 +317,7 @@ def main():
   print('--------------------------------------------------')
 
 #____________________________________________________________________________
-def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, l_print_cuts=[]):
+def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, l_print_cuts=[]):
   '''
   Extract trees given a relevant variable
   '''
@@ -354,18 +428,19 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     # assign TFile to a dictionary entry
     d_files[samp] = TFile(full_path)
    
-    # Get sample part of name for use in d_slicing_weight and d_matching_weight
+    # Get sample part of name for use in d_slicing_weight and d_matching_weight and d_k_factor
     # i.e. remove resolved_, intermediate_ or boosted_ from name
     l_samp_split = samp.split("_")[1:]
     no_ana_name_samp = '_'.join(l_samp_split)
 
     # hh weight so visible on plots
     my_weight = 1.
+    # FIXME automate
     #if "hh" in samp:
-    #  my_weight = 10000.0
+    #  my_weight = 100.0
 
     # Get TH1F histogram from the TTree in the TFile and store to dictionary entry
-    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_matching_weight[no_ana_name_samp], my_weight, samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
+    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_matching_weight[no_ana_name_samp], d_k_factor[no_ana_name_samp], my_weight, samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
 
     # ---------------------------------------------------- 
     # Stacked histogram: construct and format
@@ -419,11 +494,11 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   # ----------------------------------------------------------------- 
   # legend for bkg, signals and total bkg yield
   # ----------------------------------------------------------------- 
-  leg = mk_leg(0.47, 0.6, 0.88, 0.78, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  leg = mk_leg(0.57, 0.7, 0.95, 0.98, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
   # legend with breakdown of background by sample
   d_bkg_leg = {}
   l_bkg_leg = ['samp1']
-  d_bkg_leg['samp1'] = mk_leg(0.57, 0.68, 0.88, 0.83, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
 
   print('==============================================')
   # ----------------------------------------------------------------- 
@@ -473,7 +548,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
 
 
 #_______________________________________________________
-def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, hname, var, sig_reg, cutsAfter='', Nbins=100, xmin=0, xmax=100, lumifb=0, variable_bin=False, hXarray=0):
+def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname, var, sig_reg, cutsAfter='', Nbins=100, xmin=0, xmax=100, lumifb=0, variable_bin=False, hXarray=0):
   '''
   from a TTree, project a leaf 'var' and return a TH1F
   '''
@@ -488,9 +563,9 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, hname, var, sig
 
   mc_weight = "mc_sf"
   if cutsAfter is '':
-    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) / ({4}))'.format(mc_weight, lumi, my_weight, matching_weight, slicing_weight) 
+    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(mc_weight, lumi, my_weight, matching_weight, k_factor, slicing_weight) 
   else:
-    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(cutsAfter, mc_weight, lumi, my_weight, matching_weight, slicing_weight) 
+    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) * ({5}) / ({6}))'.format(cutsAfter, mc_weight, lumi, my_weight, matching_weight, k_factor, slicing_weight) 
   
   print('---------------------------------')
   print('Final weighted cut string: ')
@@ -595,6 +670,16 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   # draw signal samples
   for samp in d_hsig:
     print('Drawing {0}'.format(samp))
+    # FIXME TEST
+    #d_hsig[samp].Scale(1/100)
+    #for i in range(1,d_hsig[samp].GetNbinsX() + 1):
+    #  val = 0
+    #  n=d_hsig[samp].GetBinContent(i)
+    #  w=d_hsig[samp].GetBinWidth(i)
+    #  if (w > 0):
+    #    val = n*100./w
+    #    d_hsig[samp].SetBinContent(i,val)
+
     d_hsig[samp].Draw('hist same') #e2 = error coloured band
     customise_axes(d_hsig[samp], xtitle, ytitle, 1.5, IsLogY, enlargeYaxis)
 
@@ -716,8 +801,9 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
     hist        = d_hists[samp][0]
     sample_type = d_samp[samp]['type']
     leg_entry   = d_samp[samp]['leg']
+    # FIXME automate
     #if "HH" in leg_entry:
-    #  leg_entry = leg_entry+" x10000"
+    #  leg_entry = leg_entry+" x100"
     legMk       = d_legMk[sample_type]
   
     #print('samp: {0}, type: {1}, legMk: {2}'.format(samp, sample_type, legMk) ) 

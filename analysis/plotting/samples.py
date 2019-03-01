@@ -24,7 +24,7 @@ def get_sample_paths(dir = ''):
   
   # Paths to ntuples # 
   TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
-  
+  #TOPPATH = '/data/atlas/atlasdata/beresford/jrf/hh4b_pheno/pheno_study/lydia-dev/pheno_study/analysis/outputs' 
   # Path to ntuples 
   bkg_path  = TOPPATH + '/' + dir
   sig_path  = TOPPATH + '/' + dir
@@ -53,11 +53,22 @@ def get_samples_to_plot(analysis = ''):
   # Resolved analysis
   #------------------------------------
 
-  if analysis is 'resolved_crosscheck':
-    l_samp_bkg = []
+  if analysis is 'resolved_slicedsamples':
+    l_samp_bkg = ['resolved_noGenFilt_bkg_ttbar_trackJetBTag',
+                  'resolved_ptj1_20_to_200_bkg_2b2j',
+                  'resolved_ptj1_200_to_500_bkg_2b2j',
+                  'resolved_ptj1_500_to_1000_bkg_2b2j',
+                  'resolved_ptj1_1000_to_infty_bkg_2b2j',
+                  'resolved_ptj1_20_to_200_bkg_4b',
+                  'resolved_ptj1_200_to_500_bkg_4b',
+                  'resolved_ptj1_500_to_1000_bkg_4b',
+                  'resolved_ptj1_1000_to_infty_bkg_4b',
+                  #'resolved_noGenFilt_4b',
+                 ]
 
     l_samp_sig = [
-                 'resolved_noGenFilt_signal_hh_loop_sm_trackJetBTag'
+                 #'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0',
+                 'resolved_noGenFilt_signal_hh_loop_sm_trackJetBTag',
     ]
 
   # Samples for lambda coupling plot
@@ -254,14 +265,16 @@ def configure_samples():
     
     'resolved_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.5','l_color':myDarkOrange },
 
-    'resolved_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'resolved_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'resolved_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    'resolved_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'resolved_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'resolved_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'resolved_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    
+    'resolved_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'resolved_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
+    'resolved_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
+    'resolved_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
+    'resolved_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
+    'resolved_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
+    'resolved_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
+    'resolved_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
+    'resolved_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
+
     # Old sample names below for making comparison plots
 
     'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
@@ -281,6 +294,14 @@ def configure_samples():
     
     'resolved_hh_TopYuk_0.5_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.5','l_color':myDarkOrange },
 
+    'resolved_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'resolved_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'resolved_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'resolved_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'resolved_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    'resolved_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    'resolved_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    
     #------------------------------------
     # Intermediate analysis
     #------------------------------------
