@@ -37,7 +37,9 @@ namespace action = ranges::action;
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
 // Reconstruct event in the resolved regime
-reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>& evt) {
+reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>& evt,
+                                VecOps::RVec<Electron>& electron, VecOps::RVec<Muon>& muon,
+                                VecOps::RVec<MissingET>& met) {
     reconstructed_event result{};
 
     result.wgt = evt[0].Weight;
@@ -148,6 +150,9 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>
     if (pair_candidates.empty()) {
         // leave result invalid
         result.valid = false;
+        ranges::copy(electron | view::transform(&Electron::P4), ranges::back_inserter(result.electrons));
+        ranges::copy(muon | view::transform(&Muon::P4), ranges::back_inserter(result.muons));
+        result.met.SetPtEtaPhiE(met[0].MET, met[0].Eta, met[0].Phi, met[0].MET);
         result.ntag = ntag; // For ntag cut
     }
     else {
@@ -163,6 +168,9 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& jet, VecOps::RVec<HepMCEvent>
 
         // build result
         ranges::copy(jets, result.jets.begin());
+        ranges::copy(electron | view::transform(&Electron::P4), ranges::back_inserter(result.electrons));
+        ranges::copy(muon | view::transform(&Muon::P4), ranges::back_inserter(result.muons));
+        result.met.SetPtEtaPhiE(met[0].MET, met[0].Eta, met[0].Phi, met[0].MET);
         result.higgs1 = elem->first;
         result.higgs2 = elem->second;
         result.ntag = ntag;
@@ -323,7 +331,7 @@ int main(int argc, char* argv[]) {
     auto four_jets = frame.Filter(four_b_jets_pT_40_eta_25, {"Jet"},
                                   u8"4 good jets(pT ≥ 40 GeV, η ≤ 2.5), ≥ 4 tagged");
 
-    auto reconstructed = four_jets.Define("event", reconstruct, {"Jet", "Event"});
+    auto reconstructed = four_jets.Define("event", reconstruct, {"Jet", "Event", "Electron", "Muon", "MissingET"});
 
     auto valid_evt = reconstructed.Filter(valid_check, {"event"}, u8"ΔR_jj");
     auto pT_higgs = valid_evt.Filter(pT_hs, {"event"}, u8"pT Higgs");
