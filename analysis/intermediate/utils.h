@@ -131,8 +131,14 @@ struct reconstructed_event {
     int64_t n_assoc_track_jets; ///< Total number of track jets associated with fat jet
     double wgt;           ///< Event Weight
 
+    int64_t nElec;  ///< Number of electrons at Delphes level
+    int64_t nMuon;  ///< Number of muons at Delphes level
+
     OxJet large_jet;
     std::array<OxJet, 2> small_jets; ///< Array of 2 chosen jets
+    TLorentzVector met; ///< MET
+    TLorentzVector elec1; ///< leading electron
+    TLorentzVector muon1; ///< leading muon
 
     higgs higgs1; ///< Leading Higgs
     higgs higgs2; ///< Subleading Higgs
@@ -200,16 +206,21 @@ struct out_format {
     double dR_h2_j1_j2;   ///< Delta R   between leading small jet and subleading small jet separated from fat jet 
     double dPhi_h2_j1_j2; ///< Delta Phi between leading small jet and subleading small jet separated from fat jet
     
+    double elec1Pt; 
+    double elec1Eta; 
+    double elec1Phi; 
+    double elec1M; 
+    
+    double muon1Pt; 
+    double muon1Eta; 
+    double muon1Phi; 
+    double muon1M; 
+    
+    double met_Et; 
+    double met_phi;
+    
 };
-/*
-struct reweight_format {
-  double pT_4;   ///< p<SUB>T</SUB> of 4th jet
-  double pT_2;   ///< p<SUB>T</SUB> of 2nd jet
-  double eta_i;  ///< &sum;|&eta;<SUB>i</SUB>|
-  double dRjj_1; ///< &Delta;R<SUB>jj,1</SUB>
-  double dRjj_2; ///< &Delta;R<SUB>jj,2</SUB>
-};
-*/
+
 template <typename Proxied>
 void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
                 TFile& output_file /**< [out] Tree to write to */) {
@@ -229,7 +240,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
           "dR_trkJet1_trkJet2:dPhi_trkJet1_trkJet2:"
           "m_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
           "m_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2:"
-          "dR_h2_j1_j2:dPhi_h2_j1_j2";
+          "dR_h2_j1_j2:dPhi_h2_j1_j2:"
+          "elec1Pt:elec1Eta:elec1Phi:elec1M:"
+          "muon1Pt:muon1Eta:muon1Phi:muon1M:"
+          "met_Et:met_phi";
 
     // const char *rwgt_leaflist = "pT_4/D:pT_2:eta_i:dRjj_1:dRjj_2";
 
@@ -246,8 +260,11 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     vector<int> n_track_jets_var(num_threads);
     vector<int> n_assoc_track_tag_var(num_threads);
     vector<int> n_assoc_track_jets_var(num_threads);
+    vector<int> nElec(num_threads);
+    vector<int> nMuon(num_threads);
     vector<double> mc_sf_var(num_threads);
     vector<unique_ptr<out_format>> out_vars{};
+    
     // vector<unique_ptr<reweight_format>> rwgt_vars{};
     for (int i = 0; i < num_threads; ++i) {
         gROOT->cd();
@@ -264,6 +281,8 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         out_trees[i]->Branch("n_track_jets", &n_track_jets_var[i]);
         out_trees[i]->Branch("n_assoc_track_tag",  &n_assoc_track_tag_var[i]);
         out_trees[i]->Branch("n_assoc_track_jets", &n_assoc_track_jets_var[i]);
+        out_trees[i]->Branch("nElec", &nElec[i]);
+        out_trees[i]->Branch("nMuon", &nMuon[i]);
         out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
         out_trees[i]->Branch("event", out_vars[i].get(), out_format_leaflist);
         // out_trees[i]->Branch("rwgt", rwgt_vars[i].get(), rwgt_leaflist);
@@ -288,7 +307,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
            &n_track_jets_var, 
            &n_assoc_track_tag_var, 
            &n_assoc_track_jets_var, 
-           &mc_sf_var](unsigned slot, const reconstructed_event& event) {
+           &nElec, 
+           &nMuon, 
+           &mc_sf_var
+           ](unsigned slot, const reconstructed_event& event) {
               auto&& tree = out_trees[slot];
               auto&& vars = out_vars[slot];
               //  auto &&rwgt = rwgt_vars[slot];
@@ -307,6 +329,8 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               n_track_jets_var[slot] = event.n_track_jets;
               n_assoc_track_tag_var[slot]  = event.n_assoc_track_tag;
               n_assoc_track_jets_var[slot] = event.n_assoc_track_jets;
+              nElec[slot] = event.nElec;
+              nMuon[slot] = event.nMuon;
               mc_sf_var[slot]        = event.wgt;
 
               vars->m_h1   = event.higgs1.p4.M();
@@ -348,47 +372,22 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               
               vars->dR_h2_j1_j2   = event.small_jets[0].p4.DeltaR(   event.small_jets[1].p4 );
               vars->dPhi_h2_j1_j2 = event.small_jets[0].p4.DeltaPhi( event.small_jets[1].p4 );
+              
+              vars->elec1Pt  = event.elec1.Pt();
+              vars->elec1Eta = event.elec1.Eta();
+              vars->elec1Phi = event.elec1.Phi();
+              vars->elec1M   = event.elec1.M();
+
+              vars->muon1Pt  = event.muon1.Pt();
+              vars->muon1Eta = event.muon1.Eta();
+              vars->muon1Phi = event.muon1.Phi();
+              vars->muon1M   = event.muon1.M();
+              
+              vars->met_Et   = event.met.Pt();
+              vars->met_phi  = event.met.Phi();
         
-              /*
-                      auto rwgt_jets = event.jets;
-                      rwgt_jets |=
-                          (action::sort(ranges::ordered_less{},
-                                        [](const auto &jet) { return jet.p4.Pt(); }) |
-                           action::reverse);
-                      rwgt->pT_2 = rwgt_jets[1].p4.Pt();
-                      rwgt->pT_4 = rwgt_jets[3].p4.Pt();
-                      rwgt->eta_i = ranges::accumulate(rwgt_jets, 0., ranges::plus{},
-                                                       [](const auto &jet) {
-                                                         return
-                 std::abs(jet.p4.Eta());
-                                                       }) /
-                                    4;
-
-                      std::vector<std::tuple<int, int>> rwgt_jet_pairs =
-                          view::cartesian_product(view::ints(0, 4), view::ints(0, 4))
-                 |
-                          view::remove_if(
-                              [](auto &&is) { return std::get<0>(is) <=
-                 std::get<1>(is); });
-                      rwgt_jet_pairs |=
-                          (action::sort(ranges::ordered_less{}, [&rwgt_jets](auto
-                 &&is) {
-                            auto i = std::get<0>(is);
-                            auto j = std::get<1>(is);
-                            return rwgt_jets[i].p4.DeltaR(rwgt_jets[j].p4);
-                          }));
-                      auto pair = rwgt_jet_pairs[0]; // tuple
-                      std::vector<int> other_pair =
-                          view::ints(0, 4) | view::remove_if([&pair](int i) {
-                            return i == std::get<0>(pair) || i == std::get<1>(pair);
-                          });
-
-                      rwgt->dRjj_1 = rwgt_jets[std::get<0>(pair)].p4.DeltaR(
-                          rwgt_jets[std::get<1>(pair)].p4);
-                      rwgt->dRjj_2 =
-                          rwgt_jets[other_pair[0]].p4.DeltaR(rwgt_jets[other_pair[1]].p4);
-              */
               tree->Fill();
+          
           },
           {"event" /*, "mc_sf"*/});
 
