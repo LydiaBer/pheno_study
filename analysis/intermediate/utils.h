@@ -127,8 +127,10 @@ struct reconstructed_event {
     int64_t n_large_jets; ///< Total number of LargeR jets
     int64_t n_track_tag;  ///< Number of B-tagged track jets
     int64_t n_track_jets; ///< Total number of track jets
-    int64_t n_assoc_track_tag;  ///< Number of B-tagged track jets associated with fat jet
-    int64_t n_assoc_track_jets; ///< Total number of track jets associated with fat jet
+    int64_t n_h1_assoc_track_tag;  ///< Number of B-tagged track jets associated with leading fat jet
+    int64_t n_h1_assoc_track_jets; ///< Total number of track jets associated with leading fat jet
+    int64_t n_h2_assoc_track_tag;  ///< Number of B-tagged track jets associated with subleading fat jet
+    int64_t n_h2_assoc_track_jets; ///< Total number of track jets associated with subleading fat jet
     double wgt;           ///< Event Weight
 
     int64_t nElec;  ///< Number of electrons at Delphes level
@@ -161,8 +163,9 @@ struct out_format {
     double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
     double pT_hh; ///< Di-Higgs pT (pT<SUB>hh</SUB> or pT<SUB>4j</SUB>)
     double dR_hh; ///< Di-Higgs dR (dR<SUB>hh</SUB> or dR<SUB>4j</SUB>)
-    double deta_hh; ///< Di-Higgs deta (deta<SUB>hh</SUB> or deta<SUB>4j</SUB>)
-    double dphi_hh; ///< Di-Higgs dphi (dphi<SUB>hh</SUB> or dphi<SUB>4j</SUB>)
+    double dEta_hh; ///< Di-Higgs deta (deta<SUB>hh</SUB> or deta<SUB>4j</SUB>)
+    double dPhi_hh; ///< Di-Higgs dphi (dphi<SUB>hh</SUB> or dphi<SUB>4j</SUB>)
+    double X_hh;
 
     double m_h1;   ///< Leading Higgs mass
     double pT_h1;  ///< Leading Higgs p<SUB>T</SUB>
@@ -231,7 +234,7 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     static bool first_tree = true;
 
     const char* out_format_leaflist =
-          "m_hh/D:pT_hh:dR_hh:deta_hh:dphi_hh:"
+          "m_hh/D:pT_hh:dR_hh:dEta_hh:dPhi_hh:X_hh:"
           "m_h1/D:pT_h1:eta_h1:phi_h1:"
           "m_h2/D:pT_h2:eta_h2:phi_h2:"
           "m_h1_large_jet:pT_h1_large_jet:eta_h1_large_jet:phi_h1_large_jet:"
@@ -258,8 +261,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
     vector<int> n_large_jets_var(num_threads);
     vector<int> n_track_tag_var(num_threads);
     vector<int> n_track_jets_var(num_threads);
-    vector<int> n_assoc_track_tag_var(num_threads);
-    vector<int> n_assoc_track_jets_var(num_threads);
+    vector<int> n_h1_assoc_track_tag_var(num_threads);
+    vector<int> n_h1_assoc_track_jets_var(num_threads);
+    vector<int> n_h2_assoc_track_tag_var(num_threads);
+    vector<int> n_h2_assoc_track_jets_var(num_threads);
     vector<int> nElec(num_threads);
     vector<int> nMuon(num_threads);
     vector<double> mc_sf_var(num_threads);
@@ -279,8 +284,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         out_trees[i]->Branch("n_large_tag",  &n_large_tag_var[i]);
         out_trees[i]->Branch("n_track_tag",  &n_track_tag_var[i]);
         out_trees[i]->Branch("n_track_jets", &n_track_jets_var[i]);
-        out_trees[i]->Branch("n_assoc_track_tag",  &n_assoc_track_tag_var[i]);
-        out_trees[i]->Branch("n_assoc_track_jets", &n_assoc_track_jets_var[i]);
+        out_trees[i]->Branch("n_h1_assoc_track_tag",  &n_h1_assoc_track_tag_var[i]);
+        out_trees[i]->Branch("n_h1_assoc_track_jets", &n_h1_assoc_track_jets_var[i]);
+        out_trees[i]->Branch("n_h2_assoc_track_tag",  &n_h2_assoc_track_tag_var[i]);
+        out_trees[i]->Branch("n_h2_assoc_track_jets", &n_h2_assoc_track_jets_var[i]);
         out_trees[i]->Branch("nElec", &nElec[i]);
         out_trees[i]->Branch("nMuon", &nMuon[i]);
         out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
@@ -305,8 +312,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
            &n_large_jets_var, /*, &rwgt_vars*/
            &n_track_tag_var, 
            &n_track_jets_var, 
-           &n_assoc_track_tag_var, 
-           &n_assoc_track_jets_var, 
+           &n_h1_assoc_track_tag_var, 
+           &n_h1_assoc_track_jets_var, 
+           &n_h2_assoc_track_tag_var, 
+           &n_h2_assoc_track_jets_var, 
            &nElec, 
            &nMuon, 
            &mc_sf_var
@@ -314,12 +323,16 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               auto&& tree = out_trees[slot];
               auto&& vars = out_vars[slot];
               //  auto &&rwgt = rwgt_vars[slot];
-
+    
               vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();
               vars->pT_hh   = (event.higgs1.p4 + event.higgs2.p4).Pt();
               vars->dR_hh   = event.higgs1.p4.DeltaR(event.higgs2.p4);
-              vars->deta_hh = event.higgs1.p4.Eta()-event.higgs2.p4.Eta();
-              vars->dphi_hh = event.higgs1.p4.DeltaPhi(event.higgs2.p4);
+              vars->dEta_hh = fabs( event.higgs1.p4.Eta() - event.higgs2.p4.Eta() );
+              vars->dPhi_hh = fabs( event.higgs1.p4.DeltaPhi(event.higgs2.p4) );
+              
+              double dH1 = ( event.higgs1.p4.M() - 124) / (0.1 * event.higgs1.p4.M() );
+              double dH2 = ( event.higgs2.p4.M() - 115) / (0.1 * event.higgs2.p4.M() );
+              vars->X_hh = sqrt( pow( dH1, 2) + pow( dH2, 2) );
 
               n_small_tag_var[slot]  = event.n_small_tag;
               n_small_jets_var[slot] = event.n_small_jets;
@@ -327,8 +340,10 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
               n_large_jets_var[slot] = event.n_large_jets;
               n_track_tag_var[slot]  = event.n_track_tag;
               n_track_jets_var[slot] = event.n_track_jets;
-              n_assoc_track_tag_var[slot]  = event.n_assoc_track_tag;
-              n_assoc_track_jets_var[slot] = event.n_assoc_track_jets;
+              n_h1_assoc_track_tag_var[slot]  = event.n_h1_assoc_track_tag;
+              n_h1_assoc_track_jets_var[slot] = event.n_h1_assoc_track_jets;
+              n_h2_assoc_track_tag_var[slot]  = event.n_h2_assoc_track_tag;
+              n_h2_assoc_track_jets_var[slot] = event.n_h2_assoc_track_jets;
               nElec[slot] = event.nElec;
               nMuon[slot] = event.nMuon;
               mc_sf_var[slot]        = event.wgt;

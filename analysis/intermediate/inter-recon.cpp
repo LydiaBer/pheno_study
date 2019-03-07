@@ -35,28 +35,6 @@ namespace action = ranges::action;
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
 //-----------------------------------------------
-// Keep the preselection fairly loose
-// This enables greater flexibility
-//-----------------------------------------------
-bool one_large_two_b_small_cuts(VecOps::RVec<Jet>& jets, VecOps::RVec<Jet>& fatjets ) {
-
-    int count_small = 0; // Counting small-R jets
-    int count_fat = 0; // Counting large-R jets
-
-    // Loose filter small R jets
-    for (auto&& j : jets) {
-        if (j.PT >= 20.*GeV && std::abs(j.Eta) < 4.5 ) count_small++;
-    }
-
-    // Loose filter large R jet
-    for (auto&& j : fatjets) {
-        if (j.PT >= 100.*GeV &&  std::abs(j.Eta) < 2.5) count_fat++;
-    }
-
-    return count_small >= 2 && count_fat >= 1; 
-}
-
-//-----------------------------------------------
 // Reconstruction routine
 //-----------------------------------------------
 reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet 
@@ -122,6 +100,9 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
     //---------------------------------------------------
     //std::cout << "Large, small, track jets: " << lj_vec.size() << ", " << sj_vec.size() << ", " << tj_vec.size() << std::endl;
   
+    //---------------------------------------------------
+    // Intermediate jet association
+    //---------------------------------------------------
     if ( lj_vec.size() < 1 || sj_vec.size() < 2 || tj_vec.size() < 2) { 
       result.valid = false;
       return result;
@@ -134,18 +115,27 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
     // Associate track jets with large R jet
     //---------------------------------------------------
    
-    // A vector of jets associated with leading large R jet 
+    // Vectors of track jets associated with leading large R jet 
     std::vector<OxJet> h1_assoTrkJet;
-    float max_dR_trackJet_largeJet = 0.8;
+    std::vector<OxJet> h2_assoTrkJet;
+    
+    // Association distance measure
+    float max_dR = 1.0;
     
     for(auto tj : tj_vec){
-      if ( tj.p4.DeltaR(large_jet.p4) <= max_dR_trackJet_largeJet){
-        h1_assoTrkJet.push_back(tj);
+      // case 1 large jet
+      if ( lj_vec.size() >= 1 ) {
+        if ( tj.p4.DeltaR( lj_vec[0].p4 ) < max_dR ){ h1_assoTrkJet.push_back(tj); }
+      }
+      // case 2 large jets
+      if ( lj_vec.size() >= 2 ) {
+        if ( tj.p4.DeltaR( lj_vec[1].p4 ) < max_dR ){ h2_assoTrkJet.push_back(tj); }
       }
     }
     
-    const int n_assoc_track_tag = // Counting track jets associated with large R jet that are B tagged
-          ranges::count(h1_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
+    // Counting track jets associated with large R jet that are B tagged
+    const int n_h1_assoc_track_tag = ranges::count(h1_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
+    const int n_h2_assoc_track_tag = ranges::count(h2_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
 
     //---------------------------------------------------
     // Assign small R jets to second Higgs candidate
@@ -203,25 +193,33 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
         if(fabs(thisPair.p4().M() - large_jet.p4.M()) < fabs(bestPair.p4().M() - large_jet.p4.M())) bestPair = thisPair;
       }
     }
-  
+    
     int nElec = electron.size();
     int nMuon = muon.size();
+
     //---------------------------------------------------
     // Store candidates
     //---------------------------------------------------
-    result.higgs2.p4      = bestPair.jet_1.p4 + bestPair.jet_2.p4;
-    result.higgs1.p4      = large_jet.p4;
+    
+    result.nElec = nElec;
+    result.nMuon = nMuon;
+    
+    // Assign jets to Higgs candidates 
+    // 0 large jets: use two small jets as higgs1, 1+ large jet: use leading large jet as higgs1
+    result.higgs1.p4      = lj_vec.size() > 0 ? lj_vec[0].p4 : sj_vec[0].p4 + sj_vec[1].p4 ;
+    // 1 large jets: use two small jets as higgs2, 2+ large jets: use subleading large jet as higgs1
+    result.higgs2.p4      = lj_vec.size() > 1 ? lj_vec[1].p4 : bestPair.jet_1.p4 + bestPair.jet_2.p4;
+
     result.n_small_tag    = n_separ_tag;
     result.n_small_jets   = jets_separated.size();
     result.n_large_tag    = n_large_tag;
     result.n_large_jets   = lj_vec.size();
     result.n_track_tag    = n_track_tag;
     result.n_track_jets   = tj_vec.size();
-    result.n_assoc_track_tag  = n_assoc_track_tag;
-    result.n_assoc_track_jets = h1_assoTrkJet.size();
-
-    result.nElec = nElec;
-    result.nMuon = nMuon;
+    result.n_h1_assoc_track_tag  = n_h1_assoc_track_tag;
+    result.n_h1_assoc_track_jets = h1_assoTrkJet.size();
+    result.n_h2_assoc_track_tag  = n_h2_assoc_track_tag;
+    result.n_h2_assoc_track_jets = h2_assoTrkJet.size();
     
     result.large_jet      = large_jet;
     if ( h1_assoTrkJet.size() >= 1 ) { result.h1_assoTrkJet1.p4 = h1_assoTrkJet[0].p4; }
