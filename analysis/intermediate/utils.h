@@ -33,14 +33,14 @@
 
 extern double f;
 
-// Higgs Boson
+/// Higgs boson
 struct higgs {
     TLorentzVector p4; ///< 4-momentum
-    // int jet1;          ///< Index of leading jet
-    // int jet2;          ///< Index of subleading jet
+    int jet1;          ///< Index of leading jet
+    int jet2;          ///< Index of subleading jet
 
-    higgs() : p4() {}
-    higgs(const TLorentzVector& p4) : p4(p4) {}
+    higgs() : p4(), jet1(0), jet2(0) {}
+    higgs(const TLorentzVector& p4, int jet1, int jet2) : p4(p4), jet1(jet1), jet2(jet2) {}
 };
 
 class OxJet {
