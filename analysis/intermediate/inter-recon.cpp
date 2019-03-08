@@ -37,18 +37,17 @@ constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 //-----------------------------------------------
 // Reconstruction routine
 //-----------------------------------------------
-reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet 
-                                VecOps::RVec<Jet>& largejet,      // Delphes FatJet
-                                VecOps::RVec<Jet>& trkjet,        // Delphes TrackJet
-                                VecOps::RVec<HepMCEvent>& evt,    // Event
-                                VecOps::RVec<Electron>& electron, // Electrons
-                                VecOps::RVec<Muon>& muon,         // Muons
-                                VecOps::RVec<MissingET>& met)     // MET 
+reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet 
+                                VecOps::RVec<Jet>&        largejet, // FatJet
+                                VecOps::RVec<Jet>&        trkjet,   // TrackJet
+                                VecOps::RVec<HepMCEvent>& evt,      // Event
+                                VecOps::RVec<Electron>&   electron, // Electrons
+                                VecOps::RVec<Muon>&       muon,     // Muons
+                                VecOps::RVec<MissingET>&  met)      // MissingET 
                                 {
     reconstructed_event result{};
 
     result.wgt = evt[0].Weight;
-    //std::cout << "At reconstructed_event reconstruct " << std::endl;
 
     //---------------------------------------------------
     // Collect and organise jets
@@ -96,20 +95,12 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
           ranges::count(tj_vec, true, [](auto&& jet) { return jet.tagged; });
 
     //---------------------------------------------------
-    // If appropriate number of jets in each category
-    //---------------------------------------------------
-    //std::cout << "Large, small, track jets: " << lj_vec.size() << ", " << sj_vec.size() << ", " << tj_vec.size() << std::endl;
-  
-    //---------------------------------------------------
-    // Intermediate jet association
+    // Intermediate jet preselection
     //---------------------------------------------------
     if ( lj_vec.size() < 1 || sj_vec.size() < 2 || tj_vec.size() < 2) { 
       result.valid = false;
       return result;
     };
-   
-    // Assign the leading large R jet as the leading Higgs candidate
-    OxJet large_jet = lj_vec[0];
  
     //---------------------------------------------------
     // Associate track jets with large R jet
@@ -138,28 +129,16 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
     const int n_h2_assoc_track_tag = ranges::count(h2_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
 
     //---------------------------------------------------
-    // Assign small R jets to second Higgs candidate
-    //---------------------------------------------------
-
-    // If small R jets are less than 2-> Reject event
-    //if (sj_vec.size() < 2) {
-    //    result.valid = false;
-    //    return result;
-    //}
-
-    //---------------------------------------------------
-    // For all separated jets
-    // Both small b-jets and non-b-jets
-    // Cut on DeltaR<1.2 between small R jets and Large R jet
+    // For all separated jets, both small b-jets and non-b-jets
+    // Cut on DeltaR( small jets, large jet )
     //---------------------------------------------------
     
     // Put all small R jets separated from fat jet into jets_separated
     std::vector<OxJet> jets_separated;
     std::vector<OxJet> jets_notseparated;
     for (auto&& j : sj_vec) {
-      if (deltaR(large_jet, j) > 1.2) jets_separated.push_back(j);
-      else jets_notseparated.push_back(j);
-      
+      if (deltaR(lj_vec[0], j) > 1.2) jets_separated.push_back(j);
+      else jets_notseparated.push_back(j);     
     }
     
     if (jets_separated.size() < 2) {
@@ -178,9 +157,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
     // Counting small jets separated from large R jet that are B tagged
     const int n_separ_tag = ranges::count(jets_separated, true, [](auto&& jet) { return jet.tagged; });
     
-    // Get the pairing that minimizes relative mass difference
-    // Make pairs of small r jets
-
+    // Get the pairing that minimizes relative mass difference by making pairs of small r jets
     JetPair bestPair;
 
     for(unsigned int i = 0; i < jets_separated.size(); i++){
@@ -190,19 +167,16 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
           continue;
         }
         JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
-        if(fabs(thisPair.p4().M() - large_jet.p4.M()) < fabs(bestPair.p4().M() - large_jet.p4.M())) bestPair = thisPair;
+        if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
       }
     }
     
-    int nElec = electron.size();
-    int nMuon = muon.size();
-
     //---------------------------------------------------
     // Store candidates
     //---------------------------------------------------
     
-    result.nElec = nElec;
-    result.nMuon = nMuon;
+    result.nElec = electron.size();
+    result.nMuon = muon.size();
     
     // Assign jets to Higgs candidates 
     // 0 large jets: use two small jets as higgs1, 1+ large jet: use leading large jet as higgs1
@@ -221,7 +195,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
     result.n_h2_assoc_track_tag  = n_h2_assoc_track_tag;
     result.n_h2_assoc_track_jets = h2_assoTrkJet.size();
     
-    result.large_jet      = large_jet;
+    result.large_jet      = lj_vec[0];
     if ( h1_assoTrkJet.size() >= 1 ) { result.h1_assoTrkJet1.p4 = h1_assoTrkJet[0].p4; }
     if ( h1_assoTrkJet.size() >= 2 ) { result.h1_assoTrkJet2.p4 = h1_assoTrkJet[1].p4; }
  
@@ -234,23 +208,21 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Delphes Jet
     }
     
     // Store leading leptons 
-    nElec > 0 ? result.elec1.SetPtEtaPhiM(electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511) : result.elec1.SetPtEtaPhiM(0., 0., 0., 0.);
-    nMuon > 0 ? result.muon1.SetPtEtaPhiM(muon[0].PT,     muon[0].Eta,     muon[0].Phi,     0.106)    : result.muon1.SetPtEtaPhiM(0., 0., 0., 0.) ;
+    electron.size() > 0 ? result.elec1.SetPtEtaPhiM(electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511) : result.elec1.SetPtEtaPhiM(0., 0., 0., 0.);
+    muon.size()     > 0 ? result.muon1.SetPtEtaPhiM(muon[0].PT,     muon[0].Eta,     muon[0].Phi,     0.106)    : result.muon1.SetPtEtaPhiM(0., 0., 0., 0.);
     
     // Store missing transverse momentum
-    result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET);
+    result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET );
 
     return result;
 }
 
 // Select Only Valid Events
-//
 bool valid_check(const reconstructed_event& evt) { return evt.valid; }
 
 //***************
 // Main Analysis Code
 //***************
-
 int main(int argc, char* argv[]) {
 
     if(argc < 4){
@@ -268,56 +240,25 @@ int main(int argc, char* argv[]) {
     // Uncomment to enable multithreading
     //ROOT::EnableImplicitMT();
 
-    //*******************
     // Importing Input File
-    //*******************
     RDataFrame frame("Delphes", file_path);
 
-    //******************
     // Run Intermediate Analysis
-    //******************
-    //auto three_jets =
-    //      frame.Filter(one_large_two_b_small_cuts, {"Jet", "FatJet"},
-    //                   u8"Intermediate analysis cuts"); // Apply Intermediate Events Filter
-    
-    auto reconstructed =
-         frame.Define("event", reconstruct, {"Jet",
-                                             "FatJet",
-                                             "TrackJet",
-                                             "Event",
-                                             "Electron",
-                                             "Muon", 
-                                             "MissingET"}); // Reconstruct Events
+    auto reconstructed = frame.Define("event", reconstruct, {"Jet", "FatJet", "TrackJet", "Event",  "Electron", "Muon", "MissingET"}); 
 
-    auto valid_evt =
-         reconstructed.Filter(valid_check, {"event"}, "valid events"); // Filter only valid Events
+    // Filter only valid Events
+    auto valid_evt = reconstructed.Filter(valid_check, {"event"}, "valid events");
 
-    //auto signal_result = valid_evt.Filter(signal, {"event"}, "signal"); // Filter Signal Events
-
-    //********************
-    // Writing Output Ntuple
-    //*******************
-
+    // Writing output ntuple
     fmt::print("Writing to {}\n", output_path);
 
-    TFile output_file(output_path.c_str(), "RECREATE");
-    
+    TFile output_file(output_path.c_str(), "RECREATE"); 
     write_tree(valid_evt, "preselection", output_file);
-    // write_tree(signal_result, "signal", output_file);
-    // write_tree(control_result, "control", output_file);
-    // write_tree(sideband_result, "sideband", output_file);
 
-    //*********************
-    // Writing Cutflows
-    //********************
+    // Write cutflow
     Cutflow intermediate_cutflow("intermediate_cutflow", output_file);
     intermediate_cutflow.add(u8"All", frame.Count());
-    //intermediate_cutflow.add(u8"(Preselection)  ≥ 2 small jets, ≥ 1 large jet", three_jets.Count());
-    //intermediate_cutflow.add(u8"Reconstructed events", reconstructed.Count());
     intermediate_cutflow.add(u8"Preselection", valid_evt.Count());
-    //intermediate_cutflow.add(u8"Signal", signal_result.Count());
-    // intermediate_cutflow.add(u8"Control", control_result.Count());
-    // intermediate_cutflow.add(u8"Sideband", sideband_result.Count());
     intermediate_cutflow.write();
 
     std::cout << "Finished processing events." << std::endl;
