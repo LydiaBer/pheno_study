@@ -1,4 +1,32 @@
-// Reconstruction of Intermediate Events
+/* -------------------------------------------------------------
+
+  Welcome to Pheno4b ntuple-making analysis code.
+
+  Implemented resolved, intermediate, and boosted diHiggs4b analyses.
+
+  Input Delphes files.
+  Output trees of high level variables reconstructed Higgs candidates.
+
+  This program is structured as follows:
+
+  * dihiggs find_higgs_cands_resolved()
+    Resolved analysis assignment of jets to Higgs candidates
+
+  * dihiggs find_higgs_cands_inter_boost()
+    Intermediate and boosted analysis assiment of jets to Higgs candidates
+
+  * reconstructed_event reconstruct()
+    Main reconstruction routine
+    - Collect, count and organise jets
+    - Assigns jets to Higgs candidates
+    - Store jets, Higgs candidates, electrons, muons, MET
+
+  * int main()
+    Main analysis code 
+    - Manages files, calls the main reconstruction routine
+
+  -------------------------------------------------------------
+*/ 
 
 #include <cmath>
 #include <cstdint>
@@ -34,73 +62,13 @@ namespace action = ranges::action;
 
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
-//-----------------------------------------------
-// Reconstruction routine
-//-----------------------------------------------
-reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet 
-                                VecOps::RVec<Jet>&        largejet, // FatJet
-                                VecOps::RVec<Jet>&        trkjet,   // TrackJet
-                                VecOps::RVec<HepMCEvent>& evt,      // Event
-                                VecOps::RVec<Electron>&   electron, // Electrons
-                                VecOps::RVec<Muon>&       muon,     // Muons
-                                VecOps::RVec<MissingET>&  met)      // MissingET 
-                                {
-  reconstructed_event result{};
-
-  result.wgt = evt[0].Weight;
-
-  //---------------------------------------------------
-  // Collect and organise jets
-  //---------------------------------------------------
- 
-  // large R jets vector
-  std::vector<OxJet> lj_vec =
-        view::zip_with(make_jet, largejet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 100. * GeV and std::abs(jet.p4.Eta()) < 2.5;
-        });
+//------------------------------------------------------------
+// TODO: Resolved analysis jet assignment to Higgs 
+// i.e. events where there are 0 large jets 
+//------------------------------------------------------------
+dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
   
-  // small R jets vector
-  std::vector<OxJet> sj_vec =
-        view::zip_with(make_jet, smalljet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 4.5;
-        });
-  
-  // track jets vector
-  std::vector<OxJet> tj_vec =
-        view::zip_with(make_jet, trkjet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 2.5;
-        });
-
-  // Sort large R jets by pT
-  ranges::sort(lj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
-
-  // Sort small R jets by pT
-  ranges::sort(sj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
-  
-  // Sort track R jets by pT
-  ranges::sort(tj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
-
-  // Decreasing order
-  ranges::reverse(lj_vec);
-  ranges::reverse(sj_vec);
-  ranges::reverse(tj_vec);
-
-  const int n_large_tag = // Counting large R jets B tagged
-        ranges::count(lj_vec, true, [](auto&& jet) { return jet.tagged; });
-  
-  const int n_small_tag = // Counting small R jets B tagged
-        ranges::count(sj_vec, true, [](auto&& jet) { return jet.tagged; });
-  
-  const int n_track_tag = // Counting track R jets B tagged
-        ranges::count(tj_vec, true, [](auto&& jet) { return jet.tagged; });
-  
-  //---------------------------------------------------
-  // Resolved jet preselection
-  //---------------------------------------------------
-  if ( sj_vec.size() < 4 ) { 
-    result.valid = false;
-    return result;
-  };
+  dihiggs higgs_cands {};
 
   float lead_low = 0., lead_high = 0., sublead_low = 0., sublead_high = 0.;
 
@@ -166,128 +134,201 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
       return Ddijet;
     });
 
-    // build result
-    result.higgs1 = elem->first;
-    result.higgs2 = elem->second;
-    result.valid = true;
+    // Assign Higgs candidates
+    higgs_cands.higgs1 = elem->first;
+    higgs_cands.higgs2 = elem->second;
   }
 
-  //---------------------------------------------------
-  // Intermediate jet preselection
-  //---------------------------------------------------
-  if ( lj_vec.size() < 1 || sj_vec.size() < 2 || tj_vec.size() < 2) { 
-    result.valid = false;
-    return result;
-  };
+  return higgs_cands
 
+} // end resolved
+
+//--------------------------------------------------------------
+// Intermediate & boosted analysis jet assignment to Higgs
+// i.e. events where there are 1+ large jets 
+//--------------------------------------------------------------
+dihiggs find_higgs_cands_inter_boosted(
+                     std::vector<OxJet> lj_vec, 
+                     std::vector<OxJet> sj_vec, 
+                     std::vector<OxJet> tj_vec) {
+  
+  dihiggs higgs_cands {};
+  
   //---------------------------------------------------
   // Associate track jets with large R jet
   //---------------------------------------------------
  
-  // Vectors of track jets associated with leading large R jet 
-  std::vector<OxJet> h1_assoTrkJet;
-  std::vector<OxJet> h2_assoTrkJet;
-  
   // Association distance measure
   float max_dR = 1.0;
   
   for(auto tj : tj_vec){
-    // case 1 large jet
-    if ( lj_vec.size() >= 1 ) {
-      if ( tj.p4.DeltaR( lj_vec[0].p4 ) < max_dR ){ h1_assoTrkJet.push_back(tj); }
+    // Case 1 large jet
+    if ( lj_vec.size() >= 1 && tj.p4.DeltaR( lj_vec[0].p4 ) < max_dR ){
+      higgs_cands.higgs1.jets.push_back(tj);
     }
-    // case 2 large jets
-    if ( lj_vec.size() >= 2 ) {
-      if ( tj.p4.DeltaR( lj_vec[1].p4 ) < max_dR ){ h2_assoTrkJet.push_back(tj); }
+    // Case 2 large jets
+    if ( lj_vec.size() >= 2 && tj.p4.DeltaR( lj_vec[1].p4 ) < max_dR ){
+      higgs_cands.higgs2.jets.push_back(tj);
     }
   }
   
-  // Counting track jets associated with large R jet that are B tagged
-  const int n_h1_assoc_track_tag = ranges::count(h1_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
-  const int n_h2_assoc_track_tag = ranges::count(h2_assoTrkJet, true, [](auto&& jet) { return jet.tagged; });
+  //---------------------------------------------------
+  // Assign large jets to Higgs candidates
+  //---------------------------------------------------
+
+  // Case 1+ large jets, assign leading large jet is leading Higgs candidate
+  if ( lj_vec.size() >= 1 ) higgs_cands.higgs1.p4 = lj_vec[0];
+
+  // Case 2+ large jets, subleading large jet is subleading Higgs candidate
+  if ( lj_vec.size() >= 2 ) { 
+    higgs_cands.higgs2.p4 = lj_vec[1];
+    return higgs_cands; // end here as boosted analysis implied
+  }
 
   //---------------------------------------------------
-  // For all separated jets, both small b-jets and non-b-jets
-  // Cut on DeltaR( small jets, large jet )
+  // Assign small jets to subleading Higgs candidate 
   //---------------------------------------------------
   
   // Put all small R jets separated from fat jet into jets_separated
   std::vector<OxJet> jets_separated;
-  std::vector<OxJet> jets_notseparated;
   for (auto&& j : sj_vec) {
     if (deltaR(lj_vec[0], j) > 1.2) jets_separated.push_back(j);
-    else jets_notseparated.push_back(j);     
   }
   
-  if (jets_separated.size() < 2) {
-    int available = jets_notseparated.size();
-    int already_there = jets_separated.size();
-    int to_push = 2 - already_there;
-    if (to_push > available) {
-        result.valid = false;
-        return result;
-    }
-    for (int i = 0; i < to_push; i++) {
-        jets_separated.push_back(jets_notseparated.at(i));
-    }
-  }
-  
-  // Counting small jets separated from large R jet that are B tagged
-  const int n_separ_tag = ranges::count(jets_separated, true, [](auto&& jet) { return jet.tagged; });
-  
-  // Get the pairing that minimizes relative mass difference by making pairs of small r jets
+  // Get the pairing minimising relative mass difference (separated jets, large jet)
   JetPair bestPair;
 
-  for(unsigned int i = 0; i < jets_separated.size(); i++){
-    for(unsigned int j = i+1; j < jets_separated.size(); j++){
-      if(i == 0 && j == 1){
-        bestPair = make_pair(jets_separated.at(i), jets_separated.at(j));
-        continue;
+  if ( jets_separated.size() == 2 ) {
+    bestPair = make_pair(jets_separated[0], jets_separated[1]);
+  }
+  else {
+    for (auto i : jets_separated) {
+      for (auto j : jets_separated) {
+        JetPair thisPair = make_pair(jets_separated[i], jets_separated[j]);
+        if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
       }
-      JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
-      if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
     }
   }
-  
-  //---------------------------------------------------
-  // Store candidates
-  //---------------------------------------------------
-  
-  result.nElec = electron.size();
-  result.nMuon = muon.size();
-  
-  // Assign jets to Higgs candidates 
-  // 0 large jets: use two small jets as higgs1, 1+ large jet: use leading large jet as higgs1
-  result.higgs1.p4 = lj_vec.size() > 0 ? lj_vec[0].p4 : sj_vec[0].p4 + sj_vec[1].p4 ;
-  // 1 large jets: use two small jets as higgs2, 2+ large jets: use subleading large jet as higgs1
-  result.higgs2.p4 = lj_vec.size() > 1 ? lj_vec[1].p4 : bestPair.jet_1.p4 + bestPair.jet_2.p4;
 
+  // Order jets in bestPair by pT
+  if ( bestPair.jet_2.p4.Pt() > bestPair.jet_1.p4.Pt() ) {
+    higgs_cands.higgs2.jets[0] = bestPair.jet_2;
+    higgs_cands.higgs2.jets[1] = bestPair.jet_1;
+  }
+  else {
+    higgs_cands.higgs2.jets[0] = bestPair.jet_1;
+    higgs_cands.higgs2.jets[1] = bestPair.jet_2;
+  }
+
+  return higgs_cands
+} // end intermediate & boosted 
+
+//-----------------------------------------------
+// Main reconstruction routine
+//-----------------------------------------------
+reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet 
+                                VecOps::RVec<Jet>&        largejet, // FatJet
+                                VecOps::RVec<Jet>&        trkjet,   // TrackJet
+                                VecOps::RVec<HepMCEvent>& evt,      // Event
+                                VecOps::RVec<Electron>&   electron, // Electrons
+                                VecOps::RVec<Muon>&       muon,     // Muons
+                                VecOps::RVec<MissingET>&  met)      // MissingET 
+                                {
+  reconstructed_event result{};
+  dihiggs higgs_cands{};
+
+  result.wgt = evt[0].Weight;
+
+  //----------------------------------------------------
+  // Collect, count and organise jets
+  //----------------------------------------------------
+ 
+  // large jets vector
+  std::vector<OxJet> lj_vec =
+        view::zip_with(make_jet, largejet) | view::filter([](const auto& jet) {
+            return jet.p4.Pt() >= 250. * GeV and std::abs(jet.p4.Eta()) < 2.5;
+        });
+  
+  // small jets vector
+  std::vector<OxJet> sj_vec =
+        view::zip_with(make_jet, smalljet) | view::filter([](const auto& jet) {
+            return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 4.5;
+        });
+  
+  // track jets vector
+  std::vector<OxJet> tj_vec =
+        view::zip_with(make_jet, trkjet) | view::filter([](const auto& jet) {
+            return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 2.5;
+        });
+
+  // Sort jets by pT
+  ranges::sort(lj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
+  ranges::sort(sj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
+  ranges::sort(tj_vec, ranges::ordered_less{}, [](auto&& jet) { return jet.p4.Pt(); });
+
+  // Decreasing order
+  ranges::reverse(lj_vec);
+  ranges::reverse(sj_vec);
+  ranges::reverse(tj_vec);
+
+  // Counting jets that are b-tagged
+  const int n_large_tag = 
+        ranges::count(lj_vec, true, [](auto&& jet) { return jet.tagged; });
+  
+  const int n_small_tag = 
+        ranges::count(sj_vec, true, [](auto&& jet) { return jet.tagged; });
+  
+  const int n_track_tag = 
+        ranges::count(tj_vec, true, [](auto&& jet) { return jet.tagged; });
+  
+  //---------------------------------------------------
+  // Assign jets to Higgs candidates
+  //---------------------------------------------------
+
+  // Resolved: exactly 0 large jets
+  if ( lj_vec.size() == 0 && sj_vec.size() >= 4 ) { 
+    higgs_cands = find_higgs_cands_resolved(sj_vec);
+  };
+
+  // Intermediate: exactly 1 large jet
+  if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec)
+  };
+
+  // Boosted: 2 or more large jets
+  if ( lj_vec.size() >= 2 ) { 
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec)
+  };
+
+  //----------------------------------------------------
+  // Store jets, Higgs candidates, electrons, muons, MET
+  //----------------------------------------------------
+  
   result.n_small_tag    = n_separ_tag;
   result.n_small_jets   = jets_separated.size();
   result.n_large_tag    = n_large_tag;
   result.n_large_jets   = lj_vec.size();
   result.n_track_tag    = n_track_tag;
   result.n_track_jets   = tj_vec.size();
+  /*
   result.n_h1_assoc_track_tag  = n_h1_assoc_track_tag;
   result.n_h1_assoc_track_jets = h1_assoTrkJet.size();
   result.n_h2_assoc_track_tag  = n_h2_assoc_track_tag;
   result.n_h2_assoc_track_jets = h2_assoTrkJet.size();
-  
-  result.large_jet      = lj_vec[0];
-  if ( h1_assoTrkJet.size() >= 1 ) { result.h1_assoTrkJet1.p4 = h1_assoTrkJet[0].p4; }
-  if ( h1_assoTrkJet.size() >= 2 ) { result.h1_assoTrkJet2.p4 = h1_assoTrkJet[1].p4; }
+  */
+  result.nElec = electron.size();
+  result.nMuon = muon.size();
 
-  result.small_jets[0]  = bestPair.jet_1;
-  result.small_jets[1]  = bestPair.jet_2;
-  // If leading is subleading and viceversa then exchange
-  if (result.small_jets[1].p4.Pt() > result.small_jets[0].p4.Pt()) {
-    result.small_jets[0] = bestPair.jet_2;
-    result.small_jets[1] = bestPair.jet_1;
-  }
+  result.higgs1 = higgs_cands.higgs1;
+  result.higgs2 = higgs_cands.higgs2;
   
   // Store leading leptons 
-  electron.size() > 0 ? result.elec1.SetPtEtaPhiM(electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511) : result.elec1.SetPtEtaPhiM(0., 0., 0., 0.);
-  muon.size()     > 0 ? result.muon1.SetPtEtaPhiM(muon[0].PT,     muon[0].Eta,     muon[0].Phi,     0.106)    : result.muon1.SetPtEtaPhiM(0., 0., 0., 0.);
+  electron.size() > 0
+           ? result.elec1.SetPtEtaPhiM( electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511 )
+           : result.elec1.SetPtEtaPhiM( 0., 0., 0., 0. );
+  muon.size() > 0
+           ? result.muon1.SetPtEtaPhiM(muon[0].PT, muon[0].Eta, muon[0].Phi, 0.106) 
+           : result.muon1.SetPtEtaPhiM(0., 0., 0., 0.);
   
   // Store missing transverse momentum
   result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET );
@@ -298,9 +339,9 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
 // Select Only Valid Events
 bool valid_check(const reconstructed_event& evt) { return evt.valid; }
 
-//***************
+//-----------------------------------------------
 // Main Analysis Code
-//***************
+//-----------------------------------------------
 int main(int argc, char* argv[]) {
 
   if(argc < 4){
@@ -323,7 +364,7 @@ int main(int argc, char* argv[]) {
 
   // Run Intermediate Analysis
   auto reco = frame.Define("event", reconstruct,
-              {"Jet", "FatJet", "TrackJet", "Event",  "Electron", "Muon", "MissingET"}); 
+              {"Jet", "FatJet", "TrackJet", "Event", "Electron", "Muon", "MissingET"}); 
 
   // Filter only valid Events
   auto valid_evt = reco.Filter(valid_check, {"event"}, "valid events");
