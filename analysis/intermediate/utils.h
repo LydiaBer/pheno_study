@@ -346,6 +346,8 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       auto&& vars = out_vars[slot];
       //  auto &&rwgt = rwgt_vars[slot];
 
+      std::cout << "storing object counts" << std::endl;
+
       // Object multiplicities
       n_small_tag_var[slot]  = event.n_small_tag;
       n_small_jets_var[slot] = event.n_small_jets;
@@ -363,6 +365,7 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       nMuon[slot] = event.nMuon;
       mc_sf_var[slot]        = event.wgt;
 
+      std::cout << "storing dihiggs" << std::endl;
       // Di-Higgs system
       vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();
       vars->pT_hh   = (event.higgs1.p4 + event.higgs2.p4).Pt();
@@ -374,25 +377,35 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       double dH2 = ( event.higgs2.p4.M() - 115) / (0.1 * event.higgs2.p4.M() );
       vars->X_hh = sqrt( pow( dH1, 2) + pow( dH2, 2) );
 
+      std::cout << "storing leading higgs " << std::endl;
       // Leading Higgs candidate
       vars->h1_M   = event.higgs1.p4.M();
       vars->h1_Pt  = event.higgs1.p4.Pt();
       vars->h1_Eta = event.higgs1.p4.Eta();
       vars->h1_Phi = event.higgs1.p4.Phi();
 
+      std::cout << "leading higgs leading jet" << std::endl;
+      if ( event.higgs1.jets.size() > 0 ) {
         vars->h1_j1_M   = event.higgs1.jets[0].p4.M();
         vars->h1_j1_Pt  = event.higgs1.jets[0].p4.Pt();
         vars->h1_j1_Eta = event.higgs1.jets[0].p4.Eta();
         vars->h1_j1_Phi = event.higgs1.jets[0].p4.Phi();
+      
+        vars->h1_j1_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[0].p4 );
+      }
 
+      std::cout << "leading higgs subleading jet" << std::endl;
+      if ( event.higgs1.jets.size() > 1 ) {
         vars->h1_j2_M   = event.higgs1.jets[1].p4.M();
         vars->h1_j2_Pt  = event.higgs1.jets[1].p4.Pt();
         vars->h1_j2_Eta = event.higgs1.jets[1].p4.Eta();
         vars->h1_j2_Phi = event.higgs1.jets[1].p4.Phi();
-
-        vars->h1_j1_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[0].p4 );
+      
         vars->h1_j2_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[1].p4 );
         vars->h1_j1_j2_dR = event.higgs1.jets[0].p4.DeltaR( event.higgs1.jets[1].p4 );
+      }
+
+      std::cout << "storing subleading higgs" << std::endl;
 
       // Subleading Higgs candidate
       vars->h2_M   = event.higgs2.p4.M();
@@ -400,20 +413,26 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       vars->h2_Eta = event.higgs2.p4.Eta();
       vars->h2_Phi = event.higgs2.p4.Phi();
 
+      if ( event.higgs2.jets.size() > 0 ) {
         vars->h2_j1_M   = event.higgs2.jets[0].p4.M();
         vars->h2_j1_Pt  = event.higgs2.jets[0].p4.Pt();
         vars->h2_j1_Eta = event.higgs2.jets[0].p4.Eta();
         vars->h2_j1_Phi = event.higgs2.jets[0].p4.Phi();
-
+        
+        vars->h2_j1_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[0].p4 );
+      }
+      
+      if ( event.higgs2.jets.size() > 1 ) {
         vars->h2_j2_M   = event.higgs2.jets[1].p4.M();
         vars->h2_j2_Pt  = event.higgs2.jets[1].p4.Pt();
         vars->h2_j2_Eta = event.higgs2.jets[1].p4.Eta();
         vars->h2_j2_Phi = event.higgs2.jets[1].p4.Phi();
-
-        vars->h2_j1_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[0].p4 );
+      
         vars->h2_j2_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[1].p4 );
         vars->h2_j1_j2_dR = event.higgs2.jets[0].p4.DeltaR( event.higgs2.jets[1].p4 );
+      }
 
+      std::cout << "storing electrons" << std::endl;
       // Electron
       vars->elec1_M   = event.elec1.M();
       vars->elec1_Pt  = event.elec1.Pt();
