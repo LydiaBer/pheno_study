@@ -63,12 +63,12 @@ namespace action = ranges::action;
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
 //------------------------------------------------------------
-// TODO: Resolved analysis jet assignment to Higgs 
-// i.e. events where there are 0 large jets 
+// Resolved analysis jet assignment to Higgs 
+// i.e. events where there are 0 large jets
+// TODO: Add top veto, Dhh variables etc 
 //------------------------------------------------------------
 dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
   
-  std::cout << "entered resolved: " << std::endl;
   dihiggs higgs_cands {};
 
   float lead_low = 0., lead_high = 0., sublead_low = 0., sublead_high = 0.;
@@ -90,7 +90,6 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
   // All possible combinations of forming two pairs of jets
   const int pairings[3][2][2] = {{{0, 1}, {2, 3}}, {{0, 2}, {1, 3}}, {{0, 3}, {1, 2}}};
 
-  std::cout << "Forming pairings " << std::endl;
   std::vector<std::pair<higgs, higgs>> pair_candidates{};
   for (auto&& pairing : pairings) {
     // HiggsX_jetY
@@ -102,7 +101,6 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     auto h1 = sj_vec[h1_j1].p4 + sj_vec[h1_j2].p4;
     auto h2 = sj_vec[h2_j1].p4 + sj_vec[h2_j2].p4;
 
-    std::cout << "Forming pairs push back " << std::endl;
     std::vector<OxJet> h1_jets;
     std::vector<OxJet> h2_jets;
     h1_jets.push_back( sj_vec[h1_j1] );
@@ -131,9 +129,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     pair_candidates.push_back( std::make_pair(higgs(h1, h1_j1, h1_j2, h1_jets), higgs(h2, h2_j1, h2_j2, h2_jets)) );
   }
 
-  std::cout << "Forming best pairings by minimising mass difference " << std::endl;
   if (pair_candidates.size() > 0 ) {
-    std::cout << "At least 1 pair found " << std::endl;
     // more than one candidate pair -- determine which to use
     // if there is only one candidate, this won't hurt anything
     auto elem = ranges::min_element(pair_candidates, ranges::ordered_less{}, [](auto&& cand) {
@@ -143,23 +139,12 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
       return Ddijet;
     });
 
-    std::cout << "Assigning pairs " << std::endl;
     // Assign Higgs candidates
     higgs_cands.higgs1 = elem->first;
     higgs_cands.higgs2 = elem->second;
   }
-  std::cout << "End resolved " << std::endl;
-
-  for (auto j : higgs_cands.higgs1.jets ) {
-    std::cout << "h1_jets: " << j.p4.Pt() << std::endl;
-  }
-  
-  for (auto j : higgs_cands.higgs1.jets ) {
-    std::cout << "h2_jets: " << j.p4.Pt() << std::endl;
-  }
 
   return higgs_cands;
-
 } // end resolved
 
 //--------------------------------------------------------------
@@ -171,7 +156,6 @@ dihiggs find_higgs_cands_inter_boost(
                      std::vector<OxJet> sj_vec, 
                      std::vector<OxJet> tj_vec) {
   
-  std::cout << "Begin intermediate " << std::endl;
   dihiggs higgs_cands {};
   
   //---------------------------------------------------
@@ -192,7 +176,6 @@ dihiggs find_higgs_cands_inter_boost(
     }
   }
   
-  std::cout << "Assign large jets to Higgs candidates " << std::endl;
   //---------------------------------------------------
   // Assign large jets to Higgs candidates
   //---------------------------------------------------
@@ -210,7 +193,6 @@ dihiggs find_higgs_cands_inter_boost(
   // Assign small jets to subleading Higgs candidate 
   //---------------------------------------------------
   
-  std::cout << "Separate small jets from large " << std::endl;
   // Put all small R jets separated from fat jet into jets_separated
   std::vector<OxJet> jets_separated;
   for (auto&& j : sj_vec) {
@@ -234,7 +216,6 @@ dihiggs find_higgs_cands_inter_boost(
     }
   }
 
-  std::cout << "Reorder bestPair jets by pT " << std::endl;
   // Order jets in bestPair by pT
   if ( bestPair.jet_2.p4.Pt() > bestPair.jet_1.p4.Pt() ) {
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
@@ -245,7 +226,6 @@ dihiggs find_higgs_cands_inter_boost(
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
   }
 
-  std::cout << "End intermediate/boosted " << std::endl;
   return higgs_cands;
 } // end intermediate & boosted 
 
@@ -261,7 +241,6 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
                                 VecOps::RVec<MissingET>&  met)      // MissingET 
                                 {
   
-  std::cout << "Begin reconstruct " << std::endl;
 
   reconstructed_event result{};
   dihiggs higgs_cands{};
@@ -314,58 +293,63 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // Assign jets to Higgs candidates
   //---------------------------------------------------
 
-  std::cout << "lj, sj, tj: " << lj_vec.size() << ", " << sj_vec.size() << ", " << tj_vec.size() << std::endl;
+  std::cout << "N(jets) large, small, track: " << lj_vec.size() << ", " << sj_vec.size() << ", " << tj_vec.size() << std::endl;
 
   // Resolved: exactly 0 large jets
   if ( lj_vec.size() == 0 && sj_vec.size() >= 4 ) { 
     higgs_cands = find_higgs_cands_resolved(sj_vec);
-    std::cout << "resolved higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
-    std::cout << "resolved higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
+    std::cout << "Resolved higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
+    std::cout << "Resolved higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
   }
 
   // Intermediate: exactly 1 large jet
   //else 
-  if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
+  else if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
     higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
-    std::cout << "intermediate higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
-    std::cout << "intermediate higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
+    std::cout << "Intermediate higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
+    std::cout << "Intermediate higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
   }
 
   // Boosted: 2 or more large jets
   else if ( lj_vec.size() >= 2 ) { 
     higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
-    std::cout << "boosted higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
-    std::cout << "boosted higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
+    std::cout << "Boosted higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
+    std::cout << "Boosted higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
   }
 
   else {
     result.valid = false;
   }
+  
+  // Count b-tagged jets associated to higgs candidates
+  const int n_bjets_in_higgs1 = 
+        ranges::count(higgs_cands.higgs1.jets, true, [](auto&& jet) { return jet.tagged; });
+  
+  const int n_bjets_in_higgs2 = 
+        ranges::count(higgs_cands.higgs2.jets, true, [](auto&& jet) { return jet.tagged; });
 
   //----------------------------------------------------
   // Store jets, Higgs candidates, electrons, muons, MET
   //----------------------------------------------------
   
-  std::cout << "Storing objects " << std::endl;
   result.n_small_tag    = n_small_tag;
   result.n_small_jets   = sj_vec.size();
   result.n_large_tag    = n_large_tag;
   result.n_large_jets   = lj_vec.size();
   result.n_track_tag    = n_track_tag;
   result.n_track_jets   = tj_vec.size();
-  /*
-  result.n_h1_assoc_track_tag  = n_h1_assoc_track_tag;
-  result.n_h1_assoc_track_jets = h1_assoTrkJet.size();
-  result.n_h2_assoc_track_tag  = n_h2_assoc_track_tag;
-  result.n_h2_assoc_track_jets = h2_assoTrkJet.size();
-  */
+
+  result.n_jets_in_higgs1  = higgs_cands.higgs1.jets.size();
+  result.n_jets_in_higgs2  = higgs_cands.higgs2.jets.size();
+  result.n_bjets_in_higgs1 = n_bjets_in_higgs1;
+  result.n_bjets_in_higgs2 = n_bjets_in_higgs2;
+  
   result.nElec = electron.size();
   result.nMuon = muon.size();
 
   result.higgs1 = higgs_cands.higgs1;
   result.higgs2 = higgs_cands.higgs2;
   
-  std::cout << "Storing leptons " << std::endl;
   // Store leading leptons 
   electron.size() > 0
            ? result.elec1.SetPtEtaPhiM( electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511 )
@@ -377,7 +361,6 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // Store missing transverse momentum
   result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET );
 
-  std::cout << "End storing objects " << std::endl;
   return result;
 }
 

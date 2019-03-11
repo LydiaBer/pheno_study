@@ -135,6 +135,10 @@ struct reconstructed_event {
     int64_t n_large_jets; ///< Total number of LargeR jets
     int64_t n_track_tag;  ///< Number of B-tagged track jets
     int64_t n_track_jets; ///< Total number of track jets
+    int64_t n_jets_in_higgs1; ///< Total number of jets associated with higgs 1
+    int64_t n_jets_in_higgs2; ///< Total number of jets associated with higgs 2
+    int64_t n_bjets_in_higgs1; ///< Total number of b-jets associated with higgs 1
+    int64_t n_bjets_in_higgs2; ///< Total number of b-jets associated with higgs 2
     /*
     int64_t n_h1_assoc_track_tag;  ///< Number of B-tagged track jets associated with leading fat jet
     int64_t n_h1_assoc_track_jets; ///< Total number of track jets associated with leading fat jet
@@ -261,7 +265,7 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         "h2_M/D:h2_Pt:h2_Eta:h2_Phi:"
         "h2_j1_M:h2_j1_Pt:h2_j1_Eta:h2_j1_Phi:"
         "h2_j2_M:h2_j2_Pt:h2_j2_Eta:h2_j2_Phi:"
-        "h2_j1_dR:h2_j2_dR:h2_j1_j2_dR"
+        "h2_j1_dR:h2_j2_dR:h2_j1_j2_dR:"
         "elec1_M:elec1_Pt:elec1_Eta:elec1_Phi:"
         "muon1_M:muon1_Pt:muon1_Eta:muon1_Phi:"
         "met_Et:met_Phi";
@@ -271,20 +275,19 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
   //int num_threads = ROOT::GetImplicitMTPoolSize();
   vector<unique_ptr<TTree>> out_trees{};
 
-  vector<int> n_small_tag_var(num_threads);
   vector<int> n_small_jets_var(num_threads);
-  vector<int> n_large_tag_var(num_threads);
+  vector<int> n_small_tag_var(num_threads);
   vector<int> n_large_jets_var(num_threads);
-  vector<int> n_track_tag_var(num_threads);
+  vector<int> n_large_tag_var(num_threads);
   vector<int> n_track_jets_var(num_threads);
-  /*
-  vector<int> n_h1_assoc_track_tag_var(num_threads);
-  vector<int> n_h1_assoc_track_jets_var(num_threads);
-  vector<int> n_h2_assoc_track_tag_var(num_threads);
-  vector<int> n_h2_assoc_track_jets_var(num_threads);
-  */
-  vector<int> nElec(num_threads);
-  vector<int> nMuon(num_threads);
+  vector<int> n_track_tag_var(num_threads);
+  vector<int> n_jets_in_higgs1_var(num_threads);
+  vector<int> n_jets_in_higgs2_var(num_threads); 
+  vector<int> n_bjets_in_higgs1_var(num_threads); 
+  vector<int> n_bjets_in_higgs2_var(num_threads); 
+  
+  vector<int> nElec_var(num_threads);
+  vector<int> nMuon_var(num_threads);
   vector<double> mc_sf_var(num_threads);
   vector<unique_ptr<out_format>> out_vars{};
   
@@ -296,20 +299,20 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       out_trees.push_back(make_unique<TTree>(treename, treename));
 
       out_trees[i]->SetDirectory(nullptr);
-      out_trees[i]->Branch("n_small_tag",  &n_small_tag_var[i]);
       out_trees[i]->Branch("n_small_jets", &n_small_jets_var[i]);
+      out_trees[i]->Branch("n_small_tag",  &n_small_tag_var[i]);
       out_trees[i]->Branch("n_large_jets", &n_large_jets_var[i]);
       out_trees[i]->Branch("n_large_tag",  &n_large_tag_var[i]);
-      out_trees[i]->Branch("n_track_tag",  &n_track_tag_var[i]);
       out_trees[i]->Branch("n_track_jets", &n_track_jets_var[i]);
-      /*
-      out_trees[i]->Branch("n_h1_assoc_track_tag",  &n_h1_assoc_track_tag_var[i]);
-      out_trees[i]->Branch("n_h1_assoc_track_jets", &n_h1_assoc_track_jets_var[i]);
-      out_trees[i]->Branch("n_h2_assoc_track_tag",  &n_h2_assoc_track_tag_var[i]);
-      out_trees[i]->Branch("n_h2_assoc_track_jets", &n_h2_assoc_track_jets_var[i]);
-      */
-      out_trees[i]->Branch("nElec", &nElec[i]);
-      out_trees[i]->Branch("nMuon", &nMuon[i]);
+      out_trees[i]->Branch("n_track_tag",  &n_track_tag_var[i]);
+      
+      out_trees[i]->Branch("n_jets_in_higgs1", &n_jets_in_higgs1_var[i]);
+      out_trees[i]->Branch("n_jets_in_higgs2", &n_jets_in_higgs2_var[i]);
+      out_trees[i]->Branch("n_bjets_in_higgs1", &n_bjets_in_higgs1_var[i]);
+      out_trees[i]->Branch("n_bjets_in_higgs2", &n_bjets_in_higgs2_var[i]);
+      
+      out_trees[i]->Branch("nElec", &nElec_var[i]);
+      out_trees[i]->Branch("nMuon", &nMuon_var[i]);
       out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
       out_trees[i]->Branch("event", out_vars[i].get(), out_format_leaflist);
       // out_trees[i]->Branch("rwgt", rwgt_vars[i].get(), rwgt_leaflist);
@@ -332,14 +335,14 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
      &n_large_jets_var, /*, &rwgt_vars*/
      &n_track_tag_var, 
      &n_track_jets_var, 
-     /*
-     &n_h1_assoc_track_tag_var, 
-     &n_h1_assoc_track_jets_var, 
-     &n_h2_assoc_track_tag_var, 
-     &n_h2_assoc_track_jets_var, 
-     */
-     &nElec, 
-     &nMuon, 
+     
+     &n_jets_in_higgs1_var, 
+     &n_jets_in_higgs2_var, 
+     &n_bjets_in_higgs1_var, 
+     &n_bjets_in_higgs2_var,
+      
+     &nElec_var, 
+     &nMuon_var, 
      &mc_sf_var
      ](unsigned slot, const reconstructed_event& event) {
       auto&& tree = out_trees[slot];
@@ -355,14 +358,14 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       n_large_jets_var[slot] = event.n_large_jets;
       n_track_tag_var[slot]  = event.n_track_tag;
       n_track_jets_var[slot] = event.n_track_jets;
-      /*
-      n_h1_assoc_track_tag_var[slot]  = event.n_h1_assoc_track_tag;
-      n_h1_assoc_track_jets_var[slot] = event.n_h1_assoc_track_jets;
-      n_h2_assoc_track_tag_var[slot]  = event.n_h2_assoc_track_tag;
-      n_h2_assoc_track_jets_var[slot] = event.n_h2_assoc_track_jets;
-      */
-      nElec[slot] = event.nElec;
-      nMuon[slot] = event.nMuon;
+      
+      n_jets_in_higgs1_var[slot]  = event.n_jets_in_higgs1;
+      n_jets_in_higgs2_var[slot]  = event.n_jets_in_higgs2;
+      n_bjets_in_higgs1_var[slot] = event.n_bjets_in_higgs1;
+      n_bjets_in_higgs2_var[slot] = event.n_bjets_in_higgs2;
+
+      nElec_var[slot] = event.nElec;
+      nMuon_var[slot] = event.nMuon;
       mc_sf_var[slot]        = event.wgt;
 
       std::cout << "storing dihiggs" << std::endl;
