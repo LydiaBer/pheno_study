@@ -10,10 +10,10 @@
   This program is structured as follows:
 
   * dihiggs find_higgs_cands_resolved()
-    Resolved analysis assignment of jets to Higgs candidates
+    0 large jets: resolved analysis to form Higgs candidates
 
   * dihiggs find_higgs_cands_inter_boost()
-    Intermediate and boosted analysis assiment of jets to Higgs candidates
+    1+ large jets: intermediate & boosted analysis to form Higgs candidates
 
   * reconstructed_event reconstruct()
     Main reconstruction routine
@@ -117,14 +117,18 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
           sublead_low <= deltaRjj_sublead && sublead_high >= deltaRjj_sublead)) {
         continue;
     }
+    
+    std::vector<OxJet> h1_jets;
+    std::vector<OxJet> h2_jets;
+    h1_jets[0] = sj_vec[h1_j1];
+    h1_jets[1] = sj_vec[h1_j2];
+    h2_jets[0] = sj_vec[h2_j1];
+    h2_jets[1] = sj_vec[h2_j2];
 
-    pair_candidates.push_back( std::make_pair(higgs(h1, h1_j1, h1_j2), higgs(h2, h2_j1, h2_j2)) );
+    pair_candidates.push_back( std::make_pair(higgs(h1, h1_j1, h1_j2, h1_jets), higgs(h2, h2_j1, h2_j2, h2_jets)) );
   }
 
-  if (pair_candidates.empty()) {
-    result.valid = false;
-  }
-  else {
+  if (pair_candidates.size() > 0 ) {
     // more than one candidate pair -- determine which to use
     // if there is only one candidate, this won't hurt anything
     auto elem = ranges::min_element(pair_candidates, ranges::ordered_less{}, [](auto&& cand) {
@@ -139,7 +143,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     higgs_cands.higgs2 = elem->second;
   }
 
-  return higgs_cands
+  return higgs_cands;
 
 } // end resolved
 
@@ -147,7 +151,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
 // Intermediate & boosted analysis jet assignment to Higgs
 // i.e. events where there are 1+ large jets 
 //--------------------------------------------------------------
-dihiggs find_higgs_cands_inter_boosted(
+dihiggs find_higgs_cands_inter_boost(
                      std::vector<OxJet> lj_vec, 
                      std::vector<OxJet> sj_vec, 
                      std::vector<OxJet> tj_vec) {
@@ -177,11 +181,11 @@ dihiggs find_higgs_cands_inter_boosted(
   //---------------------------------------------------
 
   // Case 1+ large jets, assign leading large jet is leading Higgs candidate
-  if ( lj_vec.size() >= 1 ) higgs_cands.higgs1.p4 = lj_vec[0];
+  if ( lj_vec.size() >= 1 ) higgs_cands.higgs1.p4 = lj_vec[0].p4;
 
   // Case 2+ large jets, subleading large jet is subleading Higgs candidate
   if ( lj_vec.size() >= 2 ) { 
-    higgs_cands.higgs2.p4 = lj_vec[1];
+    higgs_cands.higgs2.p4 = lj_vec[1].p4;
     return higgs_cands; // end here as boosted analysis implied
   }
 
@@ -202,9 +206,9 @@ dihiggs find_higgs_cands_inter_boosted(
     bestPair = make_pair(jets_separated[0], jets_separated[1]);
   }
   else {
-    for (auto i : jets_separated) {
-      for (auto j : jets_separated) {
-        JetPair thisPair = make_pair(jets_separated[i], jets_separated[j]);
+    for (auto j1 : jets_separated) {
+      for (auto j2 : jets_separated) {
+        JetPair thisPair = make_pair(j1, j2);
         if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
       }
     }
@@ -220,7 +224,7 @@ dihiggs find_higgs_cands_inter_boosted(
     higgs_cands.higgs2.jets[1] = bestPair.jet_2;
   }
 
-  return higgs_cands
+  return higgs_cands;
 } // end intermediate & boosted 
 
 //-----------------------------------------------
@@ -292,20 +296,20 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
 
   // Intermediate: exactly 1 large jet
   if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
-    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec)
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
   };
 
   // Boosted: 2 or more large jets
   if ( lj_vec.size() >= 2 ) { 
-    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec)
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
   };
 
   //----------------------------------------------------
   // Store jets, Higgs candidates, electrons, muons, MET
   //----------------------------------------------------
   
-  result.n_small_tag    = n_separ_tag;
-  result.n_small_jets   = jets_separated.size();
+  result.n_small_tag    = n_small_tag;
+  result.n_small_jets   = sj_vec.size();
   result.n_large_tag    = n_large_tag;
   result.n_large_jets   = lj_vec.size();
   result.n_track_tag    = n_track_tag;
