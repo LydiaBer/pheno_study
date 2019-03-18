@@ -40,7 +40,7 @@ class OxJet {
     bool tagged;       ///< Is jet B-tagged?
 
     OxJet() : p4(), btag(0), tagged(false) {}
-    OxJet(double M, double pT, double eta, long double phi, bool tagged) : p4(), btag(0), tagged(tagged) {
+    OxJet(double M, double pT, double eta, long double phi, double btag, bool tagged) : p4(), btag(btag), tagged(tagged) {
         p4.SetPtEtaPhiM(pT, eta, phi, M);
     }
 };
@@ -69,9 +69,10 @@ inline OxJet make_oxjet(OxJet& jet) {
     double pT   = jet.p4.Pt();
     double eta  = jet.p4.Eta();
     double phi  = jet.p4.Phi();
+    bool   btag = jet.btag;
     bool tagged = jet.tagged;
 
-    return OxJet(M, pT, eta, phi, tagged);
+    return OxJet(M, pT, eta, phi, btag, tagged);
 }
 
 
@@ -95,10 +96,11 @@ inline OxJet make_jet(Jet& jet) {
     double pT   = jet.PT;
     double eta  = jet.Eta;
     double phi  = jet.Phi;
+    double btag = jet.BTagWeight;
     bool tagged = jet.BTag;
 
     // Because a constructor can't be used as a Callable
-    return OxJet(M, pT, eta, phi, tagged);
+    return OxJet(M, pT, eta, phi, btag, tagged);
 }
 
 // Make jet pair function
@@ -112,17 +114,9 @@ inline JetPair make_pair(OxJet& jet1, OxJet& jet2) {
     return JetPair(m_1, m_2, j_1, j_2);
 }
 
-// Function to check angular distance between
-// large R jet and small R jet
+// Function to compute angular distance between 2 OxJets
 inline double deltaR(OxJet& jet1, OxJet& jet2) {
-    using namespace std;
-
-    double deta = jet1.p4.Eta() - jet2.p4.Eta();
-    double dphi = fabs(jet1.p4.Phi() - jet2.p4.Phi());
-    while(dphi > TMath::TwoPi()) dphi -= TMath::TwoPi();
-    if(dphi > TMath::Pi()) dphi = TMath::TwoPi() - dphi;
-
-    return sqrt(deta*deta + dphi*dphi);
+    return jet1.p4.DeltaR( jet2.p4 );
 }
 
 // Reconstructed event in the intermediate regime
@@ -139,12 +133,6 @@ struct reconstructed_event {
     int64_t n_jets_in_higgs2; ///< Total number of jets associated with higgs 2
     int64_t n_bjets_in_higgs1; ///< Total number of b-jets associated with higgs 1
     int64_t n_bjets_in_higgs2; ///< Total number of b-jets associated with higgs 2
-    /*
-    int64_t n_h1_assoc_track_tag;  ///< Number of B-tagged track jets associated with leading fat jet
-    int64_t n_h1_assoc_track_jets; ///< Total number of track jets associated with leading fat jet
-    int64_t n_h2_assoc_track_tag;  ///< Number of B-tagged track jets associated with subleading fat jet
-    int64_t n_h2_assoc_track_jets; ///< Total number of track jets associated with subleading fat jet
-    */
     double wgt;           ///< Event Weight
 
     int64_t nElec;  ///< Number of electrons at Delphes level
@@ -178,26 +166,16 @@ struct out_format {
     //--------------------------------
     // Leading Higgs candidate
     //--------------------------------
-    double h1_M;  
-    double h1_Pt;  
-    double h1_Eta; 
-    double h1_Phi; 
+    double h1_M, h1_Pt, h1_Eta, h1_Phi; 
 
       // Leading jet of subleading Higgs candidate
-      double h1_j1_M;   
-      double h1_j1_Pt;  
-      double h1_j1_Eta; 
-      double h1_j1_Phi; 
+      double h1_j1_M, h1_j1_Pt, h1_j1_Eta, h1_j1_Phi, h1_j1_BTagWeight; 
 
       // Subleading jet of subleading Higgs candidate
-      double h1_j2_M;   
-      double h1_j2_Pt;  
-      double h1_j2_Eta; 
-      double h1_j2_Phi; 
+      double h1_j2_M, h1_j2_Pt, h1_j2_Eta, h1_j2_Phi, h1_j2_BTagWeight; 
 
       // Delta R between leading Higgs candidate and its jets
-      double h1_j1_dR; 
-      double h1_j2_dR; 
+      double h1_j1_dR, h1_j2_dR; 
 
       // Delta R between the two jets associated to leading Higgs candidate
       double h1_j1_j2_dR; 
@@ -205,45 +183,22 @@ struct out_format {
     //--------------------------------
     // Subleading Higgs candidate
     //--------------------------------
-    double h2_M;  
-    double h2_Pt;  
-    double h2_Eta; 
-    double h2_Phi; 
+    double h2_M, h2_Pt, h2_Eta, h2_Phi; 
 
-      // Leading jet of subleading Higgs candidate
-      double h2_j1_M;   
-      double h2_j1_Pt;  
-      double h2_j1_Eta; 
-      double h2_j1_Phi; 
-
-      // Subleading jet of subleading Higgs candidate
-      double h2_j2_M;   
-      double h2_j2_Pt;  
-      double h2_j2_Eta; 
-      double h2_j2_Phi; 
-
-      // Delta R between leading Higgs candidate and its jets
-      double h2_j1_dR; 
-      double h2_j2_dR; 
-      
-      // Delta R between the two jets associated to leading Higgs candidate
+      double h2_j1_M, h2_j1_Pt, h2_j1_Eta, h2_j1_Phi, h2_j1_BTagWeight; 
+      double h2_j2_M, h2_j2_Pt, h2_j2_Eta, h2_j2_Phi, h2_j2_BTagWeight; 
+      double h2_j1_dR, h2_j2_dR; 
       double h2_j1_j2_dR; 
     
-    // Leading electron 4-vector
-    double elec1_M; 
-    double elec1_Pt; 
-    double elec1_Eta; 
-    double elec1_Phi; 
-
-    // Leading muon 4-vector 
-    double muon1_M;  
-    double muon1_Pt; 
-    double muon1_Eta; 
-    double muon1_Phi; 
+    // Leading lepton 4-vector
+    double elec1_M, elec1_Pt, elec1_Eta, elec1_Phi; 
+    double muon1_M, muon1_Pt, muon1_Eta, muon1_Phi; 
     
     // Missing transverse momentum (2-component vector)
-    double met_Et; 
-    double met_Phi;
+    double met_Et, met_Phi;
+      
+    // b-tag flag of jet associated with Higgs candidates
+    bool h1_j1_BTag, h1_j2_BTag, h2_j1_BTag, h2_j2_BTag; 
     
 };
 
@@ -259,16 +214,17 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
   const char* out_format_leaflist =
         "m_hh/D:pT_hh:dR_hh:dEta_hh:dPhi_hh:X_hh:"
         "h1_M/D:h1_Pt:h1_Eta:h1_Phi:"
-        "h1_j1_M:h1_j1_Pt:h1_j1_Eta:h1_j1_Phi:"
-        "h1_j2_M:h1_j2_Pt:h1_j2_Eta:h1_j2_Phi:"
-        "h1_j1_dR:h1_j2_dR:h1_j1_j2_dR"
-        "h2_M/D:h2_Pt:h2_Eta:h2_Phi:"
-        "h2_j1_M:h2_j1_Pt:h2_j1_Eta:h2_j1_Phi:"
-        "h2_j2_M:h2_j2_Pt:h2_j2_Eta:h2_j2_Phi:"
+        "h1_j1_M:h1_j1_Pt:h1_j1_Eta:h1_j1_Phi:h1_j1_BTagWeight:"
+        "h1_j2_M:h1_j2_Pt:h1_j2_Eta:h1_j2_Phi:h1_j2_BTagWeight:"
+        "h1_j1_dR:h1_j2_dR:h1_j1_j2_dR:"
+        "h2_M:h2_Pt:h2_Eta:h2_Phi:"
+        "h2_j1_M:h2_j1_Pt:h2_j1_Eta:h2_j1_Phi:h2_j1_BTagWeight:"
+        "h2_j2_M:h2_j2_Pt:h2_j2_Eta:h2_j2_Phi:h2_j2_BTagWeight:"
         "h2_j1_dR:h2_j2_dR:h2_j1_j2_dR:"
         "elec1_M:elec1_Pt:elec1_Eta:elec1_Phi:"
         "muon1_M:muon1_Pt:muon1_Eta:muon1_Phi:"
-        "met_Et:met_Phi";
+        "met_Et:met_Phi:"
+        "h1_j1_BTag/O:h1_j2_BTag:h2_j1_BTag:h2_j2_BTag";
 
   int num_threads = 1;
   // Uncomment to enable multithreading
@@ -349,8 +305,6 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       auto&& vars = out_vars[slot];
       //  auto &&rwgt = rwgt_vars[slot];
 
-      std::cout << "storing object counts" << std::endl;
-
       // Object multiplicities
       n_small_tag_var[slot]  = event.n_small_tag;
       n_small_jets_var[slot] = event.n_small_jets;
@@ -368,7 +322,6 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       nMuon_var[slot] = event.nMuon;
       mc_sf_var[slot]        = event.wgt;
 
-      std::cout << "storing dihiggs" << std::endl;
       // Di-Higgs system
       vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();
       vars->pT_hh   = (event.higgs1.p4 + event.higgs2.p4).Pt();
@@ -380,35 +333,34 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
       double dH2 = ( event.higgs2.p4.M() - 115) / (0.1 * event.higgs2.p4.M() );
       vars->X_hh = sqrt( pow( dH1, 2) + pow( dH2, 2) );
 
-      std::cout << "storing leading higgs " << std::endl;
       // Leading Higgs candidate
       vars->h1_M   = event.higgs1.p4.M();
       vars->h1_Pt  = event.higgs1.p4.Pt();
       vars->h1_Eta = event.higgs1.p4.Eta();
       vars->h1_Phi = event.higgs1.p4.Phi();
 
-      std::cout << "leading higgs leading jet" << std::endl;
       if ( event.higgs1.jets.size() > 0 ) {
         vars->h1_j1_M   = event.higgs1.jets[0].p4.M();
         vars->h1_j1_Pt  = event.higgs1.jets[0].p4.Pt();
         vars->h1_j1_Eta = event.higgs1.jets[0].p4.Eta();
         vars->h1_j1_Phi = event.higgs1.jets[0].p4.Phi();
+        vars->h1_j1_BTagWeight = event.higgs1.jets[0].btag;
+        vars->h1_j1_BTag       = event.higgs1.jets[0].tagged;
       
         vars->h1_j1_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[0].p4 );
       }
 
-      std::cout << "leading higgs subleading jet" << std::endl;
       if ( event.higgs1.jets.size() > 1 ) {
         vars->h1_j2_M   = event.higgs1.jets[1].p4.M();
         vars->h1_j2_Pt  = event.higgs1.jets[1].p4.Pt();
         vars->h1_j2_Eta = event.higgs1.jets[1].p4.Eta();
         vars->h1_j2_Phi = event.higgs1.jets[1].p4.Phi();
+        vars->h1_j2_BTagWeight = event.higgs1.jets[1].btag;
+        vars->h1_j2_BTag       = event.higgs1.jets[1].tagged;
       
         vars->h1_j2_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[1].p4 );
         vars->h1_j1_j2_dR = event.higgs1.jets[0].p4.DeltaR( event.higgs1.jets[1].p4 );
       }
-
-      std::cout << "storing subleading higgs" << std::endl;
 
       // Subleading Higgs candidate
       vars->h2_M   = event.higgs2.p4.M();
@@ -421,6 +373,8 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         vars->h2_j1_Pt  = event.higgs2.jets[0].p4.Pt();
         vars->h2_j1_Eta = event.higgs2.jets[0].p4.Eta();
         vars->h2_j1_Phi = event.higgs2.jets[0].p4.Phi();
+        vars->h2_j1_BTagWeight = event.higgs2.jets[0].btag;
+        vars->h2_j1_BTag       = event.higgs2.jets[0].tagged;
         
         vars->h2_j1_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[0].p4 );
       }
@@ -430,12 +384,13 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
         vars->h2_j2_Pt  = event.higgs2.jets[1].p4.Pt();
         vars->h2_j2_Eta = event.higgs2.jets[1].p4.Eta();
         vars->h2_j2_Phi = event.higgs2.jets[1].p4.Phi();
+        vars->h2_j2_BTagWeight = event.higgs2.jets[1].btag;
+        vars->h2_j2_BTag       = event.higgs2.jets[1].tagged;
       
         vars->h2_j2_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[1].p4 );
         vars->h2_j1_j2_dR = event.higgs2.jets[0].p4.DeltaR( event.higgs2.jets[1].p4 );
       }
 
-      std::cout << "storing electrons" << std::endl;
       // Electron
       vars->elec1_M   = event.elec1.M();
       vars->elec1_Pt  = event.elec1.Pt();

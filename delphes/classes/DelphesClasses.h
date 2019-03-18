@@ -366,6 +366,8 @@ public:
   UInt_t Flavor; // jet flavor
   UInt_t FlavorAlgo; // jet flavor
   UInt_t FlavorPhys; // jet flavor
+  
+  Float_t BTagWeight; // store the efficiency of b-tagging the jet as a weight
 
   UInt_t BTag; // 0 or 1 for a jet that has been tagged as containing a heavy quark
   UInt_t BTagAlgo; // 0 or 1 for a jet that has been tagged as containing a heavy quark
@@ -546,6 +548,7 @@ public:
   UInt_t FlavorAlgo;
   UInt_t FlavorPhys;
 
+  Float_t BTagWeight;
   UInt_t BTag;
   UInt_t BTagAlgo;
   UInt_t BTagPhys;

@@ -63,8 +63,7 @@ namespace action = ranges::action;
 constexpr double GeV = 1.; ///< Set to 1 -- energies and momenta in GeV
 
 //------------------------------------------------------------
-// Resolved analysis jet assignment to Higgs 
-// i.e. events where there are 0 large jets
+// Resolved analysis jet assignment to Higgs (0 large jets)
 // TODO: Add top veto, Dhh variables etc 
 //------------------------------------------------------------
 dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
@@ -73,7 +72,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
 
   float lead_low = 0., lead_high = 0., sublead_low = 0., sublead_high = 0.;
 
-  // Try exact numbers from old code
+  // Try exact numbers from old code (https://arxiv.org/abs/1804.06174)
   float m4j = (sj_vec[0].p4 + sj_vec[1].p4 + sj_vec[2].p4 + sj_vec[3].p4).M();
   if (m4j < 1250. * GeV) {
       lead_low     = 360.    / (m4j / GeV) - 0.5;
@@ -110,8 +109,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     
     float deltaRjj_lead    = sj_vec[h1_j1].p4.DeltaR( sj_vec[h1_j2].p4 );
     float deltaRjj_sublead = sj_vec[h2_j1].p4.DeltaR( sj_vec[h2_j2].p4 );
-    // if (higgs1.Pt() < higgs2.Pt()) {
-    // NOT A BUG
+    // if (higgs1.Pt() < higgs2.Pt()) { // NOT A BUG
     if ((sj_vec[h1_j1].p4.Pt() + sj_vec[h1_j2].p4.Pt())
         < (sj_vec[h2_j1].p4.Pt() + sj_vec[h2_j2].p4.Pt())) {
         // swap so higgs1 is the leading Higgs candidate
@@ -293,33 +291,22 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // Assign jets to Higgs candidates
   //---------------------------------------------------
 
-  std::cout << "N(jets) large, small, track: " << lj_vec.size() << ", " << sj_vec.size() << ", " << tj_vec.size() << std::endl;
-
   // Resolved: exactly 0 large jets
   if ( lj_vec.size() == 0 && sj_vec.size() >= 4 ) { 
     higgs_cands = find_higgs_cands_resolved(sj_vec);
-    std::cout << "Resolved higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
-    std::cout << "Resolved higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
   }
 
   // Intermediate: exactly 1 large jet
-  //else 
   else if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
     higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
-    std::cout << "Intermediate higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
-    std::cout << "Intermediate higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
   }
 
   // Boosted: 2 or more large jets
   else if ( lj_vec.size() >= 2 ) { 
     higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
-    std::cout << "Boosted higgs 1 jets: " << higgs_cands.higgs1.jets.size() << std::endl;
-    std::cout << "Boosted higgs 2 jets: " << higgs_cands.higgs2.jets.size() << std::endl;
   }
 
-  else {
-    result.valid = false;
-  }
+  else { result.valid = false; }
   
   // Count b-tagged jets associated to higgs candidates
   const int n_bjets_in_higgs1 = 
