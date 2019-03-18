@@ -50,3 +50,10 @@ First the ```plot.py``` must be run (as described above) in order to produce YIE
 Next the constraint code is run, for the lambda limits run:
 ```plot_lambda_limit.py```
 This takes the YIELD files as input and produces plots of cross-section vs kappa value (modified coupling/SM coupling) and uses this to produce a chi2 vs kappa value constraint plot.  
+
+## 2D plots for Top Yukawa vs Self-coupling
+The `ntuples_to_chiSq.py` script loops through signal samples processed through ntupler and produces a CSV containing S/B, acceptance, chi-squares etc. Currently only works with intermediate; needs work to make this more configurable and extend to other channels. Open this and configure luminosities etc, then run as
+```python ntuples_to_chiSq.py```
+The `chiSq_to_contour.py` allows plotting the CSV file into a 2D contour plot from the output CSV of `ntuples_to_chiSq.py`. Currently needs user to open file and specify the inputs etc, more needed to make more configurable etc. Run as
+```python chiSq_to_contour.py```
+

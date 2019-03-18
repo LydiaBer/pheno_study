@@ -33,16 +33,6 @@
 
 extern double f;
 
-// Higgs Boson
-struct higgs {
-    TLorentzVector p4; ///< 4-momentum
-    // int jet1;          ///< Index of leading jet
-    // int jet2;          ///< Index of subleading jet
-
-    higgs() : p4() {}
-    higgs(const TLorentzVector& p4) : p4(p4) {}
-};
-
 class OxJet {
   public:
     TLorentzVector p4; ///< 4-momentum
@@ -55,17 +45,35 @@ class OxJet {
     }
 };
 
-// Make jet from Oxjet function
+// Higgs boson
+struct higgs {
+  TLorentzVector p4; ///< 4-momentum
+  int jet1;          ///< Index of leading jet
+  int jet2;          ///< Index of subleading jet
+  std::vector<OxJet> jets; // Vector of jets associated with Higgs candidate
 
+  higgs() : p4(), jet1(0), jet2(0), jets() {}
+  higgs(const TLorentzVector& p4, int jet1, int jet2, std::vector<OxJet> jets) : p4(p4), jet1(jet1), jet2(jet2), jets(jets) {}
+};
+
+// DiHiggs system object
+struct dihiggs {
+  higgs higgs1;
+  higgs higgs2;
+
+};
+
+// Make jet from Oxjet function
 inline OxJet make_oxjet(OxJet& jet) {
-    double M = jet.p4.M();
-    double pT = jet.p4.Pt();
-    double eta = jet.p4.Eta();
-    double phi = jet.p4.Phi();
+    double M    = jet.p4.M();
+    double pT   = jet.p4.Pt();
+    double eta  = jet.p4.Eta();
+    double phi  = jet.p4.Phi();
     bool tagged = jet.tagged;
 
     return OxJet(M, pT, eta, phi, tagged);
 }
+
 
 class JetPair {
   public:
@@ -83,10 +91,10 @@ class JetPair {
 
 // Make jet function
 inline OxJet make_jet(Jet& jet) {
-    double M = jet.Mass;
-    double pT = jet.PT;
-    double eta = jet.Eta;
-    double phi = jet.Phi;
+    double M    = jet.Mass;
+    double pT   = jet.PT;
+    double eta  = jet.Eta;
+    double phi  = jet.Phi;
     bool tagged = jet.BTag;
 
     // Because a constructor can't be used as a Callable
@@ -127,286 +135,344 @@ struct reconstructed_event {
     int64_t n_large_jets; ///< Total number of LargeR jets
     int64_t n_track_tag;  ///< Number of B-tagged track jets
     int64_t n_track_jets; ///< Total number of track jets
-    int64_t n_assoc_track_tag;  ///< Number of B-tagged track jets associated with fat jet
-    int64_t n_assoc_track_jets; ///< Total number of track jets associated with fat jet
+    int64_t n_jets_in_higgs1; ///< Total number of jets associated with higgs 1
+    int64_t n_jets_in_higgs2; ///< Total number of jets associated with higgs 2
+    int64_t n_bjets_in_higgs1; ///< Total number of b-jets associated with higgs 1
+    int64_t n_bjets_in_higgs2; ///< Total number of b-jets associated with higgs 2
+    /*
+    int64_t n_h1_assoc_track_tag;  ///< Number of B-tagged track jets associated with leading fat jet
+    int64_t n_h1_assoc_track_jets; ///< Total number of track jets associated with leading fat jet
+    int64_t n_h2_assoc_track_tag;  ///< Number of B-tagged track jets associated with subleading fat jet
+    int64_t n_h2_assoc_track_jets; ///< Total number of track jets associated with subleading fat jet
+    */
     double wgt;           ///< Event Weight
 
-    OxJet large_jet;
-    std::array<OxJet, 2> small_jets; ///< Array of 2 chosen jets
+    int64_t nElec;  ///< Number of electrons at Delphes level
+    int64_t nMuon;  ///< Number of muons at Delphes level
+
+    TLorentzVector met; ///< MET
+    TLorentzVector elec1; ///< leading electron
+    TLorentzVector muon1; ///< leading muon
 
     higgs higgs1; ///< Leading Higgs
     higgs higgs2; ///< Subleading Higgs
     
-    OxJet h1_assoTrkJet1;
-    OxJet h1_assoTrkJet2;
-
     reconstructed_event()
         : valid(true), // set to true if pairing is valid
-          large_jet(),
-          small_jets(),
           higgs1(),
-          higgs2(),
-          h1_assoTrkJet1(), 
-          h1_assoTrkJet2() {}
-
+          higgs2() {}
 };
 
 struct out_format {
-    double m_hh; ///< Di-Higgs mass (m<SUB>hh</SUB> or m<SUB>4j</SUB>)
-    double pT_hh; ///< Di-Higgs pT (pT<SUB>hh</SUB> or pT<SUB>4j</SUB>)
-    double dR_hh; ///< Di-Higgs dR (dR<SUB>hh</SUB> or dR<SUB>4j</SUB>)
-    double deta_hh; ///< Di-Higgs deta (deta<SUB>hh</SUB> or deta<SUB>4j</SUB>)
-    double dphi_hh; ///< Di-Higgs dphi (dphi<SUB>hh</SUB> or dphi<SUB>4j</SUB>)
 
-    double m_h1;   ///< Leading Higgs mass
-    double pT_h1;  ///< Leading Higgs p<SUB>T</SUB>
-    double eta_h1; ///< Leading Higgs &eta;
-    double phi_h1; ///< Leading Higgs &Phi;
+    //--------------------------------
+    // Di-Higgs system
+    //--------------------------------
+    double m_hh; // Mass 
+    double pT_hh; // pT
+    double dR_hh; // Di-Higgs dR 
+    double dEta_hh; // Di-Higgs deta 
+    double dPhi_hh; // Di-Higgs dphi 
+    double X_hh;
 
-    double m_h2;   ///< Subleading Higgs mass
-    double pT_h2;  ///< Subleading Higgs p<SUB>T</SUB>
-    double eta_h2; ///< Subleading Higgs &eta;
-    double phi_h2; ///< Subleading Higgs &Phi;
+    //--------------------------------
+    // Leading Higgs candidate
+    //--------------------------------
+    double h1_M;  
+    double h1_Pt;  
+    double h1_Eta; 
+    double h1_Phi; 
 
-    double m_h1_large_jet; ///< Leading Higgs leading jet mass
-    // double E_h1_j1;   ///< Leading Higgs leading jet energy
-    double pT_h1_large_jet;  ///< Leading Higgs leading jet p<SUB>T</SUB>
-    double eta_h1_large_jet; ///< Leading Higgs leading jet &eta;
-    double phi_h1_large_jet; ///< Leading Higgs leading jet &Phi;
+      // Leading jet of subleading Higgs candidate
+      double h1_j1_M;   
+      double h1_j1_Pt;  
+      double h1_j1_Eta; 
+      double h1_j1_Phi; 
+
+      // Subleading jet of subleading Higgs candidate
+      double h1_j2_M;   
+      double h1_j2_Pt;  
+      double h1_j2_Eta; 
+      double h1_j2_Phi; 
+
+      // Delta R between leading Higgs candidate and its jets
+      double h1_j1_dR; 
+      double h1_j2_dR; 
+
+      // Delta R between the two jets associated to leading Higgs candidate
+      double h1_j1_j2_dR; 
+
+    //--------------------------------
+    // Subleading Higgs candidate
+    //--------------------------------
+    double h2_M;  
+    double h2_Pt;  
+    double h2_Eta; 
+    double h2_Phi; 
+
+      // Leading jet of subleading Higgs candidate
+      double h2_j1_M;   
+      double h2_j1_Pt;  
+      double h2_j1_Eta; 
+      double h2_j1_Phi; 
+
+      // Subleading jet of subleading Higgs candidate
+      double h2_j2_M;   
+      double h2_j2_Pt;  
+      double h2_j2_Eta; 
+      double h2_j2_Phi; 
+
+      // Delta R between leading Higgs candidate and its jets
+      double h2_j1_dR; 
+      double h2_j2_dR; 
+      
+      // Delta R between the two jets associated to leading Higgs candidate
+      double h2_j1_j2_dR; 
     
-    double pT_h1_trkJet1;        ///< Leading Higgs associated leading track jet pT
-    double eta_h1_trkJet1;       ///< Leading Higgs associated leading track jet eta
-    double phi_h1_trkJet1;       ///< Leading Higgs associated leading track jet eta
-    double dR_trkJet1_large_jet; ///< Delta R between large R jet and associated leading track jet
-    
-    double pT_h1_trkJet2;        ///< Leading Higgs associated subleading track jet pT
-    double eta_h1_trkJet2;       ///< Leading Higgs associated subleading track jet eta
-    double phi_h1_trkJet2;       ///< Leading Higgs associated subleading track jet eta
-    double dR_trkJet2_large_jet; ///< Delta R between large R jet and associated subleading track jet
-    
-    double dR_trkJet1_trkJet2;   ///< Delta R   between leading track jet and subleading track jet associated with large R jet
-    double dPhi_trkJet1_trkJet2; ///< Delta Phi between leading track jet and subleading track jet associated with large R jet
+    // Leading electron 4-vector
+    double elec1_M; 
+    double elec1_Pt; 
+    double elec1_Eta; 
+    double elec1_Phi; 
 
-    double m_h2_j1;   ///< Subleading Higgs leading jet mass
-    double pT_h2_j1;  ///< Subleading Higgs leading jet p<SUB>T</SUB>
-    double eta_h2_j1; ///< Subleading Higgs leading jet &eta;
-    double phi_h2_j1; ///< Subleading Higgs leading jet &Phi;
-
-    double m_h2_j2;   ///< Subleading Higgs subleading jet mass
-    double pT_h2_j2;  ///< Subleading Higgs subleading jet p<SUB>T</SUB>
-    double eta_h2_j2; ///< Subleading Higgs subleading jet &eta;
-    double phi_h2_j2; ///< Subleading Higgs subleading jet &Phi;
-        
-    double dR_h2_j1_j2;   ///< Delta R   between leading small jet and subleading small jet separated from fat jet 
-    double dPhi_h2_j1_j2; ///< Delta Phi between leading small jet and subleading small jet separated from fat jet
+    // Leading muon 4-vector 
+    double muon1_M;  
+    double muon1_Pt; 
+    double muon1_Eta; 
+    double muon1_Phi; 
+    
+    // Missing transverse momentum (2-component vector)
+    double met_Et; 
+    double met_Phi;
     
 };
-/*
-struct reweight_format {
-  double pT_4;   ///< p<SUB>T</SUB> of 4th jet
-  double pT_2;   ///< p<SUB>T</SUB> of 2nd jet
-  double eta_i;  ///< &sum;|&eta;<SUB>i</SUB>|
-  double dRjj_1; ///< &Delta;R<SUB>jj,1</SUB>
-  double dRjj_2; ///< &Delta;R<SUB>jj,2</SUB>
-};
-*/
+
 template <typename Proxied>
 void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
-                TFile& output_file /**< [out] Tree to write to */) {
-    using namespace std;
-    using namespace ROOT::Experimental;
-    namespace view = ranges::view;
-    namespace action = ranges::action;
-    static bool first_tree = true;
+              TFile& output_file /**< [out] Tree to write to */) {
+  using namespace std;
+  using namespace ROOT::Experimental;
+  namespace view = ranges::view;
+  namespace action = ranges::action;
+  static bool first_tree = true;
 
-    const char* out_format_leaflist =
-          "m_hh/D:pT_hh:dR_hh:deta_hh:dphi_hh:"
-          "m_h1/D:pT_h1:eta_h1:phi_h1:"
-          "m_h2/D:pT_h2:eta_h2:phi_h2:"
-          "m_h1_large_jet:pT_h1_large_jet:eta_h1_large_jet:phi_h1_large_jet:"
-          "pT_h1_trkJet1:eta_h1_trkJet1:phi_h1_trkJet1:dR_trkJet1_large_jet:"
-          "pT_h1_trkJet2:eta_h1_trkJet2:phi_h1_trkJet2:dR_trkJet2_large_jet:"
-          "dR_trkJet1_trkJet2:dPhi_trkJet1_trkJet2:"
-          "m_h2_j1:pT_h2_j1:eta_h2_j1:phi_h2_j1:"
-          "m_h2_j2:pT_h2_j2:eta_h2_j2:phi_h2_j2:"
-          "dR_h2_j1_j2:dPhi_h2_j1_j2";
+  const char* out_format_leaflist =
+        "m_hh/D:pT_hh:dR_hh:dEta_hh:dPhi_hh:X_hh:"
+        "h1_M/D:h1_Pt:h1_Eta:h1_Phi:"
+        "h1_j1_M:h1_j1_Pt:h1_j1_Eta:h1_j1_Phi:"
+        "h1_j2_M:h1_j2_Pt:h1_j2_Eta:h1_j2_Phi:"
+        "h1_j1_dR:h1_j2_dR:h1_j1_j2_dR"
+        "h2_M/D:h2_Pt:h2_Eta:h2_Phi:"
+        "h2_j1_M:h2_j1_Pt:h2_j1_Eta:h2_j1_Phi:"
+        "h2_j2_M:h2_j2_Pt:h2_j2_Eta:h2_j2_Phi:"
+        "h2_j1_dR:h2_j2_dR:h2_j1_j2_dR:"
+        "elec1_M:elec1_Pt:elec1_Eta:elec1_Phi:"
+        "muon1_M:muon1_Pt:muon1_Eta:muon1_Phi:"
+        "met_Et:met_Phi";
 
-    // const char *rwgt_leaflist = "pT_4/D:pT_2:eta_i:dRjj_1:dRjj_2";
+  int num_threads = 1;
+  // Uncomment to enable multithreading
+  //int num_threads = ROOT::GetImplicitMTPoolSize();
+  vector<unique_ptr<TTree>> out_trees{};
 
-    int num_threads = 1;
-    // Uncomment to enable multithreading
-    //int num_threads = ROOT::GetImplicitMTPoolSize();
-    vector<unique_ptr<TTree>> out_trees{};
+  vector<int> n_small_jets_var(num_threads);
+  vector<int> n_small_tag_var(num_threads);
+  vector<int> n_large_jets_var(num_threads);
+  vector<int> n_large_tag_var(num_threads);
+  vector<int> n_track_jets_var(num_threads);
+  vector<int> n_track_tag_var(num_threads);
+  vector<int> n_jets_in_higgs1_var(num_threads);
+  vector<int> n_jets_in_higgs2_var(num_threads); 
+  vector<int> n_bjets_in_higgs1_var(num_threads); 
+  vector<int> n_bjets_in_higgs2_var(num_threads); 
+  
+  vector<int> nElec_var(num_threads);
+  vector<int> nMuon_var(num_threads);
+  vector<double> mc_sf_var(num_threads);
+  vector<unique_ptr<out_format>> out_vars{};
+  
+  // vector<unique_ptr<reweight_format>> rwgt_vars{};
+  for (int i = 0; i < num_threads; ++i) {
+      gROOT->cd();
+      out_vars.push_back(make_unique<out_format>());
+      // rwgt_vars.push_back(make_unique<reweight_format>());
+      out_trees.push_back(make_unique<TTree>(treename, treename));
 
-    vector<int> n_small_tag_var(num_threads);
-    vector<int> n_small_jets_var(num_threads);
-    vector<int> n_large_tag_var(num_threads);
-    vector<int> n_large_jets_var(num_threads);
-    vector<int> n_track_tag_var(num_threads);
-    vector<int> n_track_jets_var(num_threads);
-    vector<int> n_assoc_track_tag_var(num_threads);
-    vector<int> n_assoc_track_jets_var(num_threads);
-    vector<double> mc_sf_var(num_threads);
-    vector<unique_ptr<out_format>> out_vars{};
-    // vector<unique_ptr<reweight_format>> rwgt_vars{};
-    for (int i = 0; i < num_threads; ++i) {
-        gROOT->cd();
-        out_vars.push_back(make_unique<out_format>());
-        // rwgt_vars.push_back(make_unique<reweight_format>());
-        out_trees.push_back(make_unique<TTree>(treename, treename));
+      out_trees[i]->SetDirectory(nullptr);
+      out_trees[i]->Branch("n_small_jets", &n_small_jets_var[i]);
+      out_trees[i]->Branch("n_small_tag",  &n_small_tag_var[i]);
+      out_trees[i]->Branch("n_large_jets", &n_large_jets_var[i]);
+      out_trees[i]->Branch("n_large_tag",  &n_large_tag_var[i]);
+      out_trees[i]->Branch("n_track_jets", &n_track_jets_var[i]);
+      out_trees[i]->Branch("n_track_tag",  &n_track_tag_var[i]);
+      
+      out_trees[i]->Branch("n_jets_in_higgs1", &n_jets_in_higgs1_var[i]);
+      out_trees[i]->Branch("n_jets_in_higgs2", &n_jets_in_higgs2_var[i]);
+      out_trees[i]->Branch("n_bjets_in_higgs1", &n_bjets_in_higgs1_var[i]);
+      out_trees[i]->Branch("n_bjets_in_higgs2", &n_bjets_in_higgs2_var[i]);
+      
+      out_trees[i]->Branch("nElec", &nElec_var[i]);
+      out_trees[i]->Branch("nMuon", &nMuon_var[i]);
+      out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
+      out_trees[i]->Branch("event", out_vars[i].get(), out_format_leaflist);
+      // out_trees[i]->Branch("rwgt", rwgt_vars[i].get(), rwgt_leaflist);
+  }
 
-        out_trees[i]->SetDirectory(nullptr);
-        out_trees[i]->Branch("n_small_tag",  &n_small_tag_var[i]);
-        out_trees[i]->Branch("n_small_jets", &n_small_jets_var[i]);
-        out_trees[i]->Branch("n_large_jets", &n_large_jets_var[i]);
-        out_trees[i]->Branch("n_large_tag",  &n_large_tag_var[i]);
-        out_trees[i]->Branch("n_track_tag",  &n_track_tag_var[i]);
-        out_trees[i]->Branch("n_track_jets", &n_track_jets_var[i]);
-        out_trees[i]->Branch("n_assoc_track_tag",  &n_assoc_track_tag_var[i]);
-        out_trees[i]->Branch("n_assoc_track_jets", &n_assoc_track_jets_var[i]);
-        out_trees[i]->Branch("mc_sf", &mc_sf_var[i]);
-        out_trees[i]->Branch("event", out_vars[i].get(), out_format_leaflist);
-        // out_trees[i]->Branch("rwgt", rwgt_vars[i].get(), rwgt_leaflist);
-    }
+  if (first_tree) {
+      fmt::print("Processing events\n");
+  }
+  else {
+      fmt::print("Collecting Events...\n");
+      first_tree = false;
+  }
+  
+  result.ForeachSlot(
+    [&out_trees, 
+     &out_vars, 
+     &n_small_tag_var, 
+     &n_small_jets_var, 
+     &n_large_tag_var,
+     &n_large_jets_var, /*, &rwgt_vars*/
+     &n_track_tag_var, 
+     &n_track_jets_var, 
+     
+     &n_jets_in_higgs1_var, 
+     &n_jets_in_higgs2_var, 
+     &n_bjets_in_higgs1_var, 
+     &n_bjets_in_higgs2_var,
+      
+     &nElec_var, 
+     &nMuon_var, 
+     &mc_sf_var
+     ](unsigned slot, const reconstructed_event& event) {
+      auto&& tree = out_trees[slot];
+      auto&& vars = out_vars[slot];
+      //  auto &&rwgt = rwgt_vars[slot];
 
-    if (first_tree) {
-        fmt::print("Processing events\n");
-    }
-    else {
-        fmt::print("Collecting Events...\n");
-        first_tree = false;
-    }
-    
-    result.ForeachSlot(
-          [&out_trees, 
-           &out_vars, 
-           &n_small_tag_var, 
-           &n_small_jets_var, 
-           &n_large_tag_var,
-           &n_large_jets_var, /*, &rwgt_vars*/
-           &n_track_tag_var, 
-           &n_track_jets_var, 
-           &n_assoc_track_tag_var, 
-           &n_assoc_track_jets_var, 
-           &mc_sf_var](unsigned slot, const reconstructed_event& event) {
-              auto&& tree = out_trees[slot];
-              auto&& vars = out_vars[slot];
-              //  auto &&rwgt = rwgt_vars[slot];
+      std::cout << "storing object counts" << std::endl;
 
-              vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();
-              vars->pT_hh   = (event.higgs1.p4 + event.higgs2.p4).Pt();
-              vars->dR_hh   = event.higgs1.p4.DeltaR(event.higgs2.p4);
-              vars->deta_hh = event.higgs1.p4.Eta()-event.higgs2.p4.Eta();
-              vars->dphi_hh = event.higgs1.p4.DeltaPhi(event.higgs2.p4);
+      // Object multiplicities
+      n_small_tag_var[slot]  = event.n_small_tag;
+      n_small_jets_var[slot] = event.n_small_jets;
+      n_large_tag_var[slot]  = event.n_large_tag;
+      n_large_jets_var[slot] = event.n_large_jets;
+      n_track_tag_var[slot]  = event.n_track_tag;
+      n_track_jets_var[slot] = event.n_track_jets;
+      
+      n_jets_in_higgs1_var[slot]  = event.n_jets_in_higgs1;
+      n_jets_in_higgs2_var[slot]  = event.n_jets_in_higgs2;
+      n_bjets_in_higgs1_var[slot] = event.n_bjets_in_higgs1;
+      n_bjets_in_higgs2_var[slot] = event.n_bjets_in_higgs2;
 
-              n_small_tag_var[slot]  = event.n_small_tag;
-              n_small_jets_var[slot] = event.n_small_jets;
-              n_large_tag_var[slot]  = event.n_large_tag;
-              n_large_jets_var[slot] = event.n_large_jets;
-              n_track_tag_var[slot]  = event.n_track_tag;
-              n_track_jets_var[slot] = event.n_track_jets;
-              n_assoc_track_tag_var[slot]  = event.n_assoc_track_tag;
-              n_assoc_track_jets_var[slot] = event.n_assoc_track_jets;
-              mc_sf_var[slot]        = event.wgt;
+      nElec_var[slot] = event.nElec;
+      nMuon_var[slot] = event.nMuon;
+      mc_sf_var[slot]        = event.wgt;
 
-              vars->m_h1   = event.higgs1.p4.M();
-              vars->pT_h1  = event.higgs1.p4.Pt();
-              vars->eta_h1 = event.higgs1.p4.Eta();
-              vars->phi_h1 = event.higgs1.p4.Phi();
-              vars->m_h2   = event.higgs2.p4.M();
-              vars->pT_h2  = event.higgs2.p4.Pt();
-              vars->eta_h2 = event.higgs2.p4.Eta();
-              vars->phi_h2 = event.higgs2.p4.Phi();
+      std::cout << "storing dihiggs" << std::endl;
+      // Di-Higgs system
+      vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();
+      vars->pT_hh   = (event.higgs1.p4 + event.higgs2.p4).Pt();
+      vars->dR_hh   = event.higgs1.p4.DeltaR(event.higgs2.p4);
+      vars->dEta_hh = fabs( event.higgs1.p4.Eta() - event.higgs2.p4.Eta() );
+      vars->dPhi_hh = fabs( event.higgs1.p4.DeltaPhi(event.higgs2.p4) );
+      
+      double dH1 = ( event.higgs1.p4.M() - 124) / (0.1 * event.higgs1.p4.M() );
+      double dH2 = ( event.higgs2.p4.M() - 115) / (0.1 * event.higgs2.p4.M() );
+      vars->X_hh = sqrt( pow( dH1, 2) + pow( dH2, 2) );
 
-              vars->m_h1_large_jet   = event.large_jet.p4.M();
-              vars->pT_h1_large_jet  = event.large_jet.p4.Pt();
-              vars->eta_h1_large_jet = event.large_jet.p4.Eta();
-              vars->phi_h1_large_jet = event.large_jet.p4.Phi();
-              
-              vars->pT_h1_trkJet1        = event.h1_assoTrkJet1.p4.Pt();
-              vars->eta_h1_trkJet1       = event.h1_assoTrkJet1.p4.Eta();
-              vars->phi_h1_trkJet1       = event.h1_assoTrkJet1.p4.Phi();
-              vars->dR_trkJet1_large_jet = event.h1_assoTrkJet1.p4.DeltaR( event.large_jet.p4 );
-              
-              vars->pT_h1_trkJet2        = event.h1_assoTrkJet2.p4.Pt();
-              vars->eta_h1_trkJet2       = event.h1_assoTrkJet2.p4.Eta();
-              vars->phi_h1_trkJet2       = event.h1_assoTrkJet2.p4.Phi();
-              vars->dR_trkJet2_large_jet = event.h1_assoTrkJet2.p4.DeltaR( event.large_jet.p4 );
-              
-              vars->dR_trkJet1_trkJet2   = event.h1_assoTrkJet1.p4.DeltaR(   event.h1_assoTrkJet2.p4 );
-              vars->dPhi_trkJet1_trkJet2 = event.h1_assoTrkJet1.p4.DeltaPhi( event.h1_assoTrkJet2.p4 );
+      std::cout << "storing leading higgs " << std::endl;
+      // Leading Higgs candidate
+      vars->h1_M   = event.higgs1.p4.M();
+      vars->h1_Pt  = event.higgs1.p4.Pt();
+      vars->h1_Eta = event.higgs1.p4.Eta();
+      vars->h1_Phi = event.higgs1.p4.Phi();
 
-              vars->m_h2_j1   = event.small_jets[0].p4.M();
-              vars->pT_h2_j1  = event.small_jets[0].p4.Pt();
-              vars->eta_h2_j1 = event.small_jets[0].p4.Eta();
-              vars->phi_h2_j1 = event.small_jets[0].p4.Phi();
+      std::cout << "leading higgs leading jet" << std::endl;
+      if ( event.higgs1.jets.size() > 0 ) {
+        vars->h1_j1_M   = event.higgs1.jets[0].p4.M();
+        vars->h1_j1_Pt  = event.higgs1.jets[0].p4.Pt();
+        vars->h1_j1_Eta = event.higgs1.jets[0].p4.Eta();
+        vars->h1_j1_Phi = event.higgs1.jets[0].p4.Phi();
+      
+        vars->h1_j1_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[0].p4 );
+      }
 
-              vars->m_h2_j2   = event.small_jets[1].p4.M();
-              vars->pT_h2_j2  = event.small_jets[1].p4.Pt();
-              vars->eta_h2_j2 = event.small_jets[1].p4.Eta();
-              vars->phi_h2_j2 = event.small_jets[1].p4.Phi();
-              
-              vars->dR_h2_j1_j2   = event.small_jets[0].p4.DeltaR(   event.small_jets[1].p4 );
-              vars->dPhi_h2_j1_j2 = event.small_jets[0].p4.DeltaPhi( event.small_jets[1].p4 );
+      std::cout << "leading higgs subleading jet" << std::endl;
+      if ( event.higgs1.jets.size() > 1 ) {
+        vars->h1_j2_M   = event.higgs1.jets[1].p4.M();
+        vars->h1_j2_Pt  = event.higgs1.jets[1].p4.Pt();
+        vars->h1_j2_Eta = event.higgs1.jets[1].p4.Eta();
+        vars->h1_j2_Phi = event.higgs1.jets[1].p4.Phi();
+      
+        vars->h1_j2_dR    = event.higgs1.p4.DeltaR( event.higgs1.jets[1].p4 );
+        vars->h1_j1_j2_dR = event.higgs1.jets[0].p4.DeltaR( event.higgs1.jets[1].p4 );
+      }
+
+      std::cout << "storing subleading higgs" << std::endl;
+
+      // Subleading Higgs candidate
+      vars->h2_M   = event.higgs2.p4.M();
+      vars->h2_Pt  = event.higgs2.p4.Pt();
+      vars->h2_Eta = event.higgs2.p4.Eta();
+      vars->h2_Phi = event.higgs2.p4.Phi();
+
+      if ( event.higgs2.jets.size() > 0 ) {
+        vars->h2_j1_M   = event.higgs2.jets[0].p4.M();
+        vars->h2_j1_Pt  = event.higgs2.jets[0].p4.Pt();
+        vars->h2_j1_Eta = event.higgs2.jets[0].p4.Eta();
+        vars->h2_j1_Phi = event.higgs2.jets[0].p4.Phi();
         
-              /*
-                      auto rwgt_jets = event.jets;
-                      rwgt_jets |=
-                          (action::sort(ranges::ordered_less{},
-                                        [](const auto &jet) { return jet.p4.Pt(); }) |
-                           action::reverse);
-                      rwgt->pT_2 = rwgt_jets[1].p4.Pt();
-                      rwgt->pT_4 = rwgt_jets[3].p4.Pt();
-                      rwgt->eta_i = ranges::accumulate(rwgt_jets, 0., ranges::plus{},
-                                                       [](const auto &jet) {
-                                                         return
-                 std::abs(jet.p4.Eta());
-                                                       }) /
-                                    4;
+        vars->h2_j1_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[0].p4 );
+      }
+      
+      if ( event.higgs2.jets.size() > 1 ) {
+        vars->h2_j2_M   = event.higgs2.jets[1].p4.M();
+        vars->h2_j2_Pt  = event.higgs2.jets[1].p4.Pt();
+        vars->h2_j2_Eta = event.higgs2.jets[1].p4.Eta();
+        vars->h2_j2_Phi = event.higgs2.jets[1].p4.Phi();
+      
+        vars->h2_j2_dR    = event.higgs2.p4.DeltaR( event.higgs2.jets[1].p4 );
+        vars->h2_j1_j2_dR = event.higgs2.jets[0].p4.DeltaR( event.higgs2.jets[1].p4 );
+      }
 
-                      std::vector<std::tuple<int, int>> rwgt_jet_pairs =
-                          view::cartesian_product(view::ints(0, 4), view::ints(0, 4))
-                 |
-                          view::remove_if(
-                              [](auto &&is) { return std::get<0>(is) <=
-                 std::get<1>(is); });
-                      rwgt_jet_pairs |=
-                          (action::sort(ranges::ordered_less{}, [&rwgt_jets](auto
-                 &&is) {
-                            auto i = std::get<0>(is);
-                            auto j = std::get<1>(is);
-                            return rwgt_jets[i].p4.DeltaR(rwgt_jets[j].p4);
-                          }));
-                      auto pair = rwgt_jet_pairs[0]; // tuple
-                      std::vector<int> other_pair =
-                          view::ints(0, 4) | view::remove_if([&pair](int i) {
-                            return i == std::get<0>(pair) || i == std::get<1>(pair);
-                          });
+      std::cout << "storing electrons" << std::endl;
+      // Electron
+      vars->elec1_M   = event.elec1.M();
+      vars->elec1_Pt  = event.elec1.Pt();
+      vars->elec1_Eta = event.elec1.Eta();
+      vars->elec1_Phi = event.elec1.Phi();
 
-                      rwgt->dRjj_1 = rwgt_jets[std::get<0>(pair)].p4.DeltaR(
-                          rwgt_jets[std::get<1>(pair)].p4);
-                      rwgt->dRjj_2 =
-                          rwgt_jets[other_pair[0]].p4.DeltaR(rwgt_jets[other_pair[1]].p4);
-              */
-              tree->Fill();
-          },
-          {"event" /*, "mc_sf"*/});
+      // Muon
+      vars->muon1_M   = event.muon1.M();
+      vars->muon1_Pt  = event.muon1.Pt();
+      vars->muon1_Eta = event.muon1.Eta();
+      vars->muon1_Phi = event.muon1.Phi();
 
-    fmt::print("Writing TTree - {}...", treename);
-    TList temp_list;
-    for (auto&& tree : out_trees) {
-        temp_list.Add(tree.get());
-    }
+      // Missing transverse momentum              
+      vars->met_Et   = event.met.Pt();
+      vars->met_Phi  = event.met.Phi();
 
-    output_file.cd();
-    TTree* signal_tree = TTree::MergeTrees(&temp_list);
-    if (!signal_tree) {
-        fmt::print("\nALL TREES EMPTY");
-        return;
-    }
-    signal_tree->SetName(treename);
-    signal_tree->Write("", TObject::kOverwrite);
-    fmt::print("\n");
+      tree->Fill();
+  
+    },
+    {"event" /*, "mc_sf"*/});
+
+  fmt::print("Writing TTree - {}...", treename);
+  TList temp_list;
+  for (auto&& tree : out_trees) {
+      temp_list.Add(tree.get());
+  }
+
+  output_file.cd();
+  TTree* signal_tree = TTree::MergeTrees(&temp_list);
+  if (!signal_tree) {
+      fmt::print("\nALL TREES EMPTY");
+      return;
+  }
+  signal_tree->SetName(treename);
+  signal_tree->Write("", TObject::kOverwrite);
+  fmt::print("\n");
 }
 
 #endif
+
