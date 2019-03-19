@@ -213,7 +213,9 @@ dihiggs find_higgs_cands_inter_boost(
       }
     }
   }
-
+  
+  higgs_cands.higgs2.p4 = bestPair.jet_1.p4 + bestPair.jet_2.p4;
+  
   // Order jets in bestPair by pT
   if ( bestPair.jet_2.p4.Pt() > bestPair.jet_1.p4.Pt() ) {
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
@@ -223,7 +225,7 @@ dihiggs find_higgs_cands_inter_boost(
     higgs_cands.higgs2.jets.push_back( bestPair.jet_1 );
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
   }
-
+  
   return higgs_cands;
 } // end intermediate & boosted 
 
