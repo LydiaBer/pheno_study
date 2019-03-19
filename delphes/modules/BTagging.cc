@@ -146,7 +146,10 @@ void BTagging::Process()
 
     // apply an efficiency formula
     jet->BTag |= (gRandom->Uniform() <= formula->Eval(pt, eta, phi, e)) << fBitNumber;
-
+    
+    // Store the b-tagging efficiency of the jet
+    jet->BTagWeight = formula->Eval(pt, eta, phi, e);
+    
     // find an efficiency formula for algo flavor definition
     itEfficiencyMap = fEfficiencyMap.find(jet->FlavorAlgo);
     if(itEfficiencyMap == fEfficiencyMap.end())
@@ -168,6 +171,7 @@ void BTagging::Process()
 
     // apply an efficiency formula
     jet->BTagPhys |= (gRandom->Uniform() <= formula->Eval(pt, eta, phi, e)) << fBitNumber;
+
   }
 }
 

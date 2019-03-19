@@ -123,7 +123,7 @@ Candidate::Candidate() :
   IsPU(0), IsRecoPU(0), IsConstituent(0), IsFromConversion(0),
   ClusterIndex(-1), ClusterNDF(0), ClusterSigma(0), SumPT2(0), BTVSumPT2(0), GenDeltaZ(0), GenSumPT2(0),
   Flavor(0), FlavorAlgo(0), FlavorPhys(0),
-  BTag(0), BTagAlgo(0), BTagPhys(0),
+  BTagWeight(0.0), BTag(0), BTagAlgo(0), BTagPhys(0),
   TauTag(0), Eem(0.0), Ehad(0.0),
   DeltaEta(0.0), DeltaPhi(0.0),
   Momentum(0.0, 0.0, 0.0, 0.0),
@@ -266,6 +266,7 @@ void Candidate::Copy(TObject &obj) const
   object.Flavor = Flavor;
   object.FlavorAlgo = FlavorAlgo;
   object.FlavorPhys = FlavorPhys;
+  object.BTagWeight = BTagWeight;
   object.BTag = BTag;
   object.BTagAlgo = BTagAlgo;
   object.BTagPhys = BTagPhys;
@@ -386,6 +387,7 @@ void Candidate::Clear(Option_t* option)
   Flavor = 0;
   FlavorAlgo = 0;
   FlavorPhys = 0;
+  BTagWeight = 0.0;
   BTag = 0;
   BTagAlgo = 0;
   BTagPhys = 0;
