@@ -35,17 +35,13 @@ from variables  import *
 from beautify   import *
 
 #--------------------------------------------------
-#
-# TODO matching dictionary temporary until we make new ntuples with low pT filter instead of matching
-# TODO implement auto cross-check of number of events for slicing dictionary to ensure this is kept up to date EXIT on mis-match!
-# TODO Could add back in cutflow part incl add_cut or needed in previous stage as have cuts affecting many jets, cut arrow, N-1
 # TODO Could add back in significance scan
 
 # Global settings
 
 # Labels
 GROUP_status = '#bf{#it{Pheno4b}} Internal'
-NTUP_status = "Samples: 13 Sep 2018"
+NTUP_status = ""#Samples: 13 Sep 2018"
 ENERGY_status = '14 TeV'
 
 # text size as percentage
@@ -61,27 +57,37 @@ def main():
   
   #================================================
   # user set values
-  dir = 'jesse_linked_delphes/varied_couplings' # directory input files to plot are in
-  dir = '280119/varied_couplings' # directory input files to plot are in
+  dir = 'jesse_linked_delphes' # directory input files to plot are in
+  dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
   dir = '280119' # directory input files to plot are in
 
-  l_vars     = ['m_hh']#,'m_h1','m_h2','pT_h1','pT_h2','eta_h1','eta_h2','phi_h1','phi_h2','pT_hh','dR_hh','deta_hh','dphi_hh']
-  l_analyses = ['resolved_slicedsamples']#'resolved_SlfCoup']#, 'resolved_noGenFilt']#, 'intermediate', 'intermediate_noGenFilt', 'boosted', 'boosted_noGenFilt'] # corresponds to sets of files in samples.py 
-  l_sig_regs = ['signal']#,'pre-selection'] # gets specific region from input ROOT file
+  ### ATLAS analysis xcheck
+  l_vars     = ['m_hh']     # corresponds to variable in variables.py
+  l_samples = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
+  l_sig_regs = ['signal']   # gets specific region from input ROOT file
+  cut_sel    = ['ntag4']     # corresponds to set of cuts in cuts.py 
+  ###
 
-  cut_sel = 'ntag4' # corresponds to set of cuts in cuts.py 
-  lumi    =  3000.0 
-  #lumi    =  24.3 
-  savedir = 'figs'+"/"+dir
+  ### Loose analysis plotting
+  l_vars     = ['m_hh','pT_h1']
+  l_samples  = ['loose','loose_kl','loose_kt']
+  l_sig_regs = ['preselection'] 
+  l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
+  ###
+
+  lumi    =  3000.0 #24.3 
   yield_var = "m_hh" # Will plot multiple variables but only want to save yield file for a single variable
 
+  UnitNorm = False
   IsLogY   = True
-  annotate_text = 'MC Pileup 0, No k-factors'
 
-  #FIXME slicing matching use nEvents not manual number
+  annotate_text = 'MC Pileup 0'#, No k-factors'
+  savedir = 'figs'+"/"+dir
+
+  # FIXME slicing matching use nEvents not manual number, can't if cuts applied to ntuples
 
   # Slicing weight (weight down by number of slices run over)
-  # Don't include resolved, intermediate, boosted etc. in key as depends on MC sample not analysis selection!  
+  # Don't include resolved, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
                'noGenFilt_bkg_ttbar_trackJetBTag' : 2100000./50000.,
@@ -107,6 +113,10 @@ def main():
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
+               'noGenFilt_bkg_zh_trackJetBTag': 1000000./50000.,
+               'noGenFilt_bkg_tth_trackJetBTag.root': 1000000./50000.,
+               'noGenFilt_bkg_wh_trackJetBTag.root': 1000000./50000.,
+               'noGenFilt_bkg_bbh_trackJetBTag.root': 999998./50000., # FIXME strange number of events, got from printout of file
                # Old sample names below for making comparison plots
                'loop_hh' : 100000./50000.,
                'noGenFilt_4b' : 1200000./50000.,
@@ -262,52 +272,59 @@ def main():
   
   # -------------------------------------------------------------
   # --------------
-  # LOOP over list of analyses l_analyses
+  # LOOP over list of samples l_samples
   # --------------
   
-  for analysis in l_analyses:
+  for analysis in l_samples:
   
     # --------------
     # LOOP over list of signal regions l_sig_regs:
     # --------------
     
     for sig_reg in l_sig_regs:
-    
-      # --------------
-      # LOOP over list of variables l_var
-      # --------------
-    
-      for var in l_vars:
-        # Convert maths characters in variables to valid file names
-        save_var = var
-        if '/' in var:
-          save_var = var.replace('/', 'Over', 1)
-        if '(' in var:
-          save_var = save_var.replace('(', '', 1)
-        if ')' in var:
-          save_var = save_var.replace(')', '', 1)
-        
-        print( '--------------------------------------------' )
-        print( '\nWelcome to plot.py\n' )
-        print( 'Plotting variable: {0}'.format(var) )
-        print( 'Selection region: {0}'.format(cut_sel) )
-        print( 'Normalising luminosity: {0}'.format(lumi) )
-        print( '\n--------------------------------------------\n' )
-        
-        mkdir(savedir) 
   
-        if cut_sel is '': 
-          save_name = savedir + '/{0}_{1}_{2}'.format(analysis, sig_reg, save_var)
-        else:
-          save_name = savedir + '/{0}_{1}_{2}_{3}'.format(analysis, sig_reg, save_var, cut_sel)
-   
-        if IsLogY: save_name += '_LogY'
-  
-        print_lumi = lumi # [1/fb]
-        print('Lumi to print: {0}'.format(print_lumi))
+      # --------------
+      # LOOP over list of cut selections in l_cut_sel:
+      # --------------
+    
+      for cut_sel in l_cut_sels:
+    
+        # --------------
+        # LOOP over list of variables l_var
+        # --------------
       
-        calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY)
-
+        for var in l_vars:
+          # Convert maths characters in variables to valid file names
+          save_var = var
+          if '/' in var:
+            save_var = var.replace('/', 'Over', 1)
+          if '(' in var:
+            save_var = save_var.replace('(', '', 1)
+          if ')' in var:
+            save_var = save_var.replace(')', '', 1)
+          
+          print( '--------------------------------------------' )
+          print( '\nWelcome to plot.py\n' )
+          print( 'Plotting variable: {0}'.format(var) )
+          print( 'Selection region: {0}'.format(cut_sel) )
+          print( 'Normalising luminosity: {0}'.format(lumi) )
+          print( '\n--------------------------------------------\n' )
+          
+          mkdir(savedir) 
+    
+          if cut_sel is '': 
+            save_name = savedir + '/{0}_{1}_{2}'.format(analysis, sig_reg, save_var)
+          else:
+            save_name = savedir + '/{0}_{1}_{2}_{3}'.format(analysis, sig_reg, save_var, cut_sel)
+     
+          if IsLogY: save_name += '_LogY'
+          if UnitNorm: save_name += '_UnitNorm'
+    
+          print_lumi = lumi # [1/fb]
+          print('Lumi to print: {0}'.format(print_lumi))
+        
+          calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY, UnitNorm)
+  
   tfinish = time.time()
   telapse = tfinish - t0
     
@@ -317,7 +334,7 @@ def main():
   print('--------------------------------------------------')
 
 #____________________________________________________________________________
-def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, l_print_cuts=[]):
+def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, UnitNorm = False, l_print_cuts=[]):
   '''
   Extract trees given a relevant variable
   '''
@@ -410,7 +427,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     # obtain sample attributes 
     sample_type = d_samp[samp]['type']
   
-    # Choose full path of sample by its type  
+    #lChoose full path of sample by its type  
     full_path = ''
     if sample_type == 'sig':
       l_color     = d_samp[samp]['l_color']
@@ -429,7 +446,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     d_files[samp] = TFile(full_path)
    
     # Get sample part of name for use in d_slicing_weight and d_matching_weight and d_k_factor
-    # i.e. remove resolved_, intermediate_ or boosted_ from name
+    # i.e. remove resolved_, boosted_ or loose_ from name
     l_samp_split = samp.split("_")[1:]
     no_ana_name_samp = '_'.join(l_samp_split)
 
@@ -494,11 +511,13 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   # ----------------------------------------------------------------- 
   # legend for bkg, signals and total bkg yield
   # ----------------------------------------------------------------- 
-  leg = mk_leg(0.57, 0.7, 0.95, 0.98, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  #leg = mk_leg(0.57, 0.7, 0.95, 0.98, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
   # legend with breakdown of background by sample
   d_bkg_leg = {}
   l_bkg_leg = ['samp1']
-  d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  #d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  d_bkg_leg['samp1'] = mk_leg(0.57, 0.55, 0.95, 0.75, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
 
   print('==============================================')
   # ----------------------------------------------------------------- 
@@ -541,7 +560,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   # ----------------------------------------------------------------- 
   # Proceed to plot
   plot_selections(var, hs, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, analysis, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter
-, annotate_text ,variable_bin, l_cuts, print_lumi, IsLogY)
+, annotate_text ,variable_bin, l_cuts, print_lumi, IsLogY, UnitNorm)
   # ----------------------------------------------------------------- 
   
   return nTotBkg
@@ -575,7 +594,6 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname
   # ========================================================= 
   t = f.Get(sig_reg)
   t.Project(hname + '_hist', var, cut_after )
-  #t.Project(hname + '_hist',sig_reg,cut_after )
 
   # =========================================================
   # perform integrals to find 
@@ -596,14 +614,14 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname
       h_AfterCut.SetBinContent(my_bin, 0.)
     
   nRaw = h_AfterCut.GetEntries()
-  print( 'hist.IntegralAndError() : sample {0} has integral {1:.3f} +/- {2:.3f}'.format( hname, nYield, nYieldErr ) )
+  #print( 'hist.IntegralAndError() : sample {0} has integral {1:.3f} +/- {2:.3f}'.format( hname, nYield, nYieldErr ) )
   # =========================================================
   
   return [h_AfterCut, nYield, nYieldErr, nRaw]
 
 
 #____________________________________________________________________________
-def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, analysis, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter, annotate_text, variable_bin, l_cuts, print_lumi, IsLogY=True):
+def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi, save_name, pc_sys, analysis, sig_reg, cut_sel, nTotBkg, l_sig, cutsAfter, annotate_text, variable_bin, l_cuts, print_lumi, IsLogY=True, UnitNorm = False):
   '''
   plots the variable var given input THStack h_bkg, one signal histogram and legend built
   makes a dat / bkg panel in lower part of figure
@@ -664,6 +682,8 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   # draw and decorate
   # draw elements
   if nTotBkg > 0.:
+    if UnitNorm and h_bkg.Integral() > 0.:
+      h_bkg.Scale(1.0/h_bkg.Integral()) 
     h_bkg.Draw('hist')
     customise_axes(h_bkg, xtitle, ytitle, 1.5, IsLogY, enlargeYaxis)
 
@@ -680,6 +700,8 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
     #    val = n*100./w
     #    d_hsig[samp].SetBinContent(i,val)
 
+    if UnitNorm and d_hsig[samp].Integral() > 0.:
+      d_hsig[samp].Scale(1.0/d_hsig[samp].Integral())
     d_hsig[samp].Draw('hist same') #e2 = error coloured band
     customise_axes(d_hsig[samp], xtitle, ytitle, 1.5, IsLogY, enlargeYaxis)
 
@@ -688,6 +710,9 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
     h_mcErr_clone = h_mcErr.Clone()
     h_mcErr_clone.SetFillColorAlpha(kWhite, 0)
     h_mcErr_clone.SetFillStyle(0)
+    if UnitNorm:
+      h_mcErr.Scale(1.0/h_mcErr.Integral())
+      h_mcErr_clone.Scale(1.0/h_mcErr_clone.Integral())
     h_mcErr.Draw('same e2')
     h_mcErr_clone.Draw('same hist')
   
@@ -719,7 +744,8 @@ def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, pr
   # Text for energy, lumi, region, ntuple status
   
   myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
-  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF, xqcut 30 GeV), ' + NTUP_status, text_size*0.6, kGray+1)
+  #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF, xqcut 30 GeV), ' + NTUP_status, text_size*0.6, kGray+1)
+  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
   myText(0.18, 0.82, GROUP_status, text_size, kBlack)
   myText(0.18, 0.77, '#sqrt{s}' + ' = {0}, {1}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
   if 'signal' in sig_reg:

@@ -25,6 +25,7 @@ def get_sample_paths(dir = ''):
   # Paths to ntuples # 
   TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
   #TOPPATH = '/data/atlas/atlasdata/beresford/jrf/hh4b_pheno/pheno_study/lydia-dev/pheno_study/analysis/outputs' 
+
   # Path to ntuples 
   bkg_path  = TOPPATH + '/' + dir
   sig_path  = TOPPATH + '/' + dir
@@ -48,141 +49,194 @@ def get_samples_to_plot(analysis = ''):
 
   l_samp_bkg = []
   l_samp_sig = []
+  
+  #------------------------------------
+  # Loose analysis
+  # Resolved:     n_large_jets  = 0
+  # Intermediate: n_large_jets >= 1
+  # Boosted:      n_large_jets >= 2
+  #------------------------------------
+
+  if analysis is 'loose':
+    l_samp_bkg = ['loose_noGenFilt_bkg_ttbar_trackJetBTag',
+                  'loose_ptj1_20_to_200_bkg_2b2j',
+                  'loose_ptj1_200_to_500_bkg_2b2j',
+                  'loose_ptj1_500_to_1000_bkg_2b2j',
+                  'loose_ptj1_1000_to_infty_bkg_2b2j',
+                  'loose_ptj1_20_to_200_bkg_4b',
+                  'loose_ptj1_200_to_500_bkg_4b',
+                  'loose_ptj1_500_to_1000_bkg_4b',
+                  'loose_ptj1_1000_to_infty_bkg_4b',
+                 ]
+
+    l_samp_sig = [
+                 #'loose_noGenFilt_4b',
+                 #'loose_ptj1_20_to_200_bkg_4b',
+                 'loose_noGenFilt_signal_hh_loop_sm_trackJetBTag',
+    ]
+
+
+  # Samples for kappa lambda coupling plot
+  if analysis is 'loose_kl':
+    l_samp_bkg = []
+
+    l_samp_sig = [
+                 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
+                 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
+                 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
+    ]
+
+  # Samples for kappa top coupling plot
+  if analysis is 'loose_kt':
+    l_samp_bkg = []
+
+    l_samp_sig = [
+                 'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0', 
+                 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
+                 'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0', 
+    ]
+
+
+
 
   #------------------------------------
   # Resolved analysis
   #------------------------------------
 
-  if analysis is 'resolved_slicedsamples':
-    l_samp_bkg = ['resolved_noGenFilt_bkg_ttbar_trackJetBTag',
-                  'resolved_ptj1_20_to_200_bkg_2b2j',
-                  'resolved_ptj1_200_to_500_bkg_2b2j',
-                  'resolved_ptj1_500_to_1000_bkg_2b2j',
-                  'resolved_ptj1_1000_to_infty_bkg_2b2j',
+  if analysis is 'resolved':
+    l_samp_bkg = [#'resolved_noGenFilt_bkg_ttbar_trackJetBTag',
+                  #'resolved_ptj1_20_to_200_bkg_2b2j',
+                  #'resolved_ptj1_200_to_500_bkg_2b2j',
+                  #'resolved_ptj1_500_to_1000_bkg_2b2j',
+                  #'resolved_ptj1_1000_to_infty_bkg_2b2j',
                   'resolved_ptj1_20_to_200_bkg_4b',
                   'resolved_ptj1_200_to_500_bkg_4b',
                   'resolved_ptj1_500_to_1000_bkg_4b',
                   'resolved_ptj1_1000_to_infty_bkg_4b',
-                  #'resolved_noGenFilt_4b',
                  ]
 
     l_samp_sig = [
-                 #'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0',
+                 #'resolved_noGenFilt_4b',
+                 #'resolved_ptj1_20_to_200_bkg_4b',
                  'resolved_noGenFilt_signal_hh_loop_sm_trackJetBTag',
     ]
 
-  # Samples for lambda coupling plot
-
-  if analysis is 'resolved_SlfCoup':
+  # Samples for kappa lambda coupling plot
+  if analysis is 'resolved_kl':
     l_samp_bkg = []
 
     l_samp_sig = [
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5', 
                  'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0', 
                  'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0', 
                  'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0', 
-                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0', 
     ]
 
-  # Samples with no generator pT filter
-
-  if analysis is 'resolved_noGenFilt':
-    l_samp_bkg = [
-                 'resolved_noGenFilt_2b2j',
-                 'resolved_noGenFilt_4b',
-                 'resolved_noGenFilt_4j',
-                 'resolved_noGenFilt_ttbar'
-      ]
+  # Samples for kappa top coupling plot
+  if analysis is 'resolved_kt':
+    l_samp_bkg = []
 
     l_samp_sig = [
-                 'resolved_loop_hh'
-    ]
-
-  # Samples with generator pT filter
-
-  if analysis is 'resolved':
-    l_samp_bkg = [
-                 'resolved_xpt200_2b2j',  
-                 'resolved_xpt200_4b',    
-                 'resolved_xpt200_4j',
-                 'resolved_noGenFilt_ttbar'
-      ]
-
-    l_samp_sig = [
-                 'resolved_loop_hh'
-    ]
-
-  #------------------------------------
-  # Intermediate analysis
-  #------------------------------------
-
-  # Samples with no generator pT filter
-
-  if analysis is 'intermediate_noGenFilt':
-    l_samp_bkg = [
-                 'intermediate_noGenFilt_2b2j',  
-                 'intermediate_noGenFilt_4b',    
-                 'intermediate_noGenFilt_4j',
-                 'intermediate_noGenFilt_ttbar'
-      ]
-
-    l_samp_sig = [
-                 'intermediate_loop_hh'
-    ]
-
-  # Samples with generator pT filter
-
-  if analysis is 'intermediate':
-    l_samp_bkg = [
-                 'intermediate_xpt200_2b2j',
-                 'intermediate_xpt200_4b',
-                 'intermediate_xpt200_4j',
-                 'intermediate_noGenFilt_ttbar'
-      ]
-
-    l_samp_sig = [
-                 'intermediate_loop_hh',
+                 'resolved_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0', 
+                 'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
+                 'resolved_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0', 
     ]
 
   #------------------------------------
   # Boosted analysis
   #------------------------------------
 
+  if analysis is 'boosted':
+    l_samp_bkg = ['boosted_noGenFilt_bkg_ttbar_trackJetBTag',
+                  'boosted_ptj1_20_to_200_bkg_2b2j',
+                  'boosted_ptj1_200_to_500_bkg_2b2j',
+                  'boosted_ptj1_500_to_1000_bkg_2b2j',
+                  'boosted_ptj1_1000_to_infty_bkg_2b2j',
+                  'boosted_ptj1_20_to_200_bkg_4b',
+                  'boosted_ptj1_200_to_500_bkg_4b',
+                  'boosted_ptj1_500_to_1000_bkg_4b',
+                  'boosted_ptj1_1000_to_infty_bkg_4b',
+                 ]
+
+    l_samp_sig = [
+                 'boosted_noGenFilt_signal_hh_loop_sm_trackJetBTag',
+    ]
+
+  # Samples for kappa lambda coupling plot
+  if analysis is 'boosted_kl':
+    l_samp_bkg = []
+
+    l_samp_sig = [
+                 'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
+                 'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
+                 'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
+    ]
+
+  # Samples for kappa top coupling plot
+  if analysis is 'boosted_kt':
+    l_samp_bkg = []
+
+    l_samp_sig = [
+                 'boosted_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0', 
+                 'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
+                 'boosted_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0', 
+    ]
+
+  # Old samples 
   # Samples with no generator pT filter
 
-  if analysis is 'boosted_noGenFilt':
-    l_samp_bkg = [
-                 'boosted_noGenFilt_2b2j',  
-                 'boosted_noGenFilt_4b',    
-                 'boosted_noGenFilt_4j',
-                 'boosted_noGenFilt_ttbar'
-      ]
+  #if analysis is 'resolved_noGenFilt':
+  #  l_samp_bkg = [
+  #               'resolved_noGenFilt_2b2j',
+  #               'resolved_noGenFilt_4b',
+  #               'resolved_noGenFilt_4j',
+  #               'resolved_noGenFilt_ttbar'
+  #    ]
 
-    l_samp_sig = [
-                 'boosted_loop_hh'
-    ]
+  #  l_samp_sig = [
+  #               'resolved_loop_hh'
+  #  ]
 
-  # Samples with generator pT filter
+  ## Samples with generator pT filter
 
-  if analysis is 'boosted':
-    l_samp_bkg = [
-                 'boosted_xpt200_2b2j',  
-                 'boosted_xpt200_4b',    
-                 'boosted_xpt200_4j',
-                 'boosted_noGenFilt_ttbar'
-      ]
+  #if analysis is 'resolved':
+  #  l_samp_bkg = [
+  #               'resolved_xpt200_2b2j',  
+  #               'resolved_xpt200_4b',    
+  #               'resolved_xpt200_4j',
+  #               'resolved_noGenFilt_ttbar'
+  #    ]
 
-    l_samp_sig = [
-                 'boosted_loop_hh'
-    ]
+  #  l_samp_sig = [
+  #               'resolved_loop_hh'
+  #  ]
+
+  # Samples with no generator pT filter
+
+  #if analysis is 'boosted_noGenFilt':
+  #  l_samp_bkg = [
+  #               'boosted_noGenFilt_2b2j',  
+  #               'boosted_noGenFilt_4b',    
+  #               'boosted_noGenFilt_4j',
+  #               'boosted_noGenFilt_ttbar'
+  #    ]
+
+  #  l_samp_sig = [
+  #               'boosted_loop_hh'
+  #  ]
+
+  ## Samples with generator pT filter
+
+  #if analysis is 'boosted':
+  #  l_samp_bkg = [
+  #               'boosted_xpt200_2b2j',  
+  #               'boosted_xpt200_4b',    
+  #               'boosted_xpt200_4j',
+  #               'boosted_noGenFilt_ttbar'
+  #    ]
+
+  #  l_samp_sig = [
+  #               'boosted_loop_hh'
+  #  ]
 
   return l_samp_bkg, l_samp_sig
 
@@ -243,11 +297,56 @@ def configure_samples():
   # -------------------------------------
   d_samp = {
     
+
+    #------------------------------------
+    # Loose analysis
+    #------------------------------------
+    
+    'loose_noGenFilt_signal_hh_loop_sm_trackJetBTag':{'type':'sig','leg':'HH','l_color':kRed+3 },
+
+    'loose_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'loose_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
+    'loose_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
+    'loose_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
+    'loose_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
+    'loose_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
+    'loose_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
+    'loose_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
+    'loose_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
+
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = 1','l_color':kRed },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
+
+    'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1','l_color':kRed }, 
+    'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
+    
     #------------------------------------
     # Resolved analysis
     #------------------------------------
-
+    
     'resolved_noGenFilt_signal_hh_loop_sm_trackJetBTag':{'type':'sig','leg':'HH','l_color':kRed+3 },
+
+    'resolved_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'resolved_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
+    'resolved_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
+    'resolved_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
+    'resolved_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
+    'resolved_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
+    'resolved_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
+    'resolved_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
+    'resolved_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
 
     'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
     'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = 1','l_color':kRed },
@@ -262,74 +361,85 @@ def configure_samples():
     'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
     'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
     'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
-    
-    'resolved_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.5','l_color':myDarkOrange },
 
-    'resolved_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'resolved_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
-    'resolved_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
-    'resolved_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
-    'resolved_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
-    'resolved_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
-    'resolved_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
-    'resolved_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
-    'resolved_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
-
-    # Old sample names below for making comparison plots
-
-    'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
-    'resolved_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
-    'resolved_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = 1','l_color':kRed },
-    'resolved_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
-    'resolved_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
-    'resolved_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
-    'resolved_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
-    'resolved_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
-    'resolved_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
-    'resolved_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
-    'resolved_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
-    'resolved_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
-    'resolved_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
-    'resolved_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
-    
-    'resolved_hh_TopYuk_0.5_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.5','l_color':myDarkOrange },
-
-    'resolved_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'resolved_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'resolved_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    'resolved_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'resolved_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'resolved_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'resolved_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    
-    #------------------------------------
-    # Intermediate analysis
-    #------------------------------------
-
-    'intermediate_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
-
-    'intermediate_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'intermediate_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'intermediate_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    'intermediate_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'intermediate_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'intermediate_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'intermediate_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'resolved_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
+    'resolved_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
 
     #------------------------------------
     # Boosted analysis
     #------------------------------------
     
-    'boosted_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
+    'boosted_noGenFilt_signal_hh_loop_sm_trackJetBTag':{'type':'sig','leg':'HH','l_color':kRed+3 },
 
-    'boosted_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'boosted_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'boosted_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
-    'boosted_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'boosted_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
-    'boosted_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
-    'boosted_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    'boosted_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    'boosted_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
+    'boosted_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
+    'boosted_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
+    'boosted_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
+    'boosted_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
+    'boosted_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
+    'boosted_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
+    'boosted_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
+
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = kt = 1','l_color':kRed },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
+
+    'boosted_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
+    'boosted_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
+    
     }
+    # Old sample names below for making comparison plots
+
+    #'resolved_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = 1','l_color':kRed },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
+    #'resolved_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
+    #'resolved_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
+    #'resolved_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
+    #
+    #'resolved_hh_TopYuk_0.5_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.5','l_color':myDarkOrange },
+
+    #'resolved_noGenFilt_4b':{'type':'sig', 'leg':'4b', 'l_color':myLightBlue},    
+    #'resolved_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    #'resolved_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    #'resolved_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    #'resolved_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    #'resolved_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    #'resolved_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+
+    ##------------------------------------
+    ## Boosted analysis
+    ##------------------------------------
+    #
+    #'boosted_loop_hh':{'type':'sig','leg':'HH','l_color':kRed+3 },
+
+    #'boosted_noGenFilt_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    #'boosted_noGenFilt_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    #'boosted_noGenFilt_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    #'boosted_noGenFilt_ttbar':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
+    #'boosted_xpt200_4b':{'type':'bkg', 'leg':'4b', 'f_color':myLightBlue},    
+    #'boosted_xpt200_2b2j':{'type':'bkg', 'leg':'2b2j', 'f_color':myLightGreen},
+    #'boosted_xpt200_4j':{'type':'bkg', 'leg':'4j', 'f_color':myLightOrange},    
+    #}
 
   return d_samp
 

@@ -25,28 +25,36 @@ def configure_cuts(var, cut_sel, print_cuts=True):
     '(ntag>3)',
   ]  
 
-  l_ntag3 = [
-    '(ntag>2)',
-  ]  
-  
-  l_ntag2 = [
-    '(ntag>1)',
-  ]  
+  l_SR_resolved = ['n_large_jets == 0',
+                   'n_bjets_in_higgs1 >= 2',
+                   'n_bjets_in_higgs2 >= 2',
+  ]
 
-  l_SR_1ibsmall_2ibtrk: ['n_large_jets == 1',
-                         'pT_h1 > 200',
-                         'n_small_jets >= 2',
-                         'n_assoc_track_jets >= 2',
-                         'n_assoc_track_tag >= 2',
-                         'n_small_tag >= 1'
-                         ]
+  l_SR_intermediate = ['n_large_jets == 1',
+                       'n_bjets_in_higgs1 >= 2',
+                       'n_bjets_in_higgs2 >= 2',
+  ]
+
+  l_SR_boosted = ['n_large_jets == 2',
+                  'n_bjets_in_higgs1 >= 2',
+                  'n_bjets_in_higgs2 >= 2',
+  ]
+
+  #jesse_intermediate: ['n_large_jets == 1',
+  #                       'pT_h1 > 200',
+  #                       'n_small_jets >= 2',
+  #                       'n_assoc_track_jets >= 2',
+  #                       'n_assoc_track_tag >= 2',
+  #                       'n_small_tag >= 1'
+  #                       ]
 
   # =============================================
   d_cuts = {
-    'ntag4'     : l_ntag4,
-    'ntag3'     : l_ntag3,
-    'ntag2'     : l_ntag2,
-    'SR-1ibsmall-2ibtrk' : l_SR_1ibsmall_2ibtrk,
+    'ntag4'        : l_ntag4,
+    'resolved'     : l_SR_resolved,
+    'intermediate' : l_SR_intermediate,
+    'boosted'      : l_SR_boosted,
+    #'SR-1ibsmall-2ibtrk' : l_SR_1ibsmall_2ibtrk,
   } 
   
   l_cuts = [''] 
