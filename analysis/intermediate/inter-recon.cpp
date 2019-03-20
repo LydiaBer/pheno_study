@@ -393,10 +393,10 @@ int main(int argc, char* argv[]) {
   write_tree(valid_evt, "preselection", output_file);
 
   // Write cutflow
-  Cutflow intermediate_cutflow("intermediate_cutflow", output_file);
-  intermediate_cutflow.add(u8"All", frame.Count());
-  intermediate_cutflow.add(u8"Preselection", valid_evt.Count());
-  intermediate_cutflow.write();
+  Cutflow loose_cutflow("loose_cutflow", output_file);
+  loose_cutflow.add(u8"All", frame.Count());
+  loose_cutflow.add(u8"Preselection", valid_evt.Count());
+  loose_cutflow.write();
 
   std::cout << "Finished processing events." << std::endl;
   return 0;
