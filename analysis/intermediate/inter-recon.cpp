@@ -260,7 +260,7 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // small jets vector
   std::vector<OxJet> sj_vec =
         view::zip_with(make_jet, smalljet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 4.5;
+            return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 2.5;
         });
   
   // track jets vector
