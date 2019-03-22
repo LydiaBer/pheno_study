@@ -47,6 +47,14 @@ ENERGY_status = '14 TeV'
 # text size as percentage
 text_size = 0.035
 
+# When lots of samples, put leg outside plot so less crowded
+legend_outside_plot = True
+
+# Do b-tag weighting rather than cutting away events
+# Impose 4 b-tags as weight rather than cutting away events 
+# (TODO: do 2 or 3-tag as options)
+do_BTagWeight = True
+
 #
 #--------------------------------------------------
 
@@ -60,6 +68,7 @@ def main():
   dir = 'jesse_linked_delphes' # directory input files to plot are in
   dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
   dir = '280119' # directory input files to plot are in
+  dir = '' 
 
   ### ATLAS analysis xcheck
   l_vars     = ['m_hh']     # corresponds to variable in variables.py
@@ -69,10 +78,12 @@ def main():
   ###
 
   ### Loose analysis plotting
-  l_vars     = ['m_hh','pT_h1']
-  l_samples  = ['loose','loose_kl','loose_kt']
+  #l_vars     = ['m_hh','pT_h1']
+  l_vars     = ['m_hh']
+  #l_samples  = ['loose','loose_kl','loose_kt']
+  l_samples  = ['loose']
   l_sig_regs = ['preselection'] 
-  l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
+  l_cut_sels = ['resolved']#, 'intermediate' ,'boosted'] 
   ###
 
   lumi    =  3000.0 #24.3 
@@ -90,15 +101,21 @@ def main():
   # Don't include resolved, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
-               'noGenFilt_bkg_ttbar_trackJetBTag' : 2100000./50000.,
-               'ptj1_20_to_200_bkg_2b2j': 1850000./50000.,
-               'ptj1_200_to_500_bkg_2b2j': 2000000./50000.,
-               'ptj1_500_to_1000_bkg_2b2j': 1850000./50000.,
-               'ptj1_1000_to_infty_bkg_2b2j': 1100000./50000.,
-               'ptj1_20_to_200_bkg_4b': 2000000./50000.,
-               'ptj1_200_to_500_bkg_4b': 2000000./50000.,
-               'ptj1_500_to_1000_bkg_4b': 1750000./50000.,
-               'ptj1_1000_to_infty_bkg_4b': 2000000./50000.,
+               'noGenFilt_bkg_ttbar_trackJetBTag'    : 2100000./50000.,
+               'noGenFilt_bkg_ttbb_trackJetBTag'     : 1000000./50000.,
+               'noGenFilt_bkg_tth_trackJetBTag.root' : 1000000./50000.,
+               'noGenFilt_bkg_bbh_trackJetBTag.root' : 999998./50000., # FIXME strange number of events, got from printout of file
+               'noGenFilt_bkg_wh_trackJetBTag.root'  : 1000000./50000.,
+               'noGenFilt_bkg_zh_trackJetBTag'       : 1000000./50000.,
+               'noGenFilt_bkg_zz_trackJetBTag'       : 1000000./50000.,
+               'ptj1_20_to_200_bkg_2b2j'     : 2000000./50000.,
+               'ptj1_200_to_500_bkg_2b2j'    : 2000000./50000.,
+               'ptj1_500_to_1000_bkg_2b2j'   : 2000000./50000.,
+               'ptj1_1000_to_infty_bkg_2b2j' : 1100000./50000.,
+               'ptj1_20_to_200_bkg_4b'       : 2000000./50000.,
+               'ptj1_200_to_500_bkg_4b'      : 2000000./50000.,
+               'ptj1_500_to_1000_bkg_4b'     : 2000000./50000.,
+               'ptj1_1000_to_infty_bkg_4b'   : 2000000./50000.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
@@ -113,10 +130,6 @@ def main():
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
-               'noGenFilt_bkg_zh_trackJetBTag': 1000000./50000.,
-               'noGenFilt_bkg_tth_trackJetBTag.root': 1000000./50000.,
-               'noGenFilt_bkg_wh_trackJetBTag.root': 1000000./50000.,
-               'noGenFilt_bkg_bbh_trackJetBTag.root': 999998./50000., # FIXME strange number of events, got from printout of file
                # Old sample names below for making comparison plots
                'loop_hh' : 100000./50000.,
                'noGenFilt_4b' : 1200000./50000.,
@@ -154,14 +167,20 @@ def main():
   d_matching_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 1.,
                'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
-               'ptj1_20_to_200_bkg_2b2j': 1.,
-               'ptj1_200_to_500_bkg_2b2j': 1.,
-               'ptj1_500_to_1000_bkg_2b2j': 1.,
-               'ptj1_1000_to_infty_bkg_2b2j': 1.,
-               'ptj1_20_to_200_bkg_4b': 1.,
-               'ptj1_200_to_500_bkg_4b': 1.,
-               'ptj1_500_to_1000_bkg_4b': 1.,
-               'ptj1_1000_to_infty_bkg_4b': 1.,
+               'noGenFilt_bkg_ttbb_trackJetBTag' : 1.,
+               'noGenFilt_bkg_tth_trackJetBTag' : 1.,
+               'noGenFilt_bkg_bbh_trackJetBTag' : 1.,
+               'noGenFilt_bkg_wh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zz_trackJetBTag'  : 1.,
+               'ptj1_20_to_200_bkg_2b2j'     : 1.,
+               'ptj1_200_to_500_bkg_2b2j'    : 1.,
+               'ptj1_500_to_1000_bkg_2b2j'   : 1.,
+               'ptj1_1000_to_infty_bkg_2b2j' : 1.,
+               'ptj1_20_to_200_bkg_4b'       : 1.,
+               'ptj1_200_to_500_bkg_4b'      : 1.,
+               'ptj1_500_to_1000_bkg_4b'     : 1.,
+               'ptj1_1000_to_infty_bkg_4b'   : 1.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -209,14 +228,20 @@ def main():
   d_k_factor = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26,
                'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
-               'ptj1_20_to_200_bkg_2b2j': 1.,
-               'ptj1_200_to_500_bkg_2b2j': 1.,
-               'ptj1_500_to_1000_bkg_2b2j': 1.,
-               'ptj1_1000_to_infty_bkg_2b2j': 1.,
-               'ptj1_20_to_200_bkg_4b': 1.,
-               'ptj1_200_to_500_bkg_4b': 1.,
-               'ptj1_500_to_1000_bkg_4b': 1.,
-               'ptj1_1000_to_infty_bkg_4b': 1.,
+               'noGenFilt_bkg_ttbb_trackJetBTag' : 1.,
+               'noGenFilt_bkg_tth_trackJetBTag' : 1.,
+               'noGenFilt_bkg_bbh_trackJetBTag' : 1.,
+               'noGenFilt_bkg_wh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zz_trackJetBTag'  : 1.,
+               'ptj1_20_to_200_bkg_2b2j'        : 1.,
+               'ptj1_200_to_500_bkg_2b2j'       : 1.,
+               'ptj1_500_to_1000_bkg_2b2j'      : 1.,
+               'ptj1_1000_to_infty_bkg_2b2j'    : 1.,
+               'ptj1_20_to_200_bkg_4b'          : 1.,
+               'ptj1_200_to_500_bkg_4b'         : 1.,
+               'ptj1_500_to_1000_bkg_4b'        : 1.,
+               'ptj1_1000_to_infty_bkg_4b'      : 1.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -509,15 +534,23 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   print('----------------------------------------------')
  
   # ----------------------------------------------------------------- 
-  # legend for bkg, signals and total bkg yield
+  # Legend for bkg, signals and total bkg yield
   # ----------------------------------------------------------------- 
   #leg = mk_leg(0.57, 0.7, 0.95, 0.98, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
-  leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
   # legend with breakdown of background by sample
   d_bkg_leg = {}
   l_bkg_leg = ['samp1']
+  if legend_outside_plot:
+    # Legend for signals
+    leg = mk_leg(0.64, 0.01, 0.88, 0.24, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.04)
+    # Legend for backgrounds
+    d_bkg_leg['samp1'] = mk_leg(0.64, 0.25, 0.88, 0.85, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.04)
+  else:
+    # Legend for signals
+    leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
+    # Legend for backgrounds
+    d_bkg_leg['samp1'] = mk_leg(0.57, 0.35, 0.95, 0.75, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
   #d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
-  d_bkg_leg['samp1'] = mk_leg(0.57, 0.55, 0.95, 0.75, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
 
   print('==============================================')
   # ----------------------------------------------------------------- 
@@ -580,7 +613,13 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname
   
   lumi     = lumifb * 1000 # convert to [pb^{-1}]
 
-  mc_weight = "mc_sf"
+  mc_weight = "mc_sf" # Delphes Event.Weight = xsec / (Nevents generated per chunck)
+
+  # Impose 4 b-tags as weight (TODO: do 2 or 3-tag as options)
+  if do_BTagWeight:
+    b_tag_weights = " * h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight"
+    mc_weight += b_tag_weights
+  
   if cutsAfter is '':
     cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(mc_weight, lumi, my_weight, matching_weight, k_factor, slicing_weight) 
   else:
@@ -630,7 +669,10 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   
   # gPad left/right margins
   gpLeft = 0.15
-  gpRight = 0.05
+  if legend_outside_plot:
+    gpRight = 0.37
+  else:
+    gpRight = 0.05
   gpTop = 0.08
   gpBot = 0.15
   #can  = TCanvas('','',1000,1000)

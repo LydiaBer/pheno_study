@@ -107,8 +107,8 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
       else:
         #ymax = 3 * 10 ** 4
         #ymin = 0.5
-        ymax = 3 * 10 ** 3
-        ymin = 0.005
+        ymax = 3 * 10 ** 8
+        ymin = 0.5
       hist.SetMaximum(ymax)
       hist.SetMinimum(ymin)
     else:
