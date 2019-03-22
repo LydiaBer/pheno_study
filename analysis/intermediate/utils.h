@@ -320,7 +320,7 @@ void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
 
       nElec_var[slot] = event.nElec;
       nMuon_var[slot] = event.nMuon;
-      mc_sf_var[slot]        = event.wgt;
+      mc_sf_var[slot] = event.wgt;
 
       // Di-Higgs system
       vars->m_hh    = (event.higgs1.p4 + event.higgs2.p4).M();

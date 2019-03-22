@@ -72,18 +72,18 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
 
   float lead_low = 0., lead_high = 0., sublead_low = 0., sublead_high = 0.;
 
-  // Try exact numbers from old code (https://arxiv.org/abs/1804.06174)
+  // Numbers from https://arxiv.org/abs/1804.06174 §5.1
   float m4j = (sj_vec[0].p4 + sj_vec[1].p4 + sj_vec[2].p4 + sj_vec[3].p4).M();
   if (m4j < 1250. * GeV) {
-      lead_low     = 360.    / (m4j / GeV) - 0.5;
-      lead_high    = 652.863 / (m4j / GeV) + 0.474449;
-      sublead_low  = 235.242 / (m4j / GeV) + 0.0162996;
-      sublead_high = 874.890 / (m4j / GeV) + 0.347137;
+      lead_low     = 360. / (m4j / GeV) - 0.5   ;
+      lead_high    = 653. / (m4j / GeV) + 0.475 ;
+      sublead_low  = 235. / (m4j / GeV) ;
+      sublead_high = 875. / (m4j / GeV) + 0.35  ;
   }
   else {
       lead_low     = sublead_low = 0.;
-      lead_high    = 0.9967394;
-      sublead_high = 1.047049;
+      lead_high    = 1.0;
+      sublead_high = 1.0;
   }
 
   // All possible combinations of forming two pairs of jets
@@ -254,13 +254,13 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // large jets vector
   std::vector<OxJet> lj_vec =
         view::zip_with(make_jet, largejet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 250. * GeV and std::abs(jet.p4.Eta()) < 2.5;
+            return jet.p4.Pt() >= 250. * GeV and std::abs(jet.p4.Eta()) < 2.0;
         });
   
   // small jets vector
   std::vector<OxJet> sj_vec =
         view::zip_with(make_jet, smalljet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 4.5;
+            return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 4.5;
         });
   
   // track jets vector
