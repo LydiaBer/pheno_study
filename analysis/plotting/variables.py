@@ -83,6 +83,9 @@ def configure_vars():
     'n_jets_in_higgs2'  : {'tlatex':'N(jets #in h_{2}^{cand})'          ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
     'n_bjets_in_higgs1' : {'tlatex':'N(b-tagged jets #in h_{1}^{cand})' ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
     'n_bjets_in_higgs2' : {'tlatex':'N(b-tagged jets #in h_{2}^{cand})' ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
+    
+    'nElec' : {'tlatex':'N(electrons)' ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
+    'nMuon' : {'tlatex':'N(muons)'     ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
 
     'm_hh'    : {'tlatex':'#it{m}_{hh}'               ,'units':'GeV','hXNbins':70,'hXmin':100,'hXmax':1500},
     'pT_hh'   : {'tlatex':'p_{T}(hh)'                 ,'units':'GeV','hXNbins':100,'hXmin':0,'hXmax':1000},

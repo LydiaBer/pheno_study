@@ -26,6 +26,7 @@ def configure_cuts(var, cut_sel, print_cuts=True):
   ]  
 
   l_SR_resolved = ['n_large_jets == 0',
+                   'n_small_jets >= 4',
                    #'n_bjets_in_higgs1 >= 2',
                    #'n_bjets_in_higgs2 >= 2',
   ]

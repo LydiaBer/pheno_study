@@ -80,7 +80,8 @@ def main():
   ### Loose analysis plotting
   #l_vars     = ['m_hh','pT_h1']
   l_vars     = ['m_hh']
-  #l_samples  = ['loose','loose_kl','loose_kt']
+  l_vars     = ['h1_Pt']
+  l_samples  = ['loose','loose_kl','loose_kt']
   l_samples  = ['loose']
   l_sig_regs = ['preselection'] 
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
@@ -286,14 +287,20 @@ def main():
   # -------------------------------------------------------------
   # Argument parser
   parser = argparse.ArgumentParser(description='Analyse background/signal TTrees and make plots.')
-  parser.add_argument('-l', '--lumi',      type=str, nargs='?', help='Float of integrated luminosity to normalise MC to.', default=lumi)
+  parser.add_argument('-l', '--lumi',    type=str, nargs='?', help='Float of integrated luminosity to normalise MC to.', default=lumi)
   parser.add_argument('-n', '--noLogY',  action='store_true', help='Do not draw log Y axis.')
+  parser.add_argument('-s', '--sig_reg', type=str, nargs='?', help='Signal region considered.')
+  parser.add_argument('-v', '--var',     type=str, nargs='?', help='Variable to plot.')
  
   args = parser.parse_args()
   if args.lumi:
     lumi = args.lumi
   if args.noLogY:
     IsLogY = False
+  if args.sig_reg:
+    l_sig_regs = [ args.sig_reg ] 
+  if args.var:
+    l_vars = [ args.var ] 
   
   # -------------------------------------------------------------
   # --------------
@@ -331,7 +338,8 @@ def main():
           print( '--------------------------------------------' )
           print( '\nWelcome to plot.py\n' )
           print( 'Plotting variable: {0}'.format(var) )
-          print( 'Selection region: {0}'.format(cut_sel) )
+          print( 'Selection region: {0}'.format(sig_reg) )
+          print( 'Kinematic regime: {0}'.format(cut_sel) )
           print( 'Normalising luminosity: {0}'.format(lumi) )
           print( '\n--------------------------------------------\n' )
           
