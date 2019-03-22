@@ -57,7 +57,7 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   #xax.SetTitleFont(13) # times
   
   xax.SetTitle(xtitle)
-  xax.SetTitleSize(text_size)
+  xax.SetTitleSize(text_size * 1.2)
   # top panel
   #if xtitle == '':
   #if 'Events' in ytitle:
@@ -87,8 +87,8 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
  
   
   yax.SetTitle(ytitle)
-  yax.SetTitleSize(text_size)
-  yax.SetTitleOffset(1.1)    
+  yax.SetTitleSize(text_size*1.2)
+  yax.SetTitleOffset(1.0) 
   
   yax.SetLabelOffset(0.015)
   yax.SetLabelSize(text_size - 7)
@@ -102,12 +102,12 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
     yax.SetNdivisions(505) 
     if IsLogY:
       if enlargeYaxis:
-        ymax = 10 ** 6
+        ymax = 10 ** 7
         ymin = 0.1
       else:
         #ymax = 3 * 10 ** 4
         #ymin = 0.5
-        ymax = 3 * 10 ** 8
+        ymax = 3 * 10 ** 10
         ymin = 0.5
       hist.SetMaximum(ymax)
       hist.SetMinimum(ymin)
@@ -132,12 +132,11 @@ def myText(x, y, text, tsize=0.03, color=kBlack, angle=0) :
   
   l = TLatex()
   l.SetTextSize(tsize)
+  l.SetTextFont(132)
   l.SetNDC()
   l.SetTextColor(color)
   l.SetTextAngle(angle)
-  l.DrawLatex(x,y,'#bf{' + text + '}')
-  l.SetTextFont(4)
-
+  l.DrawLatex(x,y, text )
 
 #____________________________________________________________________________
 def add_cut_arrow_to_plot(h_bkg, d_vars, var, hXmax, IsLogY):

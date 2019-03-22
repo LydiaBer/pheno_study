@@ -83,7 +83,7 @@ def main():
   #l_samples  = ['loose','loose_kl','loose_kt']
   l_samples  = ['loose']
   l_sig_regs = ['preselection'] 
-  l_cut_sels = ['resolved']#, 'intermediate' ,'boosted'] 
+  l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   ###
 
   lumi    =  3000.0 #24.3 
@@ -92,7 +92,7 @@ def main():
   UnitNorm = False
   IsLogY   = True
 
-  annotate_text = 'MC Pileup 0'#, No k-factors'
+  annotate_text = 'Pileup 0'#, No k-factors'
   savedir = 'figs'+"/"+dir
 
   # FIXME slicing matching use nEvents not manual number, can't if cuts applied to ntuples
@@ -103,9 +103,9 @@ def main():
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
                'noGenFilt_bkg_ttbar_trackJetBTag'    : 2100000./50000.,
                'noGenFilt_bkg_ttbb_trackJetBTag'     : 1000000./50000.,
-               'noGenFilt_bkg_tth_trackJetBTag.root' : 1000000./50000.,
-               'noGenFilt_bkg_bbh_trackJetBTag.root' : 999998./50000., # FIXME strange number of events, got from printout of file
-               'noGenFilt_bkg_wh_trackJetBTag.root'  : 1000000./50000.,
+               'noGenFilt_bkg_tth_trackJetBTag'      : 1000000./50000.,
+               'noGenFilt_bkg_bbh_trackJetBTag'      : 999998./50000., # FIXME strange number of events, got from printout of file
+               'noGenFilt_bkg_wh_trackJetBTag'       : 1000000./50000.,
                'noGenFilt_bkg_zh_trackJetBTag'       : 1000000./50000.,
                'noGenFilt_bkg_zz_trackJetBTag'       : 1000000./50000.,
                'ptj1_20_to_200_bkg_2b2j'     : 2000000./50000.,
@@ -542,9 +542,9 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   l_bkg_leg = ['samp1']
   if legend_outside_plot:
     # Legend for signals
-    leg = mk_leg(0.64, 0.01, 0.88, 0.24, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.04)
+    leg = mk_leg(0.64, 0.20, 0.88, 0.37, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
     # Legend for backgrounds
-    d_bkg_leg['samp1'] = mk_leg(0.64, 0.25, 0.88, 0.85, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.04)
+    d_bkg_leg['samp1'] = mk_leg(0.64, 0.38, 0.88, 0.90, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
   else:
     # Legend for signals
     leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
@@ -570,7 +570,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     h_mcErr.SetMarkerColorAlpha(kWhite, 0)
     h_mcErr.SetMarkerSize(0)
     #h_mcErr.SetMarkerColorAlpha(kWhite, 0)
-    leg.AddEntry(h_mcErr, 'Bkg Total ({0:.3g})'.format(nTotBkg), 'lf')
+    leg.AddEntry(h_mcErr, 'Bkg ({0:.3g}, {1})'.format(nTotBkg, int(nTotBkgRaw)), 'lf')
   # ----------------------------------------------------------------- 
   
   # ----------------------------------------------------------------- 
@@ -671,12 +671,13 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   gpLeft = 0.15
   if legend_outside_plot:
     gpRight = 0.37
+    can  = TCanvas('','',1200,800)
   else:
     gpRight = 0.05
+    can  = TCanvas('','',1000,800)
   gpTop = 0.08
-  gpBot = 0.15
+  gpBot = 0.18
   #can  = TCanvas('','',1000,1000)
-  can  = TCanvas('','',1000,800)
     
   d_vars = configure_vars()
   
@@ -785,21 +786,32 @@ def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, pr
   #
   # Text for energy, lumi, region, ntuple status
   
-  myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+  if legend_outside_plot:
+    myText(0.7, 0.92, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+  else:
+    myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
   #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF, xqcut 30 GeV), ' + NTUP_status, text_size*0.6, kGray+1)
-  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
-  myText(0.18, 0.82, GROUP_status, text_size, kBlack)
-  myText(0.18, 0.77, '#sqrt{s}' + ' = {0}, {1}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
+  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1', text_size*0.6, kGray+1)
+  myText(0.42, 0.84, GROUP_status, text_size*0.8, kBlack)
+  myText(0.18, 0.84, '#sqrt{s}' + ' = {0}, {1}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  
+  analysis = analysis.title()
+  cut_sel  = cut_sel.title()
+  if 'preselection' in sig_reg:
+    myText(0.18, 0.80, analysis+" "+cut_sel, text_size, kBlack) 
   if 'signal' in sig_reg:
-    myText(0.18, 0.73, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'control' in sig_reg:
-    myText(0.18, 0.73, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'sideband' in sig_reg:
-    myText(0.18, 0.73, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
   
   # Additional annotations
   if not annotate_text == '':
-    myText(0.18, 0.69, annotate_text, text_size*0.8, kGray+2) 
+    if do_BTagWeight:
+      annotate_text += ', N(b-tag) = 4'
+    myText(0.42, 0.80, annotate_text, text_size*0.8, kGray+2) 
   #
   #---------------------------------------------------------------
   
@@ -853,6 +865,7 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
   leg.SetBorderSize(0)
   leg.SetTextSize(txt_size)
   leg.SetNColumns(1)
+  leg.SetTextFont(132)
 
   # legend markers 
   d_legMk = {
