@@ -79,8 +79,8 @@ def main():
 
   ### Loose analysis plotting
   #l_vars     = ['m_hh','pT_h1']
-  l_vars     = ['m_hh']
   l_vars     = ['h1_Pt']
+  l_vars     = ['m_hh']
   l_samples  = ['loose','loose_kl','loose_kt']
   l_samples  = ['loose']
   l_sig_regs = ['preselection'] 
@@ -528,11 +528,14 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
       with open(yield_file, 'a') as f_out: 
         f_out.write('{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp]/my_weight,d_yieldErr[samp]/my_weight,d_raw[samp]))
         #print '{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp],d_yieldErr[samp],d_raw[samp])
-
-  f_out.close()
  
   errStatBkg = sqrt( nVarBkg ) # treat total statistical error as sum in quadrature of sample stat errors
   errTotBkg  = sqrt( errStatBkg**2 + (0.2 * nTotBkg) ** 2 )
+    
+  if var is yield_var:
+    with open(yield_file, 'a') as f_out: 
+      print('Writing total background count')
+      f_out.write( 'TotBkg,bkg,{0},{1},{2}\n'.format( nTotBkg, errTotBkg, nTotBkgRaw ) )
   
   print('errStatBkg: {0:.3f}, sqrtB: {1:.3f}, errTotBkg: {2:.3f}'.format(errStatBkg, sqrt(nTotBkg), errTotBkg))
 
