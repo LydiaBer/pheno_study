@@ -103,17 +103,25 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
    'h2_j2_dR',
    'h2_j1_j2_dR',
 
-   'elec1Pt',
-   'elec1Eta',
-   'elec1Phi',
-   'muon1Pt',
-   'muon1Eta',
-   'muon1Phi',
+   'elec1_Pt',
+   'elec1_Eta',
+   'elec1_Phi',
+   'muon1_Pt',
+   'muon1_Eta',
+   'muon1_Phi',
 
    'met_Et',
    'met_Phi',
     ]
-   
+  
+  my_vars = [
+   'elec1_Pt',
+   'elec1_Eta',
+   'elec1_Phi',
+   'muon1_Pt',
+   'muon1_Eta',
+   'muon1_Phi',
+  ] 
   script_name = 'torque_plot.sh'
   
   if doCondor:

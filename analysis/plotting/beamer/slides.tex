@@ -1,0 +1,122 @@
+\documentclass[10pt, aspectratio=169]{beamer}
+
+%\usetheme{metropolis}
+%\usepackage{xspace}
+%\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+%\usepackage{appendixnumberbeamer}
+
+\usepackage{booktabs}
+%\usepackage[scale=2]{ccicons}
+
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+%\definecolor{myBlue}{HTML}{1d91c0}
+%\definecolor{myOrange}{HTML}{e6550d}
+%\definecolor{myGreen}{HTML}{4daf4a}
+%\definecolor{myPurple}{HTML}{984ea3}
+
+\usepackage{pdfpages}
+%\usepackage{subcaption}
+%\captionsetup[subfigure]{labelformat=empty}
+%\setbeamercolor{frametitle}{bg=black}
+\setbeamercolor{background canvas}{bg=white}
+\setbeamerfont{title}{size=\Large}
+\setbeamerfont{frametitle}{size=\large}
+\setbeamertemplate{frame footer}{\textbf{HH4b Pheno} | 25 Mar 2018}
+\setbeamertemplate{footline}[frame number]
+\definecolor{links}{HTML}{346baa}
+\hypersetup{colorlinks,linkcolor=links,urlcolor=links}
+
+\title{\vspace{2cm}\textbf{HH4b Pheno }}
+\subtitle{}
+\date{\today}
+\author{\textbf{HH4b Pheno}}
+
+
+\begin{document}
+
+%\maketitle
+
+\begin{frame}
+
+{\mdseries \Huge HH4b Pheno}\\[0.2cm]
+{\mdseries \Large 22 March 2019 ntuples validation}\\[0.4cm]
+
+We present validation plots using ntuples produced for the HH4b Pheno project.
+
+\end{frame}
+
+
+\begin{frame}{ Summary of samples }
+\small
+\centering
+\begin{table}[]
+\centering
+\begin{tabular}{lllll}
+\toprule
+Process    & $p_\text{T}(j_1^\text{gen})$ [GeV] & $\sigma_\text{LO}^\text{MG}$ [pb] & $N_\text{events}^\text{gen} (\times 10^6)$ & $\mathcal{L}_\text{eff}$ [fb$^{-1}$] \\
+\midrule
+$2b2j$           & [20, 200]                & $2.3\times 10^4$                  & 2                                                & 0.087                                      \\
+$2b2j$           & [200, 500]               & $1.5 \times 10^3$                 & 2                                                & 1.3                                        \\
+$2b2j$           & [500, 1000]              & 35.3                              & 2                                                & 56.7                                       \\
+$2b2j$           & $>1000$                  & 0.706                             & 1.1                                              & 1560                                       \\
+\midrule
+$4b$             & [20, 200]                & 63.2                              & 2                                                & 31.7                                       \\
+$4b$             & [200, 500]               & 2.82                              & 2                                                & 710                                        \\
+$4b$             & [500, 1000]              & 0.041                             & 2                                                & $4.9 \times 10^4$                          \\
+$4b$             & $>1000$                  & $5.5\times 10^{-4}$               & 2                                                & $3.6 \times 10^6$                          \\
+\midrule
+$t\bar{t}$       & ---                      & 532                               & 2.1                                              & 3.95                                       \\
+$t\bar{t}+bb$    & ---                      & 2.7                               & 1.0    
+    & 370                                       \\
+    $t\bar{t}h$      & ---                      & 0.44                              & 1.0                                              & 2300                                       \\
+    $b\bar{b}h$      & ---                      & 0.076                             & 1.0                                              & $1.3\times 10^4$                           \\
+    \midrule
+    $ZZ$             & ---                      & 11.5                              & 1.0                                              & 87                                       \\
+    $Zh$             & ---                      & 0.72                              & 1.0                                              & 1400                                       \\
+    $Wh$             & ---                      & 1.4                               & 1.0                                              & 710                                       \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+
+\end{frame}
+
+\begin{frame}{ Summary of selection }
+\small
+\centering
+\begin{table}[]
+\centering
+\begin{tabular}{llll}
+\toprule
+Observable               & Common requirements              \\
+\midrule
+Large jet $j_L$          & \multicolumn{3}{l}{$R=1.0, p_\text{T}>250$~GeV, $|\eta| < 2.0$ }  \\
+Small jet $j_S$          & \multicolumn{3}{l}{$R=0.4, p_\text{T}>40$~GeV,  $|\eta| < 2.5$ } \\
+Track jet $j_T$          & \multicolumn{3}{l}{$R=0.2, p_\text{T}>20$~GeV,  $|\eta| < 2.5$ } \\
+$j_T \in j_L$            & \multicolumn{3}{l}{$\Delta R(j_T, j_L) < 1.0$  } \\
+$E_\text{T}^\text{miss}$ & \textcolor{red}{TODO $< 200$~GeV}     \\
+$N_\ell$                 & \textcolor{red}{TODO $=0$}            \\
+$p_\text{T}^\ell$        & $> 10$~GeV                       \\
+$|\eta_\ell|$            & $< 2.5$                          \\
+\midrule\midrule
+                         & Resolved                        & Intermediate                                 & Boosted                    \\
+\midrule
+$N(j_L)$                 & $=0$                            & $=1$                                         & $= 2$   \\
+$N(j_S)$                 & $\geq 4$                        & $\geq 2$                                     & $\geq 0$   \\
+$N(j_T)$                 & $\geq 0$                        & $\geq 1 \in j_L$                             & $\geq 1\in j_L$ \\
+$H_1^\text{cand}$        &  $\Delta R_{jj}$ as ATLAS paper & $j_L$                                        & $j_L^{(1)}$                     \\
+$H_2^\text{cand}$        &  $\Delta R_{jj}$ as ATLAS paper & $j_S^{(i)}, \Delta R(j_S^{(i)}, j_L) > 1.2$  & $j_L^{(2)}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+
+% Where we input all the plots
+\input{frames}
+
+
+\end{document}

@@ -96,8 +96,8 @@ def configure_vars():
 
     'h1_M'   : {'tlatex':'m(h_{1}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':200},
     'h1_Pt'  : {'tlatex':'p_{T}(h_{1}^{cand})'              ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':1000},
-    'h1_Eta' : {'tlatex':'#eta_{T}(h_{1}^{cand})'           ,'units':''   ,'hXNbins':50 ,'hXmin':-5  ,'hXmax':5},
-    'h1_Phi' : {'tlatex':'#phi_{T}(h_{1}^{cand})'           ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
+    'h1_Eta' : {'tlatex':'#eta(h_{1}^{cand})'               ,'units':''   ,'hXNbins':50 ,'hXmin':-5  ,'hXmax':5},
+    'h1_Phi' : {'tlatex':'#phi(h_{1}^{cand})'               ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
 
     'h1_j1_M'   : {'tlatex':'m(j_{1} #in h_{1}^{cand})'     ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':200},
     'h1_j1_Pt'  : {'tlatex':'p_{T}(j_{1} #in h_{1}^{cand})' ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':1000},
@@ -113,10 +113,10 @@ def configure_vars():
     'h1_j2_dR'    : {'tlatex':'#DeltaR(j_{2} #in h_{1}^{cand}, h_{1}^{cand})'           ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
     'h1_j1_j2_dR' : {'tlatex':'#DeltaR(j_{1} #in h_{1}^{cand}, j_{2} #in h_{1}^{cand})' ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
 
-    'h2_M'   : {'tlatex':'m(h_{2}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0,'hXmax':200},
-    'h2_Pt'  : {'tlatex':'p_{T}(h_{2}^{cand})'              ,'units':'GeV','hXNbins':100,'hXmin':0,'hXmax':1000},
-    'h2_Eta' : {'tlatex':'#eta_{T}(h_{2}^{cand})'           ,'units':''   ,'hXNbins':50 ,'hXmin':-5,'hXmax':5},
-    'h2_Phi' : {'tlatex':'#phi_{T}(h_{2}^{cand})'           ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
+    'h2_M'   : {'tlatex':'m(h_{2}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0,   'hXmax':200},
+    'h2_Pt'  : {'tlatex':'p_{T}(h_{2}^{cand})'              ,'units':'GeV','hXNbins':100,'hXmin':0,   'hXmax':1000},
+    'h2_Eta' : {'tlatex':'#eta(h_{2}^{cand})'               ,'units':''   ,'hXNbins':50 ,'hXmin':-5,  'hXmax':5},
+    'h2_Phi' : {'tlatex':'#phi(h_{2}^{cand})'               ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
 
     'h2_j1_M'   : {'tlatex':'m(j_{1} #in h_{2}^{cand})'     ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':200},
     'h2_j1_Pt'  : {'tlatex':'p_{T}(j_{1} #in h_{2}^{cand})' ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':1000},
@@ -132,10 +132,10 @@ def configure_vars():
     'h2_j2_dR'    : {'tlatex':'#DeltaR(j_{2} #in h_{2}^{cand}, h_{2}^{cand})'           ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
     'h2_j1_j2_dR' : {'tlatex':'#DeltaR(j_{1} #in h_{2}^{cand}, j_{2} #in h_{2}^{cand})' ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
     
-    'h1_j1_BTagWeight' : {'tlatex':'b-tag eff of j_{1} #in h_{1}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
-    'h1_j2_BTagWeight' : {'tlatex':'b-tag eff of j_{2} #in h_{1}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
-    'h2_j1_BTagWeight' : {'tlatex':'b-tag eff of j_{1} #in h_{2}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
-    'h2_j2_BTagWeight' : {'tlatex':'b-tag eff of j_{2} #in h_{2}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
+    'h1_j1_BTagWeight' : {'tlatex':'b-tag efficiency of j_{1} #in h_{1}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
+    'h1_j2_BTagWeight' : {'tlatex':'b-tag efficiency of j_{2} #in h_{1}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
+    'h2_j1_BTagWeight' : {'tlatex':'b-tag efficiency of j_{1} #in h_{2}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
+    'h2_j2_BTagWeight' : {'tlatex':'b-tag efficiency of j_{2} #in h_{2}^{cand}','units':'','hXNbins':100 ,'hXmin':0,'hXmax':1.0},
 
     'elec1_M'   : {'tlatex':'m_{e}'     ,'units':'GeV','hXNbins':20,'hXmin':0.0 ,'hXmax':1},
     'elec1_Pt'  : {'tlatex':'p_{T}(e)'  ,'units':'GeV','hXNbins':20,'hXmin':0.0 ,'hXmax':100},
