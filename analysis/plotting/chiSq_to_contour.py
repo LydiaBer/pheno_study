@@ -86,7 +86,7 @@ def main():
     for zCol in l_zCol: 
 
       in_file = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
-      out_file = 'contours/CHISQ_loose_preselection_{0}_{1}.csv'.format(cut_sel, zCol)
+      out_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_{1}.csv'.format(cut_sel, zCol)
       
       # ------------------------------------------------------
       # Now commence interpolation and contour extraction
@@ -140,7 +140,7 @@ def main():
       # Make diagnostic contour plot with numbers overlayed
       # ------------------------------------------------------
       print( 'Making contour plot with numbers overlayed' )
-      contour_ofile = out_file.replace('.csv', '_contz.pdf')
+      contour_ofile = out_file.replace('.csv', '.pdf')
       draw_contour_with_points(d_csv, contour_ofile, xCol, yCol, zCol, zThreshold, cut_sel, tgraph_cont, tg2d, d_axis_tlatex)
 
 #____________________________________________________________________________
@@ -409,7 +409,7 @@ def customise_axes(hist, xtitle, ytitle, ztitle, zmin=0, zmax=1):
   
   zax.SetTitle(ztitle)
   zax.SetTitleSize(text_size*1.2)
-  zax.SetTitleOffset(1.25)    
+  zax.SetTitleOffset(1.2)    
   #zax.SetNdivisions(-505) 
   
   zax.SetLabelOffset(0.01)
