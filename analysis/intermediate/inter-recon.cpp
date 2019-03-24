@@ -127,9 +127,8 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     pair_candidates.push_back( std::make_pair(higgs(h1, h1_j1, h1_j2, h1_jets), higgs(h2, h2_j1, h2_j2, h2_jets)) );
   }
 
+  // Choose pairing that minimises mass difference between 2 Higgs candidates
   if (pair_candidates.size() > 0 ) {
-    // more than one candidate pair -- determine which to use
-    // if there is only one candidate, this won't hurt anything
     auto elem = ranges::min_element(pair_candidates, ranges::ordered_less{}, [](auto&& cand) {
       const auto& higgs1 = cand.first;
       const auto& higgs2 = cand.second;
@@ -197,26 +196,22 @@ dihiggs find_higgs_cands_inter_boost(
     if (deltaR(lj_vec[0], j) > 1.2) jets_separated.push_back(j);
   }
   
-  // Get the pairing minimising relative mass difference (separated jets, large jet)
+  // Get the pairing minimising mass difference between separated jets and large jet
   JetPair bestPair;
-
-  if ( jets_separated.size() >= 2 ) {
-    if ( jets_separated.size() == 2 ) {
-      bestPair = make_pair(jets_separated[0], jets_separated[1]);
-    }
-    else {
-      for (auto j1 : jets_separated) {
-        for (auto j2 : jets_separated) {
-          JetPair thisPair = make_pair(j1, j2);
-          if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
-        }
+  for(unsigned int i = 0; i < jets_separated.size(); i++){
+    for(unsigned int j = i+1; j < jets_separated.size(); j++){
+      if(i == 0 && j == 1){
+        bestPair = make_pair(jets_separated.at(i), jets_separated.at(j));
+        continue;
       }
+      JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
+      if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
     }
   }
-  
+ 
   higgs_cands.higgs2.p4 = bestPair.jet_1.p4 + bestPair.jet_2.p4;
-  
-  // Order jets in bestPair by pT
+
+  // Order jets in bestPair by pT 
   if ( bestPair.jet_2.p4.Pt() > bestPair.jet_1.p4.Pt() ) {
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
     higgs_cands.higgs2.jets.push_back( bestPair.jet_1 );
@@ -225,7 +220,6 @@ dihiggs find_higgs_cands_inter_boost(
     higgs_cands.higgs2.jets.push_back( bestPair.jet_1 );
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
   }
-  
   return higgs_cands;
 } // end intermediate & boosted 
 
@@ -238,12 +232,15 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
                                 VecOps::RVec<HepMCEvent>& evt,      // Event
                                 VecOps::RVec<Electron>&   electron, // Electrons
                                 VecOps::RVec<Muon>&       muon,     // Muons
-                                VecOps::RVec<MissingET>&  met)      // MissingET 
+                                VecOps::RVec<MissingET>&  met,      // MissingET 
+                                int &NTotEvt  )  // Total events before cuts
                                 {
   
 
   reconstructed_event result{};
   dihiggs higgs_cands{};
+
+  std::cout << "NTotEvents: " << NTotEvt << std::endl;
 
   result.wgt = evt[0].Weight;
 
@@ -342,10 +339,10 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // Store leading leptons 
   electron.size() > 0
            ? result.elec1.SetPtEtaPhiM( electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511 )
-           : result.elec1.SetPtEtaPhiM( 0., 0., 0., 0. );
+           : result.elec1.SetPtEtaPhiM( -1., -9., -9., -1. );
   muon.size() > 0
            ? result.muon1.SetPtEtaPhiM(muon[0].PT, muon[0].Eta, muon[0].Phi, 0.106) 
-           : result.muon1.SetPtEtaPhiM(0., 0., 0., 0.);
+           : result.muon1.SetPtEtaPhiM(-1., -9., -9., -1.);
   
   // Store missing transverse momentum
   result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET );
@@ -390,7 +387,7 @@ int main(int argc, char* argv[]) {
   fmt::print("Writing to {}\n", output_path);
 
   TFile output_file(output_path.c_str(), "RECREATE"); 
-  write_tree(valid_evt, "preselection", output_file);
+  write_tree(valid_evt, "preselection", output_file );
 
   // Write cutflow
   Cutflow loose_cutflow("loose_cutflow", output_file);

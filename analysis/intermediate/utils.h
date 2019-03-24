@@ -203,8 +203,10 @@ struct out_format {
 };
 
 template <typename Proxied>
-void write_tree(ROOT::RDF::RInterface<Proxied>& result, const char* treename,
-              TFile& output_file /**< [out] Tree to write to */) {
+void write_tree(ROOT::RDF::RInterface<Proxied>& result, 
+                const char* treename,
+                TFile& output_file /**< [out] Tree to write to */
+                ) {
   using namespace std;
   using namespace ROOT::Experimental;
   namespace view = ranges::view;
