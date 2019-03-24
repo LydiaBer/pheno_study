@@ -232,15 +232,11 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
                                 VecOps::RVec<HepMCEvent>& evt,      // Event
                                 VecOps::RVec<Electron>&   electron, // Electrons
                                 VecOps::RVec<Muon>&       muon,     // Muons
-                                VecOps::RVec<MissingET>&  met,      // MissingET 
-                                int &NTotEvt  )  // Total events before cuts
+                                VecOps::RVec<MissingET>&  met)      // MissingET 
                                 {
-  
 
   reconstructed_event result{};
   dihiggs higgs_cands{};
-
-  std::cout << "NTotEvents: " << NTotEvt << std::endl;
 
   result.wgt = evt[0].Weight;
 
