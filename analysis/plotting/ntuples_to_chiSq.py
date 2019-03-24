@@ -17,7 +17,7 @@ from ROOT import *
 from cuts import *
   
 # Path to the intermediate ntuples
-SIG_PATH = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar22/merged_signals'
+SIG_PATH = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25/merged_signals'
 
 # Impose 4 b-tags as weights
 do_BTagWeight = True
@@ -38,7 +38,9 @@ def main():
   # Signal region (define in cuts.py)
   l_sig_regs = ['preselection'] 
   # Cut selections
-  l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
+  l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection',
+                'resolved-commonSR',     'intermediate-commonSR',     'boosted-commonSR',
+                'resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR' ] 
   #
   # -----------------------------------------------------------
 

@@ -25,7 +25,7 @@ def get_sample_paths(dir = ''):
   # Paths to ntuples # 
   #TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
   #TOPPATH = '/data/atlas/atlasdata/beresford/jrf/hh4b_pheno/pheno_study/lydia-dev/pheno_study/analysis/outputs' 
-  TOPPATH = '/home/jesseliu/pheno/fcc/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar22'
+  TOPPATH = '/home/jesseliu/pheno/fcc/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25'
 
   # Path to ntuples 
   bkg_path  = TOPPATH + '/' + dir
@@ -321,7 +321,7 @@ def configure_samples():
     'loose_noGenFilt_bkg_zh_trackJetBTag'   :{'type':'bkg', 'leg':'Zh',          'f_color':myLightOrange},    
     'loose_noGenFilt_bkg_wh_trackJetBTag'   :{'type':'bkg', 'leg':'Wh',          'f_color':myLighterOrange},    
     'loose_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'t#bar{t}',    'f_color':myDarkPurple},    
-    'loose_noGenFilt_bkg_ttbb_trackJetBTag' :{'type':'bkg', 'leg':'t#bar{t}+bb', 'f_color':myMediumPurple},    
+    'loose_noGenFilt_bkg_ttbb_trackJetBTag' :{'type':'bkg', 'leg':'t#bar{t}+b#bar{b}', 'f_color':myMediumPurple},    
     'loose_noGenFilt_bkg_tth_trackJetBTag'  :{'type':'bkg', 'leg':'t#bar{t}h',   'f_color':myLightPurple},    
     'loose_noGenFilt_bkg_bbh_trackJetBTag'  :{'type':'bkg', 'leg':'b#bar{b}h',   'f_color':myLightPink},    
   

@@ -85,6 +85,9 @@ def main():
   l_samples  = ['loose']
   l_sig_regs = ['preselection'] 
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
+  l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR'] 
+  l_cut_sels = ['resolved-preselection']#, 'intermediate-preselection' ,'boosted-preselection'] 
   ###
 
   lumi    =  3000.0 #24.3 
@@ -289,7 +292,7 @@ def main():
   parser = argparse.ArgumentParser(description='Analyse background/signal TTrees and make plots.')
   parser.add_argument('-l', '--lumi',    type=str, nargs='?', help='Float of integrated luminosity to normalise MC to.', default=lumi)
   parser.add_argument('-n', '--noLogY',  action='store_true', help='Do not draw log Y axis.')
-  parser.add_argument('-s', '--sig_reg', type=str, nargs='?', help='Signal region considered.')
+  parser.add_argument('-s', '--cut_sel', type=str, nargs='?', help='Selection cuts considered.')
   parser.add_argument('-v', '--var',     type=str, nargs='?', help='Variable to plot.')
  
   args = parser.parse_args()
@@ -297,8 +300,8 @@ def main():
     lumi = args.lumi
   if args.noLogY:
     IsLogY = False
-  if args.sig_reg:
-    l_sig_regs = [ args.sig_reg ] 
+  if args.cut_sel:
+    l_cut_sels = [ args.cut_sel ] 
   if args.var:
     l_vars = [ args.var ] 
   
@@ -445,8 +448,9 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   # ----------------------------------------------------------------- 
 
   yield_file = savedir + '/YIELD_{0}_{1}_{2}.txt'.format(analysis, sig_reg, cut_sel)
-  with open(yield_file, 'w') as f_out: 
-    f_out.write('sample,sample_type,yield,yieldErr,raw\n')
+  if var is yield_var:
+    with open(yield_file, 'w') as f_out: 
+      f_out.write('sample,sample_type,yield,yieldErr,raw\n')
 
   # ----------------------------------------------------------------- 
   #
@@ -805,12 +809,13 @@ def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, pr
   #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
   myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1', text_size*0.6, kGray+1)
   myText(0.42, 0.84, GROUP_status, text_size*0.8, kBlack)
-  myText(0.18, 0.84, '#sqrt{s}' + ' = {0}, {1}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  myText(0.18, 0.84, '#sqrt{s}' + ' = {0}, {1:.0f}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
   
   analysis = analysis.title()
-  cut_sel  = cut_sel.title()
+  cut_name = cut_sel.split('-')
+  cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1] 
   if 'preselection' in sig_reg:
-    myText(0.18, 0.80, analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, cut_txt, text_size, kBlack) 
   if 'signal' in sig_reg:
     myText(0.18, 0.80, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'control' in sig_reg:
