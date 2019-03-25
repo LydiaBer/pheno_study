@@ -86,8 +86,7 @@ def main():
   l_sig_regs = ['preselection'] 
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR'] 
-  l_cut_sels = ['resolved-preselection']#, 'intermediate-preselection' ,'boosted-preselection'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR', 'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   ###
 
   lumi    =  3000.0 #24.3 

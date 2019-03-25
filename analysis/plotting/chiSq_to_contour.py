@@ -56,7 +56,7 @@ def main():
             'chiSqSyst5pc'
             ]
   
-  l_zCol = ['chiSq']
+  l_zCol = ['chiSqSyst1pc']
   
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points

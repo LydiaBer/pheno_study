@@ -43,8 +43,16 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
 
   submit = True
 
-  sig_regs = [
-  'preselection',
+  cut_sels = [
+  'resolved-preselection',
+  'intermediate-preselection',
+  'boosted-preselection',
+  #'resolved-commonSR',
+  #'intermediate-commonSR',
+  #'boosted-commonSR',
+  'resolved-finalSR',
+  'intermediate-finalSR',
+  'boosted-finalSR',
   ]
 
   my_vars = [
@@ -114,14 +122,6 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
    'met_Phi',
     ]
   
-  my_vars = [
-   'elec1_Pt',
-   'elec1_Eta',
-   'elec1_Phi',
-   'muon1_Pt',
-   'muon1_Eta',
-   'muon1_Phi',
-  ] 
   script_name = 'torque_plot.sh'
   
   if doCondor:
@@ -129,7 +129,7 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
     with open('sig_reg_var.txt', 'w') as f_sr_var:
       for var in my_vars:
         for sigReg in sig_regs:
-          f_sr_var.write( '{0} {1}\n'.format(sigReg, var) )
+          f_sr_var.write( '{0} {1}\n'.format(cut_sel, var) )
 
     if submit:
       cmd = 'condor_submit condor_plot.sub'
@@ -137,9 +137,9 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
 
   if doTorque:
     for var in my_vars:
-      for sigReg in sig_regs:    
-        print('sig_reg: {0}, var: {1}'.format(sigReg, var) )
-        cmd   = "qsub -l walltime=01:59:00 -l cput=01:59:00 -v VARIABLE='{0}',SIGREG='{1}' {2}".format(var, sigReg, script_name)
+      for cut_sel in cut_sels:    
+        print('cut_sel: {0}, var: {1}'.format(cut_sel, var) )
+        cmd   = "qsub -l walltime=01:59:00 -l cput=01:59:00 -v VARIABLE='{0}',CUTSEL='{1}' {2}".format(var, cut_sel, script_name)
         #cmd   = "qsub -l walltime=15:59:00 -l cput=15:59:00 -v var='{0}',sig_reg='{1}' {2}".format(var, sigReg, script_name)
         if submit:
           os.system(cmd)

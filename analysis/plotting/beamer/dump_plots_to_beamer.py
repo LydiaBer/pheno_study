@@ -32,10 +32,12 @@ import os
 def main():
 
   #---------------------------------------------------
-  # Signal regions consider
+  # Cut selections to consider
   #---------------------------------------------------
-  sig_regs = [
-    'preselection'
+  cut_sels = [
+    'preselection',
+    #'commonSR',
+    'finalSR',
    ]
 
   #---------------------------------------------------
@@ -113,7 +115,7 @@ def main():
   #----------------------------------------------------
   # Make beamer frames, loop over (regions, variables)
   #----------------------------------------------------
-  for reg in sig_regs:
+  for reg in cut_sels:
     print('Making title frame for {0}'.format(reg))
     frame_tex += mk_reg_frame(reg)
     for var in my_vars:
@@ -160,12 +162,12 @@ def make_latex(var):
    'h1_j1_Pt'             : r'$p_\text{T}(j_1 \in h_1^\text{cand})$',
    'h1_j1_Eta'            : r'$\eta(j_1 \in h_1^\text{cand})$',
    'h1_j1_Phi'            : r'$\phi(j_1 \in h_1^\text{cand})$',
-   'h1_j1_BTagWeight'     : r'b-tag efficiency of $j_1 \in h_1^\text{cand})$',
+   'h1_j1_BTagWeight'     : r'b-tag efficiency of $j_1 \in h_1^\text{cand}$',
    'h1_j2_M'              : r'$m(j_2 \in h_1^\text{cand})$',
    'h1_j2_Pt'             : r'$p_\text{T}(j_2 \in h_1^\text{cand})$',
    'h1_j2_Eta'            : r'$\eta(j_2 \in h_1^\text{cand})$',
    'h1_j2_Phi'            : r'$\phi(j_2 \in h_1^\text{cand})$',
-   'h1_j2_BTagWeight'     : r'b-tag efficiency of $j_2 \in h_1^\text{cand})$',
+   'h1_j2_BTagWeight'     : r'b-tag efficiency of $j_2 \in h_1^\text{cand}$',
    'h1_j1_dR'             : r'$\Delta R(j_1 \in h_1^\text{cand}, h_1^\text{cand})$',
    'h1_j2_dR'             : r'$\Delta R(j_2 \in h_1^\text{cand}, h_1^\text{cand})$',
    'h1_j1_j2_dR'          : r'$\Delta R(j_1 \in h_1^\text{cand}, j_2 \in h_1^\text{cand})$',
@@ -226,9 +228,9 @@ def mk_frame(reg, var):
   Return a beamer frame for the region and variable specified
   '''
 
-  fig_1 = r'\includegraphics[width=1.1\textwidth]{../figs/loose_' + reg + '_' + var + '_resolved_LogY}'
-  fig_2 = r'\includegraphics[width=1.1\textwidth]{../figs/loose_' + reg + '_' + var + '_intermediate_LogY}'
-  fig_3 = r'\includegraphics[width=1.1\textwidth]{../figs/loose_' + reg + '_' + var + '_boosted_LogY}'
+  fig_1 = r'\includegraphics[width=1.1\textwidth]{../figs/loose_preselection_' + var + '_resolved-' + reg + '_LogY}'
+  fig_2 = r'\includegraphics[width=1.1\textwidth]{../figs/loose_preselection_' + var + '_intermediate-' + reg + '_LogY}'
+  fig_3 = r'\includegraphics[width=1.1\textwidth]{../figs/loose_preselection_' + var + '_boosted-' + reg + '_LogY}'
 
   col1_head = r'''
 %--------------------------------------
