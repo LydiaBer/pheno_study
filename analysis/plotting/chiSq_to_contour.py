@@ -56,8 +56,6 @@ def main():
             'chiSqSyst5pc'
             ]
   
-  l_zCol = ['chiSqSyst1pc']
-  
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
   # ------------------------------------------------------
@@ -66,18 +64,18 @@ def main():
   # ------------------------------------------------------
   # Set column headers of in_file CSV we want to plot
   # ------------------------------------------------------
-   
+
   d_axis_tlatex = {
-    'acceptance'        : 'Acceptance #times efficiency (S / #sigma #times L)',
-    'N_sig'             : 'Signal yield',
-    'N_sig_raw'         : 'Raw signal yield',
-    'SoverB'            : 'S / B',
-    'SoverSqrtB'        : 'S / #sqrt{B}',
-    'SoverSqrtBSyst1pc' : 'S / #sqrt{B + (1%B)^{2}}',
-    'SoverSqrtBSyst5pc' : 'S / #sqrt{B + (5%B)^{2}}',
-    'chiSq'             : '#chi^{2} = (S #minus S_{SM})^{2} / B',
-    'chiSqSyst1pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
-    'chiSqSyst5pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})',
+    'acceptance'        : {'zMin':1e-5,  'zMax':1e-1, 'palette':'kBird', 'tlatex':'Acceptance #times efficiency (S / #sigma #times L)'},
+    'N_sig'             : {'zMin':0.1,   'zMax':1e3, 'palette':'kBird', 'tlatex':'Signal yield'},
+    'N_sig_raw'         : {'zMin':100,   'zMax':1e5, 'palette':'kBird', 'tlatex':'Raw signal yield'},
+    'SoverB'            : {'zMin':1e-5,   'zMax':1,  'palette':'kBird', 'tlatex':'S / B'},
+    'SoverSqrtB'        : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B}'},
+    'SoverSqrtBSyst1pc' : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B + (1%B)^{2}}'},
+    'SoverSqrtBSyst5pc' : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B + (5%B)^{2}}'},
+    'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} = (S #minus S_{SM})^{2} / B'},
+    'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
+    'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
   }
 
   xCol, yCol = 'SlfCoup', 'TopYuk'
@@ -112,7 +110,7 @@ def main():
       # ------------------------------------------------------
       # First convert the csv file into a TGraph 2D
       # ------------------------------------------------------
-      zMin = 0.001 # minimum z value to plot
+      zMin = d_axis_tlatex[zCol]['zMin']
       tg2d = csv_to_graph( d_csv, xCol, yCol, zCol, zMin )
       
       # ------------------------------------------------------
@@ -177,14 +175,16 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   process = 'hh #rightarrow 4b'
   xtitle = '#kappa_{#lambda} = #lambda_{hhh} / #lambda_{hhh}^{SM}'
   ytitle = '#kappa_{top} = #it{y}_{top} / #it{y}_{top}^{SM}'
-  ztitle = d_axis_tlatex[zCol]
- 
+  ztitle = d_axis_tlatex[zCol]['tlatex']
+  zMin = d_axis_tlatex[zCol]['zMin']
+  zMax = d_axis_tlatex[zCol]['zMax']
+  palette = d_axis_tlatex[zCol]['palette']  
   # Format some text 
-  #gStyle.SetPalette(kBird)
-  gStyle.SetPalette(kTemperatureMap)
-  #gStyle.SetPalette(kViridis)
+  if palette == 'kBird'           : gStyle.SetPalette(kBird)
+  if palette == 'kTemperatureMap' : gStyle.SetPalette(kTemperatureMap)
+  if palette == 'kViridis'        : gStyle.SetPalette(kViridis)
   customise_gPad()
-  customise_axes(hist, xtitle, ytitle, ztitle)
+  customise_axes(hist, xtitle, ytitle, ztitle, zMin, zMax)
 
   #-------------------------------------------------
   # Plot points on top
@@ -215,7 +215,7 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   # Draw values as text for points
   #-------------------------------------------------
   for x_val, y_val, z_val in zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) :
-    myText( float(x_val), float(y_val), '{0:.2f}'.format( float(z_val) ), 0.01, kBlack, 0, False)
+    myText( float(x_val), float(y_val), '{0:.3g}'.format( float(z_val) ), 0.01, kBlack, 0, False)
   
   #-------------------------------------------------
   # Construct and add plots to legend
@@ -403,9 +403,9 @@ def customise_axes(hist, xtitle, ytitle, ztitle, zmin=0, zmax=1):
   zax.SetTitleFont(132)
   zax.CenterTitle()
  
-  #zax.SetRangeUser(zmin, zmax)
+  zax.SetRangeUser(zmin, zmax)
   #zax.SetRangeUser(0.001, 3.5)
-  zax.SetRangeUser(0.001, 1000)
+  #zax.SetRangeUser(0.001, 1000)
   
   zax.SetTitle(ztitle)
   zax.SetTitleSize(text_size*1.2)
