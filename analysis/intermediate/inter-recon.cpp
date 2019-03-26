@@ -72,18 +72,18 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
 
   float lead_low = 0., lead_high = 0., sublead_low = 0., sublead_high = 0.;
 
-  // Try exact numbers from old code (https://arxiv.org/abs/1804.06174)
+  // Numbers from https://arxiv.org/abs/1804.06174 §5.1
   float m4j = (sj_vec[0].p4 + sj_vec[1].p4 + sj_vec[2].p4 + sj_vec[3].p4).M();
   if (m4j < 1250. * GeV) {
-      lead_low     = 360.    / (m4j / GeV) - 0.5;
-      lead_high    = 652.863 / (m4j / GeV) + 0.474449;
-      sublead_low  = 235.242 / (m4j / GeV) + 0.0162996;
-      sublead_high = 874.890 / (m4j / GeV) + 0.347137;
+      lead_low     = 360. / (m4j / GeV) - 0.5   ;
+      lead_high    = 653. / (m4j / GeV) + 0.475 ;
+      sublead_low  = 235. / (m4j / GeV) ;
+      sublead_high = 875. / (m4j / GeV) + 0.35  ;
   }
   else {
       lead_low     = sublead_low = 0.;
-      lead_high    = 0.9967394;
-      sublead_high = 1.047049;
+      lead_high    = 1.0;
+      sublead_high = 1.0;
   }
 
   // All possible combinations of forming two pairs of jets
@@ -127,9 +127,8 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     pair_candidates.push_back( std::make_pair(higgs(h1, h1_j1, h1_j2, h1_jets), higgs(h2, h2_j1, h2_j2, h2_jets)) );
   }
 
+  // Choose pairing that minimises mass difference between 2 Higgs candidates
   if (pair_candidates.size() > 0 ) {
-    // more than one candidate pair -- determine which to use
-    // if there is only one candidate, this won't hurt anything
     auto elem = ranges::min_element(pair_candidates, ranges::ordered_less{}, [](auto&& cand) {
       const auto& higgs1 = cand.first;
       const auto& higgs2 = cand.second;
@@ -197,26 +196,22 @@ dihiggs find_higgs_cands_inter_boost(
     if (deltaR(lj_vec[0], j) > 1.2) jets_separated.push_back(j);
   }
   
-  // Get the pairing minimising relative mass difference (separated jets, large jet)
+  // Get the pairing minimising mass difference between separated jets and large jet
   JetPair bestPair;
-
-  if ( jets_separated.size() >= 2 ) {
-    if ( jets_separated.size() == 2 ) {
-      bestPair = make_pair(jets_separated[0], jets_separated[1]);
-    }
-    else {
-      for (auto j1 : jets_separated) {
-        for (auto j2 : jets_separated) {
-          JetPair thisPair = make_pair(j1, j2);
-          if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
-        }
+  for(unsigned int i = 0; i < jets_separated.size(); i++){
+    for(unsigned int j = i+1; j < jets_separated.size(); j++){
+      if(i == 0 && j == 1){
+        bestPair = make_pair(jets_separated.at(i), jets_separated.at(j));
+        continue;
       }
+      JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
+      if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
     }
   }
-  
+ 
   higgs_cands.higgs2.p4 = bestPair.jet_1.p4 + bestPair.jet_2.p4;
-  
-  // Order jets in bestPair by pT
+
+  // Order jets in bestPair by pT 
   if ( bestPair.jet_2.p4.Pt() > bestPair.jet_1.p4.Pt() ) {
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
     higgs_cands.higgs2.jets.push_back( bestPair.jet_1 );
@@ -225,7 +220,6 @@ dihiggs find_higgs_cands_inter_boost(
     higgs_cands.higgs2.jets.push_back( bestPair.jet_1 );
     higgs_cands.higgs2.jets.push_back( bestPair.jet_2 );
   }
-  
   return higgs_cands;
 } // end intermediate & boosted 
 
@@ -240,7 +234,6 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
                                 VecOps::RVec<Muon>&       muon,     // Muons
                                 VecOps::RVec<MissingET>&  met)      // MissingET 
                                 {
-  
 
   reconstructed_event result{};
   dihiggs higgs_cands{};
@@ -254,13 +247,13 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // large jets vector
   std::vector<OxJet> lj_vec =
         view::zip_with(make_jet, largejet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 250. * GeV and std::abs(jet.p4.Eta()) < 2.5;
+            return jet.p4.Pt() >= 250. * GeV and std::abs(jet.p4.Eta()) < 2.0;
         });
   
   // small jets vector
   std::vector<OxJet> sj_vec =
         view::zip_with(make_jet, smalljet) | view::filter([](const auto& jet) {
-            return jet.p4.Pt() >= 20. * GeV and std::abs(jet.p4.Eta()) < 4.5;
+            return jet.p4.Pt() >= 40. * GeV and std::abs(jet.p4.Eta()) < 2.5;
         });
   
   // track jets vector
@@ -342,10 +335,10 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
   // Store leading leptons 
   electron.size() > 0
            ? result.elec1.SetPtEtaPhiM( electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511 )
-           : result.elec1.SetPtEtaPhiM( 0., 0., 0., 0. );
+           : result.elec1.SetPtEtaPhiM( -1., -9., -9., -1. );
   muon.size() > 0
            ? result.muon1.SetPtEtaPhiM(muon[0].PT, muon[0].Eta, muon[0].Phi, 0.106) 
-           : result.muon1.SetPtEtaPhiM(0., 0., 0., 0.);
+           : result.muon1.SetPtEtaPhiM(-1., -9., -9., -1.);
   
   // Store missing transverse momentum
   result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET );
@@ -390,7 +383,7 @@ int main(int argc, char* argv[]) {
   fmt::print("Writing to {}\n", output_path);
 
   TFile output_file(output_path.c_str(), "RECREATE"); 
-  write_tree(valid_evt, "preselection", output_file);
+  write_tree(valid_evt, "preselection", output_file );
 
   // Write cutflow
   Cutflow loose_cutflow("loose_cutflow", output_file);

@@ -47,6 +47,14 @@ ENERGY_status = '14 TeV'
 # text size as percentage
 text_size = 0.035
 
+# When lots of samples, put leg outside plot so less crowded
+legend_outside_plot = True
+
+# Do b-tag weighting rather than cutting away events
+# Impose 4 b-tags as weight rather than cutting away events 
+# (TODO: do 2 or 3-tag as options)
+do_BTagWeight = True
+
 #
 #--------------------------------------------------
 
@@ -60,6 +68,7 @@ def main():
   dir = 'jesse_linked_delphes' # directory input files to plot are in
   dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
   dir = '280119' # directory input files to plot are in
+  dir = '' 
 
   ### ATLAS analysis xcheck
   l_vars     = ['m_hh']     # corresponds to variable in variables.py
@@ -69,10 +78,15 @@ def main():
   ###
 
   ### Loose analysis plotting
-  l_vars     = ['m_hh','pT_h1']
+  #l_vars     = ['m_hh','pT_h1']
+  l_vars     = ['h1_Pt']
+  l_vars     = ['m_hh']
   l_samples  = ['loose','loose_kl','loose_kt']
+  l_samples  = ['loose']
   l_sig_regs = ['preselection'] 
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
+  l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR', 'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   ###
 
   lumi    =  3000.0 #24.3 
@@ -81,7 +95,7 @@ def main():
   UnitNorm = False
   IsLogY   = True
 
-  annotate_text = 'MC Pileup 0'#, No k-factors'
+  annotate_text = 'Pileup 0'#, No k-factors'
   savedir = 'figs'+"/"+dir
 
   # FIXME slicing matching use nEvents not manual number, can't if cuts applied to ntuples
@@ -90,15 +104,21 @@ def main():
   # Don't include resolved, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
-               'noGenFilt_bkg_ttbar_trackJetBTag' : 2100000./50000.,
-               'ptj1_20_to_200_bkg_2b2j': 1850000./50000.,
-               'ptj1_200_to_500_bkg_2b2j': 2000000./50000.,
-               'ptj1_500_to_1000_bkg_2b2j': 1850000./50000.,
-               'ptj1_1000_to_infty_bkg_2b2j': 1100000./50000.,
-               'ptj1_20_to_200_bkg_4b': 2000000./50000.,
-               'ptj1_200_to_500_bkg_4b': 2000000./50000.,
-               'ptj1_500_to_1000_bkg_4b': 1750000./50000.,
-               'ptj1_1000_to_infty_bkg_4b': 2000000./50000.,
+               'noGenFilt_bkg_ttbar_trackJetBTag'    : 2100000./50000.,
+               'noGenFilt_bkg_ttbb_trackJetBTag'     : 1000000./50000.,
+               'noGenFilt_bkg_tth_trackJetBTag'      : 1000000./50000.,
+               'noGenFilt_bkg_bbh_trackJetBTag'      : 999998./50000., # FIXME strange number of events, got from printout of file
+               'noGenFilt_bkg_wh_trackJetBTag'       : 1000000./50000.,
+               'noGenFilt_bkg_zh_trackJetBTag'       : 1000000./50000.,
+               'noGenFilt_bkg_zz_trackJetBTag'       : 1000000./50000.,
+               'ptj1_20_to_200_bkg_2b2j'     : 2000000./50000.,
+               'ptj1_200_to_500_bkg_2b2j'    : 2000000./50000.,
+               'ptj1_500_to_1000_bkg_2b2j'   : 2000000./50000.,
+               'ptj1_1000_to_infty_bkg_2b2j' : 1100000./50000.,
+               'ptj1_20_to_200_bkg_4b'       : 2000000./50000.,
+               'ptj1_200_to_500_bkg_4b'      : 2000000./50000.,
+               'ptj1_500_to_1000_bkg_4b'     : 2000000./50000.,
+               'ptj1_1000_to_infty_bkg_4b'   : 2000000./50000.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
@@ -113,10 +133,6 @@ def main():
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
-               'noGenFilt_bkg_zh_trackJetBTag': 1000000./50000.,
-               'noGenFilt_bkg_tth_trackJetBTag.root': 1000000./50000.,
-               'noGenFilt_bkg_wh_trackJetBTag.root': 1000000./50000.,
-               'noGenFilt_bkg_bbh_trackJetBTag.root': 999998./50000., # FIXME strange number of events, got from printout of file
                # Old sample names below for making comparison plots
                'loop_hh' : 100000./50000.,
                'noGenFilt_4b' : 1200000./50000.,
@@ -154,14 +170,20 @@ def main():
   d_matching_weight = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 1.,
                'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
-               'ptj1_20_to_200_bkg_2b2j': 1.,
-               'ptj1_200_to_500_bkg_2b2j': 1.,
-               'ptj1_500_to_1000_bkg_2b2j': 1.,
-               'ptj1_1000_to_infty_bkg_2b2j': 1.,
-               'ptj1_20_to_200_bkg_4b': 1.,
-               'ptj1_200_to_500_bkg_4b': 1.,
-               'ptj1_500_to_1000_bkg_4b': 1.,
-               'ptj1_1000_to_infty_bkg_4b': 1.,
+               'noGenFilt_bkg_ttbb_trackJetBTag' : 1.,
+               'noGenFilt_bkg_tth_trackJetBTag' : 1.,
+               'noGenFilt_bkg_bbh_trackJetBTag' : 1.,
+               'noGenFilt_bkg_wh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zz_trackJetBTag'  : 1.,
+               'ptj1_20_to_200_bkg_2b2j'     : 1.,
+               'ptj1_200_to_500_bkg_2b2j'    : 1.,
+               'ptj1_500_to_1000_bkg_2b2j'   : 1.,
+               'ptj1_1000_to_infty_bkg_2b2j' : 1.,
+               'ptj1_20_to_200_bkg_4b'       : 1.,
+               'ptj1_200_to_500_bkg_4b'      : 1.,
+               'ptj1_500_to_1000_bkg_4b'     : 1.,
+               'ptj1_1000_to_infty_bkg_4b'   : 1.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -209,14 +231,20 @@ def main():
   d_k_factor = {
                'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26,
                'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
-               'ptj1_20_to_200_bkg_2b2j': 1.,
-               'ptj1_200_to_500_bkg_2b2j': 1.,
-               'ptj1_500_to_1000_bkg_2b2j': 1.,
-               'ptj1_1000_to_infty_bkg_2b2j': 1.,
-               'ptj1_20_to_200_bkg_4b': 1.,
-               'ptj1_200_to_500_bkg_4b': 1.,
-               'ptj1_500_to_1000_bkg_4b': 1.,
-               'ptj1_1000_to_infty_bkg_4b': 1.,
+               'noGenFilt_bkg_ttbb_trackJetBTag' : 1.,
+               'noGenFilt_bkg_tth_trackJetBTag' : 1.,
+               'noGenFilt_bkg_bbh_trackJetBTag' : 1.,
+               'noGenFilt_bkg_wh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zh_trackJetBTag'  : 1.,
+               'noGenFilt_bkg_zz_trackJetBTag'  : 1.,
+               'ptj1_20_to_200_bkg_2b2j'        : 1.,
+               'ptj1_200_to_500_bkg_2b2j'       : 1.,
+               'ptj1_500_to_1000_bkg_2b2j'      : 1.,
+               'ptj1_1000_to_infty_bkg_2b2j'    : 1.,
+               'ptj1_20_to_200_bkg_4b'          : 1.,
+               'ptj1_200_to_500_bkg_4b'         : 1.,
+               'ptj1_500_to_1000_bkg_4b'        : 1.,
+               'ptj1_1000_to_infty_bkg_4b'      : 1.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -261,14 +289,20 @@ def main():
   # -------------------------------------------------------------
   # Argument parser
   parser = argparse.ArgumentParser(description='Analyse background/signal TTrees and make plots.')
-  parser.add_argument('-l', '--lumi',      type=str, nargs='?', help='Float of integrated luminosity to normalise MC to.', default=lumi)
+  parser.add_argument('-l', '--lumi',    type=str, nargs='?', help='Float of integrated luminosity to normalise MC to.', default=lumi)
   parser.add_argument('-n', '--noLogY',  action='store_true', help='Do not draw log Y axis.')
+  parser.add_argument('-s', '--cut_sel', type=str, nargs='?', help='Selection cuts considered.')
+  parser.add_argument('-v', '--var',     type=str, nargs='?', help='Variable to plot.')
  
   args = parser.parse_args()
   if args.lumi:
     lumi = args.lumi
   if args.noLogY:
     IsLogY = False
+  if args.cut_sel:
+    l_cut_sels = [ args.cut_sel ] 
+  if args.var:
+    l_vars = [ args.var ] 
   
   # -------------------------------------------------------------
   # --------------
@@ -306,7 +340,8 @@ def main():
           print( '--------------------------------------------' )
           print( '\nWelcome to plot.py\n' )
           print( 'Plotting variable: {0}'.format(var) )
-          print( 'Selection region: {0}'.format(cut_sel) )
+          print( 'Selection region: {0}'.format(sig_reg) )
+          print( 'Kinematic regime: {0}'.format(cut_sel) )
           print( 'Normalising luminosity: {0}'.format(lumi) )
           print( '\n--------------------------------------------\n' )
           
@@ -412,8 +447,9 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   # ----------------------------------------------------------------- 
 
   yield_file = savedir + '/YIELD_{0}_{1}_{2}.txt'.format(analysis, sig_reg, cut_sel)
-  with open(yield_file, 'w') as f_out: 
-    f_out.write('sample,sample_type,yield,yieldErr,raw\n')
+  if var is yield_var:
+    with open(yield_file, 'w') as f_out: 
+      f_out.write('sample,sample_type,yield,yieldErr,raw\n')
 
   # ----------------------------------------------------------------- 
   #
@@ -495,11 +531,14 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
       with open(yield_file, 'a') as f_out: 
         f_out.write('{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp]/my_weight,d_yieldErr[samp]/my_weight,d_raw[samp]))
         #print '{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp],d_yieldErr[samp],d_raw[samp])
-
-  f_out.close()
  
   errStatBkg = sqrt( nVarBkg ) # treat total statistical error as sum in quadrature of sample stat errors
   errTotBkg  = sqrt( errStatBkg**2 + (0.2 * nTotBkg) ** 2 )
+    
+  if var is yield_var:
+    with open(yield_file, 'a') as f_out: 
+      print('Writing total background count')
+      f_out.write( 'TotBkg,bkg,{0},{1},{2}\n'.format( nTotBkg, errTotBkg, nTotBkgRaw ) )
   
   print('errStatBkg: {0:.3f}, sqrtB: {1:.3f}, errTotBkg: {2:.3f}'.format(errStatBkg, sqrt(nTotBkg), errTotBkg))
 
@@ -509,15 +548,23 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   print('----------------------------------------------')
  
   # ----------------------------------------------------------------- 
-  # legend for bkg, signals and total bkg yield
+  # Legend for bkg, signals and total bkg yield
   # ----------------------------------------------------------------- 
   #leg = mk_leg(0.57, 0.7, 0.95, 0.98, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
-  leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
   # legend with breakdown of background by sample
   d_bkg_leg = {}
   l_bkg_leg = ['samp1']
+  if legend_outside_plot:
+    # Legend for signals
+    leg = mk_leg(0.64, 0.20, 0.88, 0.37, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+    # Legend for backgrounds
+    d_bkg_leg['samp1'] = mk_leg(0.64, 0.38, 0.88, 0.90, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
+  else:
+    # Legend for signals
+    leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
+    # Legend for backgrounds
+    d_bkg_leg['samp1'] = mk_leg(0.57, 0.35, 0.95, 0.75, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
   #d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
-  d_bkg_leg['samp1'] = mk_leg(0.57, 0.55, 0.95, 0.75, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
 
   print('==============================================')
   # ----------------------------------------------------------------- 
@@ -537,7 +584,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     h_mcErr.SetMarkerColorAlpha(kWhite, 0)
     h_mcErr.SetMarkerSize(0)
     #h_mcErr.SetMarkerColorAlpha(kWhite, 0)
-    leg.AddEntry(h_mcErr, 'Bkg Total ({0:.3g})'.format(nTotBkg), 'lf')
+    leg.AddEntry(h_mcErr, 'Bkg ({0:.3g}, {1})'.format(nTotBkg, int(nTotBkgRaw)), 'lf')
   # ----------------------------------------------------------------- 
   
   # ----------------------------------------------------------------- 
@@ -580,7 +627,13 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname
   
   lumi     = lumifb * 1000 # convert to [pb^{-1}]
 
-  mc_weight = "mc_sf"
+  mc_weight = "mc_sf" # Delphes Event.Weight = xsec / (Nevents generated per chunck)
+
+  # Impose 4 b-tags as weight (TODO: do 2 or 3-tag as options)
+  if do_BTagWeight:
+    b_tag_weights = " * h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight"
+    mc_weight += b_tag_weights
+  
   if cutsAfter is '':
     cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(mc_weight, lumi, my_weight, matching_weight, k_factor, slicing_weight) 
   else:
@@ -630,11 +683,15 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   
   # gPad left/right margins
   gpLeft = 0.15
-  gpRight = 0.05
+  if legend_outside_plot:
+    gpRight = 0.37
+    can  = TCanvas('','',1200,800)
+  else:
+    gpRight = 0.05
+    can  = TCanvas('','',1000,800)
   gpTop = 0.08
-  gpBot = 0.15
+  gpBot = 0.18
   #can  = TCanvas('','',1000,1000)
-  can  = TCanvas('','',1000,800)
     
   d_vars = configure_vars()
   
@@ -743,21 +800,33 @@ def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, pr
   #
   # Text for energy, lumi, region, ntuple status
   
-  myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+  if legend_outside_plot:
+    myText(0.7, 0.92, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+  else:
+    myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
   #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF, xqcut 30 GeV), ' + NTUP_status, text_size*0.6, kGray+1)
-  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
-  myText(0.18, 0.82, GROUP_status, text_size, kBlack)
-  myText(0.18, 0.77, '#sqrt{s}' + ' = {0}, {1}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
+  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1', text_size*0.6, kGray+1)
+  myText(0.42, 0.84, GROUP_status, text_size*0.8, kBlack)
+  myText(0.18, 0.84, '#sqrt{s}' + ' = {0}, {1:.0f}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  
+  analysis = analysis.title()
+  cut_name = cut_sel.split('-')
+  cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1] 
+  if 'preselection' in sig_reg:
+    myText(0.18, 0.80, cut_txt, text_size, kBlack) 
   if 'signal' in sig_reg:
-    myText(0.18, 0.73, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'control' in sig_reg:
-    myText(0.18, 0.73, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'sideband' in sig_reg:
-    myText(0.18, 0.73, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.18, 0.80, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
   
   # Additional annotations
   if not annotate_text == '':
-    myText(0.18, 0.69, annotate_text, text_size*0.8, kGray+2) 
+    if do_BTagWeight:
+      annotate_text += ', N(b-tag) = 4'
+    myText(0.42, 0.80, annotate_text, text_size*0.8, kGray+2) 
   #
   #---------------------------------------------------------------
   
@@ -811,6 +880,7 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
   leg.SetBorderSize(0)
   leg.SetTextSize(txt_size)
   leg.SetNColumns(1)
+  leg.SetTextFont(132)
 
   # legend markers 
   d_legMk = {
