@@ -140,6 +140,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     // Assign Higgs candidates
     higgs_cands.higgs1 = elem->first;
     higgs_cands.higgs2 = elem->second;
+    higgs_cands.isValid = true;
   }
 
   return higgs_cands;
@@ -184,6 +185,7 @@ dihiggs find_higgs_cands_inter_boost(
   // Case 2+ large jets, subleading large jet is subleading Higgs candidate
   if ( lj_vec.size() >= 2 ) { 
     higgs_cands.higgs2.p4 = lj_vec[1].p4;
+    higgs_cands.isValid = true;
     return higgs_cands; // end here as boosted analysis implied
   }
 
@@ -201,17 +203,15 @@ dihiggs find_higgs_cands_inter_boost(
   JetPair bestPair;
 
   if ( jets_separated.size() >= 2 ) {
-    if ( jets_separated.size() == 2 ) {
-      bestPair = make_pair(jets_separated[0], jets_separated[1]);
-    }
-    else {
-      for (auto j1 : jets_separated) {
-        for (auto j2 : jets_separated) {
-          JetPair thisPair = make_pair(j1, j2);
-          if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
-        }
+    bestPair = make_pair(jets_separated[0], jets_separated[1]);
+    for (auto j1 : jets_separated) {
+      for (auto j2 : jets_separated) {
+        if(j1.p4.DeltaR(j2.p4) < 0.01) continue; // j1 and j2 are the same jet
+        JetPair thisPair = make_pair(j1, j2);
+        if(fabs(thisPair.p4().M() - lj_vec[0].p4.M()) < fabs(bestPair.p4().M() - lj_vec[0].p4.M())) bestPair = thisPair;
       }
     }
+    higgs_cands.isValid = true;
   }
   
   higgs_cands.higgs2.p4 = bestPair.jet_1.p4 + bestPair.jet_2.p4;
@@ -300,16 +300,18 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
 
   // Intermediate: exactly 1 large jet
   else if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
-    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, sj_vec, tj_vec);
   }
 
   // Boosted: 2 or more large jets
   else if ( lj_vec.size() >= 2 ) { 
-    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, sj_vec, tj_vec);
   }
 
   else { result.valid = false; }
-  
+
+  if(!higgs_cands.isValid) result.valid = false;
+
   // Count b-tagged jets associated to higgs candidates
   const int n_bjets_in_higgs1 = 
         ranges::count(higgs_cands.higgs1.jets, true, [](auto&& jet) { return jet.tagged; });
