@@ -3,13 +3,11 @@
 
 Welcome to ntuples_to_chiSq.py
 
-Loops through ntuples of signal samples and calculates chiSq, S/B among other things to a CSV
+Loops through ntuples of signal samples defined in get_signal_xsec()
+Calculates chiSq, S/B among other observables to a CSV
 Depends on cuts defined in cuts.py
-Needs an estimate of background yield
 
-TODO: Lots of work needed 
-e.g. let user give input, output, signal region selection using argparse
-extend to resolved, intermediate
+Requires running plot.py once to compute YIELD file for total background counts
 
 '''
 
@@ -17,410 +15,366 @@ import argparse, os, sys, math
 from array import array
 from ROOT import *
 from cuts import *
+  
+# Path to the intermediate ntuples
+SIG_PATH = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25/merged_signals'
+
+# Impose 4 b-tags as weights
+do_BTagWeight = True
 
 #____________________________________________________________________________
 def main():
 
-  # Path to the intermediate ntuples
-  sig_path = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2018nov26/all_merged_delphes/ntuples/merged_signals'
-
   mkdir('data')
-  
-  # Output path to save CSV
-  #save_file = 'data/SR-1ibsmall-2ibtrk-Mass_300invfb_5pcSyst.txt'
-  save_file = 'data/SR-1ibsmall-2ibtrk_300invfb_5pcSyst.txt'
   
   # -----------------------------------------------------------
   #
   # Some user configurables
   #
   # Luminosity
-  lumi = 300.0 # inverse fb
+  lumi = 3000.0 # inverse fb
+  # Analysis (defined in samples.py)
+  l_samples  = ['loose']
   # Signal region (define in cuts.py)
-  sig_reg  = 'SR-1ibsmall-2ibtrk'
-  # Fractional systematic
-  syst = 0.05
-  # Insert background yield (calculate from plot.py)
-  N_bkg = 2023.5 * float(lumi)
-  # normalised to 1/fb SR-1ibsmall-2ibtrk-Mass
-  #N_bkg = 343.565 * float(lumi)
+  l_sig_regs = ['preselection'] 
+  # Cut selections
+  l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection',
+                'resolved-commonSR',     'intermediate-commonSR',     'boosted-commonSR',
+                'resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR' ] 
+  #
   # -----------------------------------------------------------
 
- 
+  for analysis in l_samples:
+    for sig_reg in l_sig_regs:
+      for cut_sel in l_cut_sels:
+  
+        print( 'Analysis: {0}'.format(analysis) )
+        print( 'Signal region: {0}'.format(sig_reg) )
+        print( 'Cut selection: {0}'.format(cut_sel) )
+        
+        # Yield file is the input file with the background yield from plot.py
+        yield_file = 'figs/YIELD_{0}_{1}_{2}.txt'.format(analysis, sig_reg, cut_sel)
+        
+        # Save file is where we will store the outputs
+        save_file  = 'data/CHISQ_{0}_{1}_{2}.csv'.format(analysis, sig_reg, cut_sel)
+        
+        print('Input file with background yield: {0}'.format( yield_file ) )
+        print('Output file to store chi squares: {0}'.format( save_file  ) )
+
+        do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel )
+
+#____________________________________________________________________________
+def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
+  '''
+  Given N_bkg from yield file, analysis, sig_reg, cut_sel, 
+  will loop over signals and output the chi squares into save_file
+  '''
+    
+  # Extract background yield
+  try:
+    with open( yield_file, 'r' ) as f_in:
+      for line in f_in:
+        if 'TotBkg' not in line: continue
+        N_bkg = float( line.split(',')[2] )
+  except:
+    print('No YIELD file, please run plot.py. Will take N_bkg as 1000. for now')
+    N_bkg = 1000.
   # -----------------------------------------------------------
   # 
   # Prepare the signals and cuts
   #
   # Get the cross-section file
-  d_xsec = get_xsec()
-  # Get the list of signals
-  l_sig  = get_list_signals()
+  d_sig_xsec = get_signal_xsec()
   # Variable to plot in
-  var  = 'm_h2'
-  # Dummy cut to use cuts.py
-  add_cuts = 'm_h2 > 0'
+  var  = 'm_hh'
   # Get cut strings from cuts.py
-  unweighted_cuts, l_cuts = configure_cuts(var, add_cuts, sig_reg) 
+  unweighted_cuts, l_cuts = configure_cuts(var, cut_sel) 
   # -----------------------------------------------------------
   
   print('Background yield: {0}'.format(N_bkg) )
   print('Luminosity: {0} /fb '.format(lumi) )
   print('Unweighted cuts: {0}'.format(unweighted_cuts) )
-
-  Nbins = 1
-  xmin = 0.0
-  xmax = 10000
   
   # ---------------------------------------
-  # Calculate signal yields & sensitivity
+  # Get nominal signal yield
   # ---------------------------------------
+  N_sig_nom = get_N_sig_nom( lumi, var, unweighted_cuts )
+
+  # ---------------------------------------
+  # Now loop through coupling variations
+  # ---------------------------------------
+  with open(save_file, 'w') as f_out:
+    header  = 'TopYuk,SlfCoup,N_bkg,N_sig,N_sig_raw,'
+    header += 'SoverB,SoverSqrtB,SoverSqrtBSyst1pc,SoverSqrtBSyst5pc,'
+    header += 'chiSq,chiSqSyst1pc,chiSqSyst5pc,acceptance\n'
+    f_out.write( header )
+
+    for signal, xsec_sig in d_sig_xsec.iteritems():  
+      out_str = compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
+      if not out_str == 'NoFile':
+        f_out.write( out_str )
+        print( out_str )
+
+  print('\n------------------------------------------------------')
+  print('Saved outputs to: {0}'.format(save_file) )
+  print('------------------------------------------------------')
+
+#____________________________________________________________________________
+def get_N_sig_nom( lumi, var, unweighted_cuts ):
+  ''' 
+  Get nominal yield for chi square calculation
+  '''
+  
+  print('\nGetting the nominal signal yield\n')
+  
+  root_nom = SIG_PATH + '/loose_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root'
+  print('Nominal root file: {0}'.format(root_nom))
+  tfile = TFile( root_nom )
+  N_nom_raw = tfile.Get('loose_cutflow').GetBinContent(1)
+  nom_xsec = 0.016078 # Leading order MadGraph
+  
+  if do_BTagWeight:
+    my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
+  else:
+    my_weight = 1.
+  cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format( unweighted_cuts, nom_xsec, lumi, my_weight, N_nom_raw )
+  print('Weighted signal cuts: {0}'.format(cuts) )
+  
+  # Project and make histogram
+  Nbins = 1
+  xmin = -100.0
+  xmax = 10000
+  th1_nom = TH1D('h_sig_nom', "", Nbins, xmin, xmax) 
+  ttree_nom = tfile.Get('preselection')
+  ttree_nom.Project( 'h_sig_nom', var, cuts )
+  N_sig_nom =  float( th1_nom.Integral() )
+  print('Nominal signal yield: {0}'.format( N_sig_nom ))
+
+  return N_sig_nom    
+
+#____________________________________________________________________________
+def compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N_sig_nom ):
+  '''
+  Perform cuts onto the signal file
+  and compute various metrics like S/B, chi square etc
+  ''' 
+  print('\nComputing chi square for {0}'.format(signal) )
+  
   d_sig_file = {}
   d_sig_hist = {}
   d_sig_tree = {}
   d_sig_yield = {}
 
-  # ---------------------------------------
-  # Get nominal yield for chi square calculation
-  # ---------------------------------------
-  root_nom = sig_path + '/intermediate_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root'
-  print('Nominal root file: {0}'.format(root_nom))
-  tfile = TFile( root_nom )
-  N_nom_raw = tfile.Get('intermediate_cutflow').GetBinContent(1)
-  nom_xsec = 0.016078
-  cuts = '( {0} * (1000 * {1} * {2}) ) / {3}'.format(unweighted_cuts, nom_xsec, lumi, N_nom_raw)
+  # ------------------------------------------------------
+  # Extract coupling values from file name
+  # ------------------------------------------------------
+  info = signal.split('_')
+  TopYuk  = float( info[2] )
+  SlfCoup = float( info[4].replace('m', '-') )
+
+  root_signal = SIG_PATH + '/' + signal + '.root'
+  print( 'Root file: {0}'.format( root_signal ) )
+  Nbins = 1
+  xmin = -100.0
+  xmax = 10000
+  d_sig_file[signal] = TFile( root_signal )
+  d_sig_hist[signal] = TH1D('h_sig_' + signal, "", Nbins, xmin, xmax) 
+
+  # Inititalise
+  N_orig_raw = 1
+
+  # ------------------------------------------------------
+  # Get the initial number of events before any cuts
+  # ------------------------------------------------------
+  try:
+    N_orig_raw = d_sig_file[signal].Get('loose_cutflow').GetBinContent(1)
+  except AttributeError:
+    return 'NoFile'
+    print('{0} has no loose_cutflow histogram, skipping...'.format(d_sig_file[signal]))
+
+  if do_BTagWeight:
+    my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
+  else:
+    my_weight = 1.
+
+  # ------------------------------------------------------
+  # Construct cut string for TTree.Project()
+  # ------------------------------------------------------
+  cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format(unweighted_cuts, xsec_sig, lumi, my_weight, N_orig_raw)
   print('Weighted signal cuts: {0}'.format(cuts) )
   
-  # Project and make histogram
-  ttree_nom = tfile.Get('preselection')
-  ttree_nom.Project( 'h_sig_nom', var, cuts )
-  th1_nom = TH1D('h_sig_nom', "", Nbins, xmin, xmax) 
-  yield_nom =  th1_nom.Integral()
-  print('Nominal signal yield: {0}'.format(yield_nom))
+  # ------------------------------------------------------
+  # Project to histogram and compute yields
+  # ------------------------------------------------------
+  d_sig_tree[signal] = d_sig_file[signal].Get('preselection')
+  d_sig_tree[signal].Project( 'h_sig_' + signal, var, cuts )
 
-  # ---------------------------------------
-  # Now loop through coupling variations
-  # ---------------------------------------
-  with open(save_file, 'w') as f_out: 
-    f_out.write('TopYuk,SlfCoup,N_bkg,N_sig,N_sig_raw,SoverB,SoverSqrtB,SoverSqrtBSyst,chiSq,chiSqSyst,chiSqSyst1pc,acc\n')
+  N_sig     = float( d_sig_hist[signal].Integral() )
+  N_sig_raw = int( d_sig_hist[signal].GetEntries() )
+  
+  print('Signal {0} yield: {1:.3g}, raw: {2}'.format(signal, N_sig, N_sig_raw))
 
-    for signal in l_sig:
-      
-      print('\nProcessing {0}'.format(signal) )
+  # ------------------------------------------------------
+  # Calculate purity S / B and significance S / sqrt(B)
+  # ------------------------------------------------------
+  SoverB            = N_sig / N_bkg
+  SoverSqrtB        = N_sig / math.sqrt( N_bkg )
+  SoverSqrtBSyst1pc = N_sig / math.sqrt( N_bkg + (0.01 * N_bkg ) ** 2 )
+  SoverSqrtBSyst5pc = N_sig / math.sqrt( N_bkg + (0.05 * N_bkg ) ** 2 )
+  
+  # ------------------------------------------------------
+  # Calculate the chi squares
+  # ------------------------------------------------------
+  chiSq         = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg )
+  chiSqSyst1pc  = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.01 * N_bkg ) ** 2 )
+  chiSqSyst5pc  = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.05 * N_bkg ) ** 2 )
+  
+  # ------------------------------------------------------
+  # Calculate acceptance
+  # ------------------------------------------------------
+  acceptance = N_sig / ( xsec_sig * lumi * 1000.)
 
-      info = signal.split('.root')[0].split('_')
-      TopYuk  = float(info[2])
-      SlfCoup = float(info[4].replace('m', '-'))
+  # ------------------------------------------------------
+  # Construct string of values to output
+  # ------------------------------------------------------
+  out_str  = '{0},{1},{2:.4g},{3:.4g},{4:.4g},'.format( TopYuk, SlfCoup,      N_bkg,             N_sig, N_sig_raw )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},'.format( SoverB, SoverSqrtB,   SoverSqrtBSyst1pc, SoverSqrtBSyst5pc  )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g}'.format( chiSq,  chiSqSyst1pc, chiSqSyst5pc,      acceptance )
+  out_str += '\n'
 
-      root_signal = sig_path + '/' + signal
-      print('Root file: {0}'.format(root_signal) )
-
-      d_sig_file[signal] = TFile( root_signal )
-      d_sig_hist[signal] = TH1D('h_sig_' + signal, "", Nbins, xmin, xmax) 
-
-      # Inititalise
-      xsec_sig = 1.0 
-      N_orig_raw = 10 
-
-      # Get the signal cross-section
-      try:
-        xsec_sig = float( d_xsec[signal.split('.root')[0]] )
-        print('Cross-section [pb]: {0} '.format(xsec_sig) )
-      except KeyError:
-        print('signal {0} has no cross-section, skipping...\n'.format(signal))
-        continue
-      
-      # Get the initial number of events before any cuts
-      try:
-        N_orig_raw = d_sig_file[signal].Get('intermediate_cutflow').GetBinContent(1)
-      except AttributeError:
-        print('{0} has no intermediate_cutflow histogram, skipping...'.format(d_sig_file[signal]))
-        continue
-      cuts = '( ({0}) * (1000 * {1} * {2}) ) / {3}'.format(unweighted_cuts, xsec_sig, lumi, N_orig_raw)
-      print('Weighted signal cuts: {0}'.format(cuts) )
-      
-      # Project and make histogram
-      d_sig_tree[signal] = d_sig_file[signal].Get('preselection')
-      d_sig_tree[signal].Project( 'h_sig_' + signal, var, cuts )
-
-      N_sig = d_sig_hist[signal].Integral()
-      N_sig_raw = d_sig_hist[signal].GetEntries()
-      print('Signal {0} yield: {1}, raw: {2}'.format(signal, N_sig, N_sig_raw))
-
-      # Calculate purity S / B and significance S / sqrt(B)
-      SoverB         = float(N_sig) / float(N_bkg)
-      SoverSqrtB     = float(N_sig) / math.sqrt( float(N_bkg) )
-      SoverSqrtBSyst = float(N_sig) / math.sqrt( float(N_bkg) + (syst * float(N_bkg) ) ** 2 )
-      
-      # Calculate the chi squares
-      chiSq         = ( float(N_sig) - float(yield_nom) ) ** 2 / float(N_bkg) 
-      chiSqSyst     = ( float(N_sig) - float(yield_nom) ) ** 2 / ( float(N_bkg) + (syst * float(N_bkg) ) ** 2 )
-      chiSqSyst1pc  = ( float(N_sig) - float(yield_nom) ) ** 2 / ( float(N_bkg) + (0.01 * float(N_bkg) ) ** 2 )
-      
-      # Calculate acceptance
-      acc = d_sig_hist[signal].GetEntries() / float( N_orig_raw )
-
-      print( 'Signal {0}: {1}, {2}, {3}, {4}'.format( signal, N_bkg, N_sig, SoverSqrtB, SoverSqrtBSyst ) )
-      f_out.write('{0},{1},{2:.3g},{3:.3g},{4:.3g},{5:.3g},{6:.3g},{7:.3g},{8:.3g},{9:.3g},{10:.3g},{11:.3g}\n'.format(TopYuk, SlfCoup, N_bkg, N_sig, N_sig_raw, SoverB, SoverSqrtB, SoverSqrtBSyst, chiSq, chiSqSyst, chiSqSyst1pc, acc ) )
-
-  print('\n------------------------------------------------------')
-  print('Finished. Saved outputs to: {0}'.format(save_file) )
-  print('------------------------------------------------------')
+  return out_str
 
 #_________________________________________________________________________
-def get_list_signals():
-  
-  l_sig = [
-    'intermediate_TopYuk_0.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_0.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.8_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_0.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_0.9_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_0.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.0_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_0.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.1_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_0.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.2_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_0.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM.root',
-    'intermediate_TopYuk_1.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM.root' 
-    ]
-
-  return l_sig
-
-#_________________________________________________________________________
-def get_xsec():
-  
+def get_signal_xsec():
+  '''
+  Leading order MG cross-sections in pb
+  '''
   d_xsec = {
-   'intermediate_TopYuk_0.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 0.51342,
-   'intermediate_TopYuk_0.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.1438,
-   'intermediate_TopYuk_0.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 0.077355,
-   'intermediate_TopYuk_0.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.044446,
-   'intermediate_TopYuk_0.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.020674,
-   'intermediate_TopYuk_0.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.012206,
-   'intermediate_TopYuk_0.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.0060154,
-   'intermediate_TopYuk_0.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.0037762,
-   'intermediate_TopYuk_0.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.0010049,
-   'intermediate_TopYuk_0.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.00047415,
-   'intermediate_TopYuk_0.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.0011231,
-   'intermediate_TopYuk_0.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.0040518,
-   'intermediate_TopYuk_0.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.016746,
-   'intermediate_TopYuk_0.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.038557,
-   'intermediate_TopYuk_0.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.088394,
-   'intermediate_TopYuk_0.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 0.40269,
-   'intermediate_TopYuk_0.8_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 1.4078,
-   'intermediate_TopYuk_0.8_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.41912,
-   'intermediate_TopYuk_0.8_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 0.23617,
-   'intermediate_TopYuk_0.8_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.14345,
-   'intermediate_TopYuk_0.8_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.074079,
-   'intermediate_TopYuk_0.8_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.048166,
-   'intermediate_TopYuk_0.8_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.028062,
-   'intermediate_TopYuk_0.8_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.020193,
-   'intermediate_TopYuk_0.8_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.0088491,
-   'intermediate_TopYuk_0.8_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.0053661,
-   'intermediate_TopYuk_0.8_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.0027707,
-   'intermediate_TopYuk_0.8_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.0060114,
-   'intermediate_TopYuk_0.8_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.029995,
-   'intermediate_TopYuk_0.8_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.077325,
-   'intermediate_TopYuk_0.8_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.19209,
-   'intermediate_TopYuk_0.8_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 0.95416,
-   'intermediate_TopYuk_0.9_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.55292,
-   'intermediate_TopYuk_0.9_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 0.3161,
-   'intermediate_TopYuk_0.9_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.19517,
-   'intermediate_TopYuk_0.9_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.10379,
-   'intermediate_TopYuk_0.9_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.069191,
-   'intermediate_TopYuk_0.9_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.041957,
-   'intermediate_TopYuk_0.9_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.031105,
-   'intermediate_TopYuk_0.9_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.01494,
-   'intermediate_TopYuk_0.9_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.0096347,
-   'intermediate_TopYuk_0.9_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.0045515,
-   'intermediate_TopYuk_0.9_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.0068599,
-   'intermediate_TopYuk_0.9_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.033622,
-   'intermediate_TopYuk_0.9_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.089949,
-   'intermediate_TopYuk_0.9_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.22978,
-   'intermediate_TopYuk_0.9_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 1.1762,
-   'intermediate_TopYuk_1.0_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 2.3008,
-   'intermediate_TopYuk_1.0_SlfCoup_m15.0_pp2hh_HeavyHiggsTHDM' : 1.3919,
-   'intermediate_TopYuk_1.0_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.71114,
-   'intermediate_TopYuk_1.0_SlfCoup_m9.0_pp2hh_HeavyHiggsTHDM' : 0.60241,
-   'intermediate_TopYuk_1.0_SlfCoup_m8.0_pp2hh_HeavyHiggsTHDM' : 0.50274,
-   'intermediate_TopYuk_1.0_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 0.41211,
-   'intermediate_TopYuk_1.0_SlfCoup_m6.0_pp2hh_HeavyHiggsTHDM' : 0.33079,
-   'intermediate_TopYuk_1.0_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.25842,
-   'intermediate_TopYuk_1.0_SlfCoup_m4.0_pp2hh_HeavyHiggsTHDM' : 0.19529,
-   'intermediate_TopYuk_1.0_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.14117,
-   'intermediate_TopYuk_1.0_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.096246,
-   'intermediate_TopYuk_1.0_SlfCoup_m1.5_pp2hh_HeavyHiggsTHDM' : 0.07717,
-   'intermediate_TopYuk_1.0_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.060419,
-   'intermediate_TopYuk_1.0_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.04591,
-   'intermediate_TopYuk_1.0_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.023744,
-   'intermediate_TopYuk_1.0_SlfCoup_0.8_pp2hh_HeavyHiggsTHDM' : 0.018863,
-   'intermediate_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.016078,
-   'intermediate_TopYuk_1.0_SlfCoup_1.2_pp2hh_HeavyHiggsTHDM' : 0.013651,
-   'intermediate_TopYuk_1.0_SlfCoup_1.5_pp2hh_HeavyHiggsTHDM' : 0.010691,
-   'intermediate_TopYuk_1.0_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.0075864,
-   'intermediate_TopYuk_1.0_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.0082156,
-   'intermediate_TopYuk_1.0_SlfCoup_4.0_pp2hh_HeavyHiggsTHDM' : 0.01797,
-   'intermediate_TopYuk_1.0_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.036819,
-   'intermediate_TopYuk_1.0_SlfCoup_6.0_pp2hh_HeavyHiggsTHDM' : 0.064829,
-   'intermediate_TopYuk_1.0_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.10192,
-   'intermediate_TopYuk_1.0_SlfCoup_8.0_pp2hh_HeavyHiggsTHDM' : 0.14813,
-   'intermediate_TopYuk_1.0_SlfCoup_9.0_pp2hh_HeavyHiggsTHDM' : 0.2035,
-   'intermediate_TopYuk_1.0_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.26794,
-   'intermediate_TopYuk_1.0_SlfCoup_15.0_pp2hh_HeavyHiggsTHDM' : 0.72691,
-   'intermediate_TopYuk_1.0_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 1.4143,
-   'intermediate_TopYuk_1.1_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 2.8461,
-   'intermediate_TopYuk_1.1_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.89591,
-   'intermediate_TopYuk_1.1_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 0.52603,
-   'intermediate_TopYuk_1.1_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.33467,
-   'intermediate_TopYuk_1.1_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.18749,
-   'intermediate_TopYuk_1.1_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.1304,
-   'intermediate_TopYuk_1.1_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.084344,
-   'intermediate_TopYuk_1.1_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.06546,
-   'intermediate_TopYuk_1.1_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.035942,
-   'intermediate_TopYuk_1.1_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.025329,
-   'intermediate_TopYuk_1.1_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.012381,
-   'intermediate_TopYuk_1.1_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.010459,
-   'intermediate_TopYuk_1.1_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.03971,
-   'intermediate_TopYuk_1.1_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.11313,
-   'intermediate_TopYuk_1.1_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.30598,
-   'intermediate_TopYuk_1.1_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 1.6661,
-   'intermediate_TopYuk_1.2_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 3.4621,
-   'intermediate_TopYuk_1.2_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 1.1095,
-   'intermediate_TopYuk_1.2_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 0.65961,
-   'intermediate_TopYuk_1.2_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.42544,
-   'intermediate_TopYuk_1.2_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.24384,
-   'intermediate_TopYuk_1.2_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.17275,
-   'intermediate_TopYuk_1.2_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.11473,
-   'intermediate_TopYuk_1.2_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.090659,
-   'intermediate_TopYuk_1.2_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.052327,
-   'intermediate_TopYuk_1.2_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.038111,
-   'intermediate_TopYuk_1.2_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.019517,
-   'intermediate_TopYuk_1.2_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.014026,
-   'intermediate_TopYuk_1.2_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.042466,
-   'intermediate_TopYuk_1.2_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.12343,
-   'intermediate_TopYuk_1.2_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.3433,
-   'intermediate_TopYuk_1.2_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 1.9299,
-   'intermediate_TopYuk_1.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 5.7703,
-   'intermediate_TopYuk_1.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 1.9438,
-   'intermediate_TopYuk_1.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM' : 1.1967,
-   'intermediate_TopYuk_1.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM' : 0.80087,
-   'intermediate_TopYuk_1.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM' : 0.48725,
-   'intermediate_TopYuk_1.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM' : 0.3612,
-   'intermediate_TopYuk_1.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM' : 0.25562,
-   'intermediate_TopYuk_1.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM' : 0.21048,
-   'intermediate_TopYuk_1.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM' : 0.13571,
-   'intermediate_TopYuk_1.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM' : 0.10598,
-   'intermediate_TopYuk_1.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM' : 0.061942,
-   'intermediate_TopYuk_1.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM' : 0.038406,
-   'intermediate_TopYuk_1.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM' : 0.052931,
-   'intermediate_TopYuk_1.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM' : 0.14951,
-   'intermediate_TopYuk_1.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM' : 0.44814,
-   'intermediate_TopYuk_1.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM' : 2.7778, 
+   'loose_TopYuk_0.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 0.51342,
+   'loose_TopYuk_0.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.1438,
+   'loose_TopYuk_0.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.077355,
+   'loose_TopYuk_0.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.044446,
+   'loose_TopYuk_0.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.020674,
+   'loose_TopYuk_0.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.012206,
+   'loose_TopYuk_0.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.0060154,
+   'loose_TopYuk_0.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.0037762,
+   'loose_TopYuk_0.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.0010049,
+   'loose_TopYuk_0.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.00047415,
+   'loose_TopYuk_0.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0011231,
+   'loose_TopYuk_0.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0040518,
+   'loose_TopYuk_0.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.016746,
+   'loose_TopYuk_0.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.038557,
+   'loose_TopYuk_0.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.088394,
+   'loose_TopYuk_0.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 0.40269,
+   'loose_TopYuk_0.8_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 1.4078,
+   'loose_TopYuk_0.8_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.41912,
+   'loose_TopYuk_0.8_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.23617,
+   'loose_TopYuk_0.8_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.14345,
+   'loose_TopYuk_0.8_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.074079,
+   'loose_TopYuk_0.8_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.048166,
+   'loose_TopYuk_0.8_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.028062,
+   'loose_TopYuk_0.8_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.020193,
+   'loose_TopYuk_0.8_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.0088491,
+   'loose_TopYuk_0.8_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.0053661,
+   'loose_TopYuk_0.8_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0027707,
+   'loose_TopYuk_0.8_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0060114,
+   'loose_TopYuk_0.8_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.029995,
+   'loose_TopYuk_0.8_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.077325,
+   'loose_TopYuk_0.8_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.19209,
+   'loose_TopYuk_0.8_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 0.95416,
+   'loose_TopYuk_0.9_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.55292,
+   'loose_TopYuk_0.9_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.3161,
+   'loose_TopYuk_0.9_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.19517,
+   'loose_TopYuk_0.9_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.10379,
+   'loose_TopYuk_0.9_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.069191,
+   'loose_TopYuk_0.9_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.041957,
+   'loose_TopYuk_0.9_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.031105,
+   'loose_TopYuk_0.9_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.01494,
+   'loose_TopYuk_0.9_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.0096347,
+   'loose_TopYuk_0.9_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0045515,
+   'loose_TopYuk_0.9_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0068599,
+   'loose_TopYuk_0.9_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.033622,
+   'loose_TopYuk_0.9_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.089949,
+   'loose_TopYuk_0.9_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.22978,
+   'loose_TopYuk_0.9_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.1762,
+   'loose_TopYuk_1.0_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 2.3008,
+   'loose_TopYuk_1.0_SlfCoup_m15.0_pp2hh_HeavyHiggsTHDM' : 1.3919,
+   'loose_TopYuk_1.0_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.71114,
+   'loose_TopYuk_1.0_SlfCoup_m9.0_pp2hh_HeavyHiggsTHDM'  : 0.60241,
+   'loose_TopYuk_1.0_SlfCoup_m8.0_pp2hh_HeavyHiggsTHDM'  : 0.50274,
+   'loose_TopYuk_1.0_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.41211,
+   'loose_TopYuk_1.0_SlfCoup_m6.0_pp2hh_HeavyHiggsTHDM'  : 0.33079,
+   'loose_TopYuk_1.0_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.25842,
+   'loose_TopYuk_1.0_SlfCoup_m4.0_pp2hh_HeavyHiggsTHDM'  : 0.19529,
+   'loose_TopYuk_1.0_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.14117,
+   'loose_TopYuk_1.0_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.096246,
+   'loose_TopYuk_1.0_SlfCoup_m1.5_pp2hh_HeavyHiggsTHDM'  : 0.07717,
+   'loose_TopYuk_1.0_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.060419,
+   'loose_TopYuk_1.0_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.04591,
+   'loose_TopYuk_1.0_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.023744,
+   'loose_TopYuk_1.0_SlfCoup_0.8_pp2hh_HeavyHiggsTHDM'   : 0.018863,
+   'loose_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.016078,
+   'loose_TopYuk_1.0_SlfCoup_1.2_pp2hh_HeavyHiggsTHDM'   : 0.013651,
+   'loose_TopYuk_1.0_SlfCoup_1.5_pp2hh_HeavyHiggsTHDM'   : 0.010691,
+   'loose_TopYuk_1.0_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0075864,
+   'loose_TopYuk_1.0_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0082156,
+   'loose_TopYuk_1.0_SlfCoup_4.0_pp2hh_HeavyHiggsTHDM'   : 0.01797,
+   'loose_TopYuk_1.0_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.036819,
+   'loose_TopYuk_1.0_SlfCoup_6.0_pp2hh_HeavyHiggsTHDM'   : 0.064829,
+   'loose_TopYuk_1.0_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.10192,
+   'loose_TopYuk_1.0_SlfCoup_8.0_pp2hh_HeavyHiggsTHDM'   : 0.14813,
+   'loose_TopYuk_1.0_SlfCoup_9.0_pp2hh_HeavyHiggsTHDM'   : 0.2035,
+   'loose_TopYuk_1.0_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.26794,
+   'loose_TopYuk_1.0_SlfCoup_15.0_pp2hh_HeavyHiggsTHDM'  : 0.72691,
+   'loose_TopYuk_1.0_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.4143,
+   'loose_TopYuk_1.1_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 2.8461,
+   'loose_TopYuk_1.1_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.89591,
+   'loose_TopYuk_1.1_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.52603,
+   'loose_TopYuk_1.1_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.33467,
+   'loose_TopYuk_1.1_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.18749,
+   'loose_TopYuk_1.1_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.1304,
+   'loose_TopYuk_1.1_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.084344,
+   'loose_TopYuk_1.1_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.06546,
+   'loose_TopYuk_1.1_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.035942,
+   'loose_TopYuk_1.1_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.025329,
+   'loose_TopYuk_1.1_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.012381,
+   'loose_TopYuk_1.1_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.010459,
+   'loose_TopYuk_1.1_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.03971,
+   'loose_TopYuk_1.1_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.11313,
+   'loose_TopYuk_1.1_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.30598,
+   'loose_TopYuk_1.1_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.6661,
+   'loose_TopYuk_1.2_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 3.4621,
+   'loose_TopYuk_1.2_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 1.1095,
+   'loose_TopYuk_1.2_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.65961,
+   'loose_TopYuk_1.2_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.42544,
+   'loose_TopYuk_1.2_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.24384,
+   'loose_TopYuk_1.2_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.17275,
+   'loose_TopYuk_1.2_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.11473,
+   'loose_TopYuk_1.2_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.090659,
+   'loose_TopYuk_1.2_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.052327,
+   'loose_TopYuk_1.2_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.038111,
+   'loose_TopYuk_1.2_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.019517,
+   'loose_TopYuk_1.2_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.014026,
+   'loose_TopYuk_1.2_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.042466,
+   'loose_TopYuk_1.2_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.12343,
+   'loose_TopYuk_1.2_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.3433,
+   'loose_TopYuk_1.2_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.9299,
+   'loose_TopYuk_1.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 5.7703,
+   'loose_TopYuk_1.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 1.9438,
+   'loose_TopYuk_1.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 1.1967,
+   'loose_TopYuk_1.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.80087,
+   'loose_TopYuk_1.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.48725,
+   'loose_TopYuk_1.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.3612,
+   'loose_TopYuk_1.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.25562,
+   'loose_TopYuk_1.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.21048,
+   'loose_TopYuk_1.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.13571,
+   'loose_TopYuk_1.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.10598,
+   'loose_TopYuk_1.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.061942,
+   'loose_TopYuk_1.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.038406,
+   'loose_TopYuk_1.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.052931,
+   'loose_TopYuk_1.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.14951,
+   'loose_TopYuk_1.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.44814,
+   'loose_TopYuk_1.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 2.7778, 
   }
 
   return d_xsec

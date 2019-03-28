@@ -1,0 +1,10 @@
+#!/bin/bash
+# Condor submission script created by plotting/batch/make_batch_scripts.py
+executable            = condor_plot.sh
+output                = hh4b.$(ClusterId).$(ProcId).out
+error                 = hh4b.$(ClusterId).$(ProcId).err
+log                   = hh4b.$(ClusterId).log
++JobFlavour           = "espresso"
+universe         = vanilla
+getenv           = True
+queue arguments from sig_reg_var.txt
