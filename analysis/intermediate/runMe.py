@@ -6,6 +6,7 @@ If run on the batch 1 job per file submitted
 ''' 
 
 import os
+import sys
 
 ### User inputs
 
@@ -13,7 +14,8 @@ TAG = "280119"
 FILE_LISTS = ["../filelists/signal_{0}.txt".format(TAG), "../filelists/background_{0}.txt".format(TAG)]
 OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/"+TAG
 
-USE_BATCH = True
+USE_BATCH = False
+TEST = False
 
 ### End of user inputs
 
@@ -55,4 +57,7 @@ for FILE_LIST in FILE_LISTS:
       else: 
         print(command)
         os.system(command)
+      if TEST:
+          sys.exit()
+
 
