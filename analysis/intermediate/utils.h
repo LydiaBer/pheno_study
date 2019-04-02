@@ -60,7 +60,9 @@ struct higgs {
 struct dihiggs {
   higgs higgs1;
   higgs higgs2;
+  bool isValid;
 
+  dihiggs() : isValid(false){}
 };
 
 // Make jet from Oxjet function

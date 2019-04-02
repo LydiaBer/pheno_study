@@ -1,6 +1,10 @@
 *.so
 compile_commands.json
 analysis/*/build/
+analysis/*/classes
+analysis/outputs/*
+!analysis/outputs/haddme.sh
+!analysis/outputs/haddme_ktkl.py
 delphes/CaloGrid
 delphes/*.pcm
 delphes/DelphesHepMC

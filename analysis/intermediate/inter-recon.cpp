@@ -139,6 +139,7 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
     // Assign Higgs candidates
     higgs_cands.higgs1 = elem->first;
     higgs_cands.higgs2 = elem->second;
+    higgs_cands.isValid = true;
   }
 
   return higgs_cands;
@@ -183,6 +184,7 @@ dihiggs find_higgs_cands_inter_boost(
   // Case 2+ large jets, subleading large jet is subleading Higgs candidate
   if ( lj_vec.size() >= 2 ) { 
     higgs_cands.higgs2.p4 = lj_vec[1].p4;
+    higgs_cands.isValid = true;
     return higgs_cands; // end here as boosted analysis implied
   }
 
@@ -198,10 +200,12 @@ dihiggs find_higgs_cands_inter_boost(
   
   // Get the pairing minimising mass difference between separated jets and large jet
   JetPair bestPair;
+
   for(unsigned int i = 0; i < jets_separated.size(); i++){
     for(unsigned int j = i+1; j < jets_separated.size(); j++){
       if(i == 0 && j == 1){
         bestPair = make_pair(jets_separated.at(i), jets_separated.at(j));
+        higgs_cands.isValid = true;
         continue;
       }
       JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
@@ -293,16 +297,18 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>&        smalljet, // Jet
 
   // Intermediate: exactly 1 large jet
   else if ( lj_vec.size() == 1 && sj_vec.size() >= 2 ) { 
-    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, sj_vec, tj_vec);
   }
 
   // Boosted: 2 or more large jets
   else if ( lj_vec.size() >= 2 ) { 
-    higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
+    higgs_cands = find_higgs_cands_inter_boost(lj_vec, sj_vec, tj_vec);
   }
 
   else { result.valid = false; }
-  
+
+  if(!higgs_cands.isValid) result.valid = false;
+
   // Count b-tagged jets associated to higgs candidates
   const int n_bjets_in_higgs1 = 
         ranges::count(higgs_cands.higgs1.jets, true, [](auto&& jet) { return jet.tagged; });
