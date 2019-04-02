@@ -15,9 +15,13 @@ FILE_LISTS = ["../filelists/signal_{0}.txt".format(TAG), "../filelists/backgroun
 OUT_DIR = os.getcwd().split("/intermediate")[0]+"/outputs/"+TAG
 
 USE_BATCH = False
-TEST = False
+TEST = True
 
 ### End of user inputs
+
+if TEST:
+    print "Running in TEST mode"
+    print "Set TEST = False to run all files"
 
 # Make output directory 
 if not os.path.exists(OUT_DIR):

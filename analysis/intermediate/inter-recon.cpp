@@ -393,7 +393,7 @@ int main(int argc, char* argv[]) {
 
     const std::size_t num_threads = ROOT::IsImplicitMTEnabled() ? ROOT::GetImplicitMTPoolSize() : 1;
     // Write tree
-    valid_evt.Book<reconstructed_event>(OutputTree{"preselection", &output_file, num_threads, output_format}, {"event"});
+    valid_evt.Book<reconstructed_event>(OutputTree{"preselection", &output_file, num_threads, output_format}, {"event"}).GetValue();
 
     // Write cutflow
     loose_cutflow.write();

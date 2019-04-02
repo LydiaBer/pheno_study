@@ -126,20 +126,20 @@ inline double deltaR(OxJet& jet1, OxJet& jet2) { return jet1.p4.DeltaR(jet2.p4);
 // Reconstructed event information
 struct reconstructed_event {
     bool valid;                ///< Is event valid
-    int64_t n_small_tag;       ///< Number of B-tagged smallR jets
-    int64_t n_small_jets;      ///< Total number of smallR jets
-    int64_t n_large_tag;       ///< Number of B-tagged LargeR jets
-    int64_t n_large_jets;      ///< Total number of LargeR jets
-    int64_t n_track_tag;       ///< Number of B-tagged track jets
-    int64_t n_track_jets;      ///< Total number of track jets
-    int64_t n_jets_in_higgs1;  ///< Total number of jets associated with higgs 1
-    int64_t n_jets_in_higgs2;  ///< Total number of jets associated with higgs 2
-    int64_t n_bjets_in_higgs1; ///< Total number of b-jets associated with higgs 1
-    int64_t n_bjets_in_higgs2; ///< Total number of b-jets associated with higgs 2
+    int n_small_tag;       ///< Number of B-tagged smallR jets
+    int n_small_jets;      ///< Total number of smallR jets
+    int n_large_tag;       ///< Number of B-tagged LargeR jets
+    int n_large_jets;      ///< Total number of LargeR jets
+    int n_track_tag;       ///< Number of B-tagged track jets
+    int n_track_jets;      ///< Total number of track jets
+    int n_jets_in_higgs1;  ///< Total number of jets associated with higgs 1
+    int n_jets_in_higgs2;  ///< Total number of jets associated with higgs 2
+    int n_bjets_in_higgs1; ///< Total number of b-jets associated with higgs 1
+    int n_bjets_in_higgs2; ///< Total number of b-jets associated with higgs 2
     double wgt;                ///< Event Weight
 
-    int64_t nElec; ///< Number of electrons at Delphes level
-    int64_t nMuon; ///< Number of muons at Delphes level
+    int nElec; ///< Number of electrons at Delphes level
+    int nMuon; ///< Number of muons at Delphes level
 
     TLorentzVector met;   ///< MET
     TLorentzVector elec1; ///< leading electron
