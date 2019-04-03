@@ -129,22 +129,22 @@ dihiggs find_higgs_cands_resolved(std::vector<OxJet> sj_vec) {
               std::make_pair(higgs(h1, h1_j1, h1_j2, h1_jets), higgs(h2, h2_j1, h2_j2, h2_jets)));
     }
 
-  // Choose pairing that minimises mass difference between 2 Higgs candidates
-  if (pair_candidates.size() > 0 ) {
-    auto elem = ranges::min_element(pair_candidates, ranges::ordered_less{}, [](auto&& cand) {
-      const auto& higgs1 = cand.first;
-      const auto& higgs2 = cand.second;
-      float Ddijet = std::abs(higgs1.p4.M() - higgs2.p4.M());
-      return Ddijet;
-    });
+    // Choose pairing that minimises mass difference between 2 Higgs candidates
+    if (pair_candidates.size() > 0) {
+        auto elem = ranges::min_element(pair_candidates, ranges::ordered_less{}, [](auto&& cand) {
+            const auto& higgs1 = cand.first;
+            const auto& higgs2 = cand.second;
+            float Ddijet = std::abs(higgs1.p4.M() - higgs2.p4.M());
+            return Ddijet;
+        });
 
-    // Assign Higgs candidates
-    higgs_cands.higgs1 = elem->first;
-    higgs_cands.higgs2 = elem->second;
-    higgs_cands.isValid = true;
-  }
+        // Assign Higgs candidates
+        higgs_cands.higgs1 = elem->first;
+        higgs_cands.higgs2 = elem->second;
+        higgs_cands.isValid = true;
+    }
 
-  return higgs_cands;
+    return higgs_cands;
 } // end resolved
 
 //--------------------------------------------------------------
@@ -184,6 +184,7 @@ dihiggs find_higgs_cands_inter_boost(std::vector<OxJet> lj_vec, std::vector<OxJe
     // Case 2+ large jets, subleading large jet is subleading Higgs candidate
     if (lj_vec.size() >= 2) {
         higgs_cands.higgs2.p4 = lj_vec[1].p4;
+        higgs_cands.isValid = true;
         return higgs_cands; // end here as boosted analysis implied
     }
 
@@ -203,6 +204,7 @@ dihiggs find_higgs_cands_inter_boost(std::vector<OxJet> lj_vec, std::vector<OxJe
         for (unsigned int j = i + 1; j < jets_separated.size(); j++) {
             if (i == 0 && j == 1) {
                 bestPair = make_pair(jets_separated.at(i), jets_separated.at(j));
+                higgs_cands.isValid = true;
                 continue;
             }
             JetPair thisPair = make_pair(jets_separated.at(i), jets_separated.at(j));
@@ -290,18 +292,19 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Jet
     if (lj_vec.size() == 0 && sj_vec.size() >= 4) {
         higgs_cands = find_higgs_cands_resolved(sj_vec);
     }
-
     // Intermediate: exactly 1 large jet
     else if (lj_vec.size() == 1 && sj_vec.size() >= 2) {
-        higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
+        higgs_cands = find_higgs_cands_inter_boost(lj_vec, sj_vec, tj_vec);
     }
-
     // Boosted: 2 or more large jets
     else if (lj_vec.size() >= 2) {
-        higgs_cands = find_higgs_cands_inter_boost(lj_vec, tj_vec, sj_vec);
+        higgs_cands = find_higgs_cands_inter_boost(lj_vec, sj_vec, tj_vec);
+    }
+    else {
+        result.valid = false;
     }
 
-    else {
+    if (!higgs_cands.isValid) {
         result.valid = false;
     }
 
@@ -309,43 +312,42 @@ reconstructed_event reconstruct(VecOps::RVec<Jet>& smalljet,      // Jet
     const int n_bjets_in_higgs1 =
           ranges::count(higgs_cands.higgs1.jets, true, [](auto&& jet) { return jet.tagged; });
 
-  const int n_bjets_in_higgs2 =
-        ranges::count(higgs_cands.higgs2.jets, true, [](auto&& jet) { return jet.tagged; });
+    const int n_bjets_in_higgs2 =
+          ranges::count(higgs_cands.higgs2.jets, true, [](auto&& jet) { return jet.tagged; });
 
-  //----------------------------------------------------
-  // Store jets, Higgs candidates, electrons, muons, MET
-  //----------------------------------------------------
+    //----------------------------------------------------
+    // Store jets, Higgs candidates, electrons, muons, MET
+    //----------------------------------------------------
 
-  result.n_small_tag    = n_small_tag;
-  result.n_small_jets   = sj_vec.size();
-  result.n_large_tag    = n_large_tag;
-  result.n_large_jets   = lj_vec.size();
-  result.n_track_tag    = n_track_tag;
-  result.n_track_jets   = tj_vec.size();
+    result.n_small_tag = n_small_tag;
+    result.n_small_jets = sj_vec.size();
+    result.n_large_tag = n_large_tag;
+    result.n_large_jets = lj_vec.size();
+    result.n_track_tag = n_track_tag;
+    result.n_track_jets = tj_vec.size();
 
-  result.n_jets_in_higgs1  = higgs_cands.higgs1.jets.size();
-  result.n_jets_in_higgs2  = higgs_cands.higgs2.jets.size();
-  result.n_bjets_in_higgs1 = n_bjets_in_higgs1;
-  result.n_bjets_in_higgs2 = n_bjets_in_higgs2;
+    result.n_jets_in_higgs1 = higgs_cands.higgs1.jets.size();
+    result.n_jets_in_higgs2 = higgs_cands.higgs2.jets.size();
+    result.n_bjets_in_higgs1 = n_bjets_in_higgs1;
+    result.n_bjets_in_higgs2 = n_bjets_in_higgs2;
 
-  result.nElec = electron.size();
-  result.nMuon = muon.size();
+    result.nElec = electron.size();
+    result.nMuon = muon.size();
 
-  result.higgs1 = higgs_cands.higgs1;
-  result.higgs2 = higgs_cands.higgs2;
+    result.higgs1 = higgs_cands.higgs1;
+    result.higgs2 = higgs_cands.higgs2;
 
-  // Store leading leptons
-  electron.size() > 0
-           ? result.elec1.SetPtEtaPhiM( electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511 )
-           : result.elec1.SetPtEtaPhiM( -1., -9., -9., -1. );
-  muon.size() > 0
-           ? result.muon1.SetPtEtaPhiM(muon[0].PT, muon[0].Eta, muon[0].Phi, 0.106)
-           : result.muon1.SetPtEtaPhiM(-1., -9., -9., -1.);
+    // Store leading leptons
+    electron.size() > 0
+          ? result.elec1.SetPtEtaPhiM(electron[0].PT, electron[0].Eta, electron[0].Phi, 0.000511)
+          : result.elec1.SetPtEtaPhiM(-1., -9., -9., -1.);
+    muon.size() > 0 ? result.muon1.SetPtEtaPhiM(muon[0].PT, muon[0].Eta, muon[0].Phi, 0.106)
+                    : result.muon1.SetPtEtaPhiM(-1., -9., -9., -1.);
 
-  // Store missing transverse momentum
-  result.met.SetPtEtaPhiE( met[0].MET, met[0].Eta, met[0].Phi, met[0].MET );
+    // Store missing transverse momentum
+    result.met.SetPtEtaPhiE(met[0].MET, met[0].Eta, met[0].Phi, met[0].MET);
 
-  return result;
+    return result;
 }
 
 // Select Only Valid Events
@@ -393,7 +395,10 @@ int main(int argc, char* argv[]) {
 
     const std::size_t num_threads = ROOT::IsImplicitMTEnabled() ? ROOT::GetImplicitMTPoolSize() : 1;
     // Write tree
-    valid_evt.Book<reconstructed_event>(OutputTree{"preselection", &output_file, num_threads, output_format}, {"event"}).GetValue();
+    valid_evt
+          .Book<reconstructed_event>(
+                OutputTree{"preselection", &output_file, num_threads, output_format}, {"event"})
+          .GetValue();
 
     // Write cutflow
     loose_cutflow.write();
