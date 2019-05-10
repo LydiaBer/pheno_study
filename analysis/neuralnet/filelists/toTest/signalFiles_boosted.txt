@@ -1,0 +1,2 @@
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0.root.boosted_2.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0.root.boosted_3.root

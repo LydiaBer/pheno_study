@@ -1,0 +1,6 @@
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_ptj1_200_to_500_bkg_4b.root.resolved_0.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_ptj1_200_to_500_bkg_4b.root.resolved_1.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_ptj1_20_to_200_bkg_4b.root.resolved_0.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_ptj1_20_to_200_bkg_4b.root.resolved_1.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_ptj1_500_to_1000_bkg_4b.root.resolved_0.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_ptj1_500_to_1000_bkg_4b.root.resolved_1.root
