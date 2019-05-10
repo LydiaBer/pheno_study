@@ -1,0 +1,2 @@
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_noGenFilt_bkg_ttbar_trackJetBTag.root.intermediate_2.root
+/data/atlas/atlasdata2/DiHiggsShared/SplitNTuples/intermediate_noGenFilt_bkg_ttbar_trackJetBTag.root.intermediate_3.root
