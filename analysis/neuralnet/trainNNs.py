@@ -30,10 +30,16 @@ def main(argv):
     trainingDataPath = "."
 
     # Training parameters
-    numEpochs = 30
-    batchSize = 100
-    dropoutFraction = 0.5
+    #numEpochs = 30
+    #batchSize = 100
+    #dropoutFraction = 0.5
+    numEpochs = 40
+    batchSize = 32
+    dropoutFraction = 0.3
+    INIT_LR = 5e-3
 
+    param_string = "OPadamaxEP"+str(numEpochs)+"BS"+str(batchSize)+"DO"+str(0.3).replace(".","")
+    print ("paramters string "+param_string)
     # Plot score distributions for the training sample?
     makePlots = True
 
@@ -98,7 +104,7 @@ def main(argv):
         classStd1 = StandardScaler().fit(xTrainData)
         xTrainData = classStd1.fit_transform(xTrainData)
         # Record the scaler parameters, we'll need them later
-        joblib.dump(classStd1, "scaler_" + analysis + ".sav")
+        joblib.dump(classStd1, "scaler_" + analysis + param_string +".sav")
 
         # Construct the NN architecture
         model = Sequential()
@@ -107,12 +113,16 @@ def main(argv):
         model.add(Dense(100, activation="relu"))
         model.add(Dense(3, activation="softmax")) # output nodes
 
-        model.compile(optimizer='sgd',
-                      loss='categorical_crossentropy')
+        model.compile(
+                #optimizer='sgd',
+                loss='categorical_crossentropy',  # we train 10-way classification
+                optimizer=keras.optimizers.adamax(lr=INIT_LR),  # for SGD
+                metrics=['accuracy']  # report accuracy during training
+                )
 
         # Train the NN
-        model.fit(xTrainData, yTrainCategories, epochs=numEpochs, batch_size=batchSize, sample_weight=evtWeightsTrain)
-        model.save("nn_" + analysis + ".h5")
+        model.fit(xTrainData, yTrainCategories, epochs=numEpochs, batch_size=batchSize, sample_weight=evtWeightsTrain,verbose=2)
+        model.save("nn_" + analysis + param_string +".h5")
 
         # Optionally, plot the output distributions for the training sample.
         if makePlots:
@@ -146,7 +156,7 @@ def main(argv):
             plt.ylabel("1/N dN/d(NN Score)",fontsize=20)
             plt.yscale('log')
             plt.title("NN Score (training sample)")
-            plt.savefig("scores_" + analysis + ".png")
+            plt.savefig("scores_" + analysis + param_string +".png")
 
             # Plot distributions of composite discriminant on training data
             plt.figure(figsize=(16, 8))
@@ -158,7 +168,7 @@ def main(argv):
             plt.ylabel("1/N dN/d(Discriminant)",fontsize=20)
             plt.yscale('log')
             plt.title("Discriminant (training sample)")
-            plt.savefig("discs_" + analysis + ".png")
+            plt.savefig("discs_" + analysis + param_string +".png")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

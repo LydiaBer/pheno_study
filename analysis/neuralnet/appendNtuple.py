@@ -26,7 +26,7 @@ def main(argv):
     fileListLocation = "/home/balunas/pheno/neuralnet/filelists/toAppend"
     # Path of the directory containing your trained NN and scaler files.
     # I've assumed they have the standard auto-generated names.
-    nnLocation = "/home/balunas/pheno/neuralnet/training"
+    nnLocation = "/home/paredes/pheno/testnn/pheno_study/analysis/neuralnet/testrun"
 
 
     inFileList = ""
