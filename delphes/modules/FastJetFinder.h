@@ -76,6 +76,11 @@ private:
   Int_t fAdjacencyCut;
   Double_t fOverlapThreshold;
 
+  //-- VR Parameters --
+  Double_t fMinR;
+  Double_t fMaxR;
+  Double_t fRho;
+
   //-- N (sub)jettiness parameters --
 
   Bool_t fComputeNsubjettiness;
