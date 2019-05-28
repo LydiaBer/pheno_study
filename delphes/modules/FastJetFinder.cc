@@ -65,6 +65,8 @@
 #include "fastjet/contribs/Nsubjettiness/NjettinessPlugin.hh"
 #include "fastjet/contribs/Nsubjettiness/ExtraRecombiners.hh"
 
+#include "fastjet/contribs/VariableR/VariableRPlugin.hh"
+
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/contribs/RecursiveTools/SoftDrop.hh"
@@ -116,6 +118,12 @@ void FastJetFinder::Init()
   fOverlapThreshold = GetDouble("OverlapThreshold", 0.75);
 
   fJetPTMin = GetDouble("JetPTMin", 10.0);
+
+  //-- VR Parameters --
+  // Only used when clustering algo is VR (9)
+  fMinR = GetDouble("MinR", 0.05);
+  fMaxR = GetDouble("MaxR", 1.0);
+  fRho = GetDouble("Rho", 30);
 
   //-- N(sub)jettiness parameters --
 
@@ -234,6 +242,10 @@ void FastJetFinder::Init()
     case 8:
       fNjettinessPlugin = new NjettinessPlugin(fN, Njettiness::wta_kt_axes, Njettiness::unnormalized_cutoff_measure, fBeta, fRcutOff);
       fDefinition = new JetDefinition(fNjettinessPlugin);
+      break;
+    case 9:
+      plugin = new VariableRPlugin(fRho, fMinR, fMaxR, VariableRPlugin::AKTLIKE);
+      fDefinition = new JetDefinition(plugin);
       break;
   }
 

@@ -1283,6 +1283,8 @@ tmp/external/fastjet/contribs/RecursiveTools/SoftDrop.$(ObjSuf): \
 	external/fastjet/contribs/RecursiveTools/SoftDrop.$(SrcSuf)
 tmp/external/fastjet/contribs/SoftKiller/SoftKiller.$(ObjSuf): \
 	external/fastjet/contribs/SoftKiller/SoftKiller.$(SrcSuf)
+tmp/external/fastjet/contribs/VariableR/VariableRPlugin.$(ObjSuf): \
+	external/fastjet/contribs/VariableR/VariableRPlugin.$(SrcSuf)
 tmp/external/fastjet/plugins/ATLASCone/ATLASConePlugin.$(ObjSuf): \
 	external/fastjet/plugins/ATLASCone/ATLASConePlugin.$(SrcSuf) \
 	external/fastjet/ClusterSequence.hh
@@ -1510,6 +1512,7 @@ FASTJET_OBJ +=  \
 	tmp/external/fastjet/contribs/RecursiveTools/RecursiveSymmetryCutBase.$(ObjSuf) \
 	tmp/external/fastjet/contribs/RecursiveTools/SoftDrop.$(ObjSuf) \
 	tmp/external/fastjet/contribs/SoftKiller/SoftKiller.$(ObjSuf) \
+	tmp/external/fastjet/contribs/VariableR/VariableRPlugin.$(ObjSuf) \
 	tmp/external/fastjet/plugins/ATLASCone/ATLASConePlugin.$(ObjSuf) \
 	tmp/external/fastjet/plugins/ATLASCone/Jet.$(ObjSuf) \
 	tmp/external/fastjet/plugins/ATLASCone/JetConeFinderTool.$(ObjSuf) \
@@ -2153,8 +2156,6 @@ modules/FastJetFinder.h: \
 modules/BeamSpotFilter.h: \
 	classes/DelphesModule.h
 	@touch $@
-
-
 
 ###
 
