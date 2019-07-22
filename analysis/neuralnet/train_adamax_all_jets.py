@@ -20,6 +20,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.externals import joblib
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, auc
+from scipy import interp
+from itertools import cycle
+
 
 # This program trains a neural network based on input numpy array files.
 # Output is one trained NN file (nn_*.h5) and one scaler file (scaler_*.sav)
@@ -35,7 +39,7 @@ def main(argv):
     trainingDataPath = "."
 
     # Training parameters
-    numEpochs = 15
+    numEpochs = 2
     batchSize = 100
     dropoutFraction = 0.3
     # initial learning rate for adamax
@@ -91,7 +95,6 @@ def main(argv):
         n_ttbar = len(background_ttbar)
 
         allData = signalData.append(backgroundData, ignore_index = True)
-        print("still ok before adding weights")
 
         sigW = 1 - n_sig/(n_ttbar+n_qcd+n_sig)
         qcdW = 1 - n_qcd/(n_ttbar+n_qcd+n_sig)
@@ -105,7 +108,6 @@ def main(argv):
         allData.loc[allData.target == 1, 'mc_sf'] = qcd_weight[analysis]    # QCD
         allData.loc[allData.target == 2, 'mc_sf'] = ttbar_weight[analysis]  # ttbar
 
-        print("still ok before shuffling")
         # shuffle data to get representative validation set
         #allData = shuffle(allData)
 
@@ -157,7 +159,7 @@ def main(argv):
         model.save("nn_all_jets_" + analysis + param_string +".h5")
 
         # plot accuracy and loss 
-        plt.figure(figsize=(16, 8))
+        plt.figure(figsize=(12,8))
         plt.plot(history.history['acc'])
         plt.plot(history.history['val_acc'])
         plt.title(analysis + ', model accuracy')
@@ -172,7 +174,7 @@ def main(argv):
         plt.ylabel('loss')
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
-        plt.figure(figsize=(16, 8))
+        plt.figure(figsize=(12,8))
         plt.plot(history.history['loss'])
         plt.savefig("training/loss_" + analysis +"_"+ param_string +".png")
 
@@ -181,6 +183,48 @@ def main(argv):
             # Run training sample back through the NN
             probTrain = model.predict(X_train)
             probTest = model.predict(X_test)
+
+            # Compute ROC curve and ROC area for each class
+            fpr = dict()
+            tpr = dict()
+            roc_auc = dict()
+            lw = 2
+            for i in range(0,3):
+              fpr[i], tpr[i], _ = roc_curve(y_test[:, i], probTest[:, i])
+              roc_auc[i] = auc(fpr[i], tpr[i])
+
+            # Then compute macro-average ROC curve and ROC area
+            # First aggregate all false positive rates
+            all_fpr = np.unique(np.concatenate([fpr[i] for i in range(0,3)]))
+            
+            # Then interpolate all ROC curves at this points
+            mean_tpr = np.zeros_like(all_fpr)
+            for i in range(0,3):
+                mean_tpr += interp(all_fpr, fpr[i], tpr[i])
+            
+            # Finally average it and compute AUC
+            mean_tpr /= 3
+            
+            fpr["macro"] = all_fpr
+            tpr["macro"] = mean_tpr
+            roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+            
+            # Plot all ROC curves
+            plt.figure(figsize=(12,8))
+            plt.plot(fpr["macro"], tpr["macro"], label='macro-average ROC curve (area = {0:0.2f})'.format(roc_auc["macro"]), color='gray', linestyle=':', linewidth=4)
+            colors = cycle(['red', 'blue', 'green'])
+            types = cycle(['sig', 'qcd', 'ttbar'])
+            for i, color, typ in zip(range(0,3), colors, types):
+                plt.plot(fpr[i], tpr[i], color=color, lw=lw, label='{0} score ROC curve (area = {1:0.2f})'.format(typ, roc_auc[i]))
+            
+            plt.plot([0, 1], [0, 1], 'k--', lw=lw)
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('All ROC curves')
+            plt.legend(loc="lower right")
+            plt.savefig("roc_curves__" + analysis +"_"+ param_string +".png")
 
             # Construct discriminant
             scores_train = np.log(probTrain[:,0]/(probTrain[:,1]+probTrain[:,2]))
@@ -211,7 +255,7 @@ def main(argv):
             hist_params = {'density': True, 'bins': 50, 'linewidth': 2}
             min_value = 0
             max_value = 1
-            plt.figure(figsize=(12,6))
+            plt.figure(figsize=(12,8))
             plt.hist(trainData[trainData.process == 0]['sig_score'], color=["r"], weights=trainData[trainData.process == 0]['weight'], range=(min_value, max_value), histtype='step', label='Signal', **hist_params)
             plt.hist(trainData[trainData.process == 1]['sig_score'], color=["b"], weights=trainData[trainData.process == 1]['weight'], range=(min_value, max_value), histtype='step', label='QCD', **hist_params)
             plt.hist(trainData[trainData.process == 2]['sig_score'], color=["g"], weights=trainData[trainData.process == 2]['weight'], range=(min_value, max_value), histtype='step', label='ttbar', **hist_params)
@@ -224,7 +268,7 @@ def main(argv):
             #plt.yscale('log')
             plt.title(analysis + " (training and validation samples)")
             plt.savefig("sig_scores_" + analysis + param_string +".png")
-            plt.figure(figsize=(12,6))
+            plt.figure(figsize=(12,8))
             plt.hist(trainData[trainData.process == 0]['qcd_score'], color=["r"], weights=trainData[trainData.process == 0]['weight'], range=(min_value, max_value), histtype='step', label='Signal', **hist_params)
             plt.hist(trainData[trainData.process == 1]['qcd_score'], color=["b"], weights=trainData[trainData.process == 1]['weight'], range=(min_value, max_value), histtype='step', label='QCD', **hist_params)
             plt.hist(trainData[trainData.process == 2]['qcd_score'], color=["g"], weights=trainData[trainData.process == 2]['weight'], range=(min_value, max_value), histtype='step', label='ttbar', **hist_params)
@@ -237,7 +281,7 @@ def main(argv):
             #plt.yscale('log')
             plt.title(analysis + ", (training and validation samples)")
             plt.savefig("qcd_scores_" + analysis + param_string +".png")
-            plt.figure(figsize=(12,6))
+            plt.figure(figsize=(12,8))
             plt.hist(trainData[trainData.process == 0]['top_score'], color=["r"], weights=trainData[trainData.process == 0]['weight'], range=(min_value, max_value), histtype='step', label='Signal', **hist_params)
             plt.hist(trainData[trainData.process == 1]['top_score'], color=["b"], weights=trainData[trainData.process == 1]['weight'], range=(min_value, max_value), histtype='step', label='QCD', **hist_params)
             plt.hist(trainData[trainData.process == 2]['top_score'], color=["g"], weights=trainData[trainData.process == 2]['weight'], range=(min_value, max_value), histtype='step', label='ttbar', **hist_params)
@@ -252,10 +296,10 @@ def main(argv):
             plt.savefig("top_scores_" + analysis + param_string +".png")
 
             # Plot distributions of composite discriminant on training data
-            plt.figure(figsize=(8, 4))
-            plt.hist(trainData[trainData.process == 0]['disc'], color=["r"], weights=trainData[trainData.process == 0]['weight'], range=(min_value, max_value), histtype='step', label='Signal', **hist_params)
-            plt.hist(trainData[trainData.process == 1]['disc'], color=["b"], weights=trainData[trainData.process == 1]['weight'], range=(min_value, max_value), histtype='step', label='QCD', **hist_params)
-            plt.hist(trainData[trainData.process == 2]['disc'], color=["g"], weights=trainData[trainData.process == 2]['weight'], range=(min_value, max_value), histtype='step', label='ttbar', **hist_params)
+            plt.figure(figsize=(12,8))
+            plt.hist(trainData[trainData.process == 0]['disc'], color=["r"], weights=trainData[trainData.process == 0]['weight'], range=(min_value, max_value), histtype='step', label='Signal')
+            plt.hist(trainData[trainData.process == 1]['disc'], color=["b"], weights=trainData[trainData.process == 1]['weight'], range=(min_value, max_value), histtype='step', label='QCD')
+            plt.hist(trainData[trainData.process == 2]['disc'], color=["g"], weights=trainData[trainData.process == 2]['weight'], range=(min_value, max_value), histtype='step', label='ttbar')
             plt.legend(loc='best')
             plt.xlabel("Discriminant",fontsize=20)
             plt.ylabel("1/N dN/d(Discriminant)",fontsize=20)
