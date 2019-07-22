@@ -134,9 +134,9 @@ def main(argv):
 
         # Scale input features to mean=0, stddev=1
         classStd1 = StandardScaler().fit(X_train)
-        X_train = classStd1.fit_transform(X_train)
+        X_train = classStd1.transform(X_train)
         other_classStd1 = StandardScaler().fit(X_test)
-        X_test = classStd1.fit_transform(X_test)
+        X_test = classStd1.transform(X_test)
         joblib.dump(classStd1, "scaler_" + analysis + param_string +".sav")
 
         # Construct the NN architecture
