@@ -20,13 +20,12 @@ In the ```pheno_study``` directory the ```setup.sh``` script should first be sou
 
 ```cd analysis/outputs```
 
-and run in the following order:
+and run:
 ```python haddme_ktkl.py DIRNAME```
-```source haddme.sh``` (only needed for jesse_linked_delphes files not latest) 
 
 ## Using existing ntuples
 
-If instead of using the ntuples you have produced which are stored in your outputs directory you can instead plot centrally produced ntuples by changing ```TOPPATH = '../outputs'``` in ```samples.py``` to point to the existing ntuples. Centrally stored ntuples can be found here: /data/atlas/atlasdata/DiHiggsPheno/ntuples
+If instead of using the ntuples you have produced which are stored in your outputs directory you can instead plot centrally produced ntuples by changing ```TOPPATH = ''``` in ```samples.py``` to point to the existing ntuples. Centrally stored ntuples can be found here: /data/atlas/atlasdata/DiHiggsPheno/ntuples
 
 ## Running the plotting code
 
@@ -40,20 +39,22 @@ The code is then run as follows:
 
 ```python plot.py```
 
-The output pdf files are stored in the ```figs``` directory.  
+Or on the batch:
 
-## Running the constraint codes
+```cd batch```
+```python make_batch_scripts.py```
+```python send_plotting_to_batch.py --doTorque```
 
-First the ```plot.py``` must be run (as described above) in order to produce YIELD files for the constraint code. In plot.py ensure the following is used ```dir = 'jesse_linked_delphes/varied_couplings``` and the analysis is ```resolved_SlfCoup``` for example for the resolved analysis lambda limits ntuples to be used which are defined in samples.py. 
-```python plot.py```
+The output pdf files (and YIELD files for mhh) are stored in the ```figs``` directory.  
 
-Next the constraint code is run, for the lambda limits run:
-```plot_lambda_limit.py```
-This takes the YIELD files as input and produces plots of cross-section vs kappa value (modified coupling/SM coupling) and uses this to produce a chi2 vs kappa value constraint plot.  
+## 1D plot for Self-coupling limits and 2D plots for Top Yukawa vs Self-coupling
+First the ```plot.py``` must be run (as described above) in order to produce YIELD files for the constraint code. 
 
-## 2D plots for Top Yukawa vs Self-coupling
-The `ntuples_to_chiSq.py` script loops through signal samples processed through ntupler and produces a CSV containing S/B, acceptance, chi-squares etc. Currently only works with intermediate; needs work to make this more configurable and extend to other channels. Open this and configure luminosities etc, then run as
+Next the `ntuples_to_chiSq.py` script loops through signal samples processed through ntupler and produces a CSV containing S/B, acceptance, chi-squares etc. Currently only works with intermediate; needs work to make this more configurable and extend to other channels. This uses the YIELD files produced by plot.py. Open this and configure luminosities etc, then run as
 ```python ntuples_to_chiSq.py```
+
+The `chiSq_to_1Dlimit.py` allows plotting the CSV file into a 1D contour plot from the output CSV of `ntuples_to_chiSq.py`. Currently needs user to open file and specify the inputs etc, more needed to make more configurable etc. Run as
+```python chiSq_to_1Dlimit.py```
 The `chiSq_to_contour.py` allows plotting the CSV file into a 2D contour plot from the output CSV of `ntuples_to_chiSq.py`. Currently needs user to open file and specify the inputs etc, more needed to make more configurable etc. Run as
 ```python chiSq_to_contour.py```
 
