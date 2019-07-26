@@ -1,0 +1,32 @@
+#
+# ttbar
+#
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_ttbar.root          
+#
+# QCD 4b
+#
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_20_to_200_4b.root
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_200_to_500_4b.root
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_500_to_1000_4b.root
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_1000_to_infty_4b.root
+#
+# QCD 2b2j
+#
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_20_to_200_2b2j.root
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_200_to_500_2b2j.root
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_500_to_1000_2b2j.root
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_1000_to_infty_2b2j.root
+#
+# Small bkgs
+#
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_bbh.root            
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_ttbb.root           
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_tth.root            
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_wh.root             
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_zh.root             
+/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_noGenFilt_zz.root             
+#
+# Lower stat files not run over
+#/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_500_to_1000_4b_1.75mEvents.root
+#/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_20_to_200_2b2j_1.85mEvents.root
+#/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/OxHHPh_18Mar2019_MG5_262_Py8_14TeV_NNPDF30NLO_Dlph3_ptj1_500_to_1000_2b2j_1.85mEvents.root

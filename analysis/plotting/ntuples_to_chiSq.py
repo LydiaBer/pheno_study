@@ -5,10 +5,13 @@ Welcome to ntuples_to_chiSq.py
 
 Loops through ntuples of signal samples defined in get_signal_xsec()
 Calculates chiSq, S/B among other observables to a CSV
-Depends on cuts defined in cuts.py
 
 Requires running plot.py once to compute YIELD file for total background counts
 
+* Configure various aspects in other files
+    - cuts.py
+    - xsecs.py
+    - samples.py
 '''
 
 import argparse, os, sys, math
@@ -17,7 +20,9 @@ from ROOT import *
 from cuts import *
   
 # Path to the intermediate ntuples
-SIG_PATH = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25/merged_signals'
+#SIG_PATH = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25/merged_signals'
+SIG_PATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
+dir = '150719'
 
 # Impose 4 b-tags as weights
 do_BTagWeight = True
@@ -53,8 +58,8 @@ def main():
         print( 'Cut selection: {0}'.format(cut_sel) )
         
         # Yield file is the input file with the background yield from plot.py
-        yield_file = 'figs/YIELD_{0}_{1}_{2}.txt'.format(analysis, sig_reg, cut_sel)
-        
+        yield_file = 'figs/{0}/YIELD_{1}_{2}_{3}.txt'.format(dir, analysis, sig_reg, cut_sel)
+
         # Save file is where we will store the outputs
         save_file  = 'data/CHISQ_{0}_{1}_{2}.csv'.format(analysis, sig_reg, cut_sel)
         
@@ -85,6 +90,7 @@ def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
   #
   # Get the cross-section file
   d_sig_xsec = get_signal_xsec()
+
   # Variable to plot in
   var  = 'm_hh'
   # Get cut strings from cuts.py
@@ -127,7 +133,7 @@ def get_N_sig_nom( lumi, var, unweighted_cuts ):
   
   print('\nGetting the nominal signal yield\n')
   
-  root_nom = SIG_PATH + '/loose_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM.root'
+  root_nom = SIG_PATH + '/' + dir + '/loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0.root'
   print('Nominal root file: {0}'.format(root_nom))
   tfile = TFile( root_nom )
   N_nom_raw = tfile.Get('loose_cutflow').GetBinContent(1)
@@ -169,10 +175,9 @@ def compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N
   # Extract coupling values from file name
   # ------------------------------------------------------
   info = signal.split('_')
-  TopYuk  = float( info[2] )
-  SlfCoup = float( info[4].replace('m', '-') )
-
-  root_signal = SIG_PATH + '/' + signal + '.root'
+  TopYuk  = float( info[5] )
+  SlfCoup = float( info[7].replace('m', '-') )
+  root_signal = SIG_PATH + '/' + dir + '/' + signal + '.root'
   print( 'Root file: {0}'.format( root_signal ) )
   Nbins = 1
   xmin = -100.0
@@ -250,131 +255,131 @@ def get_signal_xsec():
   Leading order MG cross-sections in pb
   '''
   d_xsec = {
-   'loose_TopYuk_0.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 0.51342,
-   'loose_TopYuk_0.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.1438,
-   'loose_TopYuk_0.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.077355,
-   'loose_TopYuk_0.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.044446,
-   'loose_TopYuk_0.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.020674,
-   'loose_TopYuk_0.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.012206,
-   'loose_TopYuk_0.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.0060154,
-   'loose_TopYuk_0.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.0037762,
-   'loose_TopYuk_0.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.0010049,
-   'loose_TopYuk_0.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.00047415,
-   'loose_TopYuk_0.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0011231,
-   'loose_TopYuk_0.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0040518,
-   'loose_TopYuk_0.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.016746,
-   'loose_TopYuk_0.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.038557,
-   'loose_TopYuk_0.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.088394,
-   'loose_TopYuk_0.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 0.40269,
-   'loose_TopYuk_0.8_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 1.4078,
-   'loose_TopYuk_0.8_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.41912,
-   'loose_TopYuk_0.8_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.23617,
-   'loose_TopYuk_0.8_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.14345,
-   'loose_TopYuk_0.8_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.074079,
-   'loose_TopYuk_0.8_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.048166,
-   'loose_TopYuk_0.8_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.028062,
-   'loose_TopYuk_0.8_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.020193,
-   'loose_TopYuk_0.8_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.0088491,
-   'loose_TopYuk_0.8_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.0053661,
-   'loose_TopYuk_0.8_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0027707,
-   'loose_TopYuk_0.8_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0060114,
-   'loose_TopYuk_0.8_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.029995,
-   'loose_TopYuk_0.8_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.077325,
-   'loose_TopYuk_0.8_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.19209,
-   'loose_TopYuk_0.8_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 0.95416,
-   'loose_TopYuk_0.9_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.55292,
-   'loose_TopYuk_0.9_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.3161,
-   'loose_TopYuk_0.9_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.19517,
-   'loose_TopYuk_0.9_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.10379,
-   'loose_TopYuk_0.9_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.069191,
-   'loose_TopYuk_0.9_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.041957,
-   'loose_TopYuk_0.9_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.031105,
-   'loose_TopYuk_0.9_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.01494,
-   'loose_TopYuk_0.9_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.0096347,
-   'loose_TopYuk_0.9_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0045515,
-   'loose_TopYuk_0.9_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0068599,
-   'loose_TopYuk_0.9_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.033622,
-   'loose_TopYuk_0.9_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.089949,
-   'loose_TopYuk_0.9_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.22978,
-   'loose_TopYuk_0.9_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.1762,
-   'loose_TopYuk_1.0_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 2.3008,
-   'loose_TopYuk_1.0_SlfCoup_m15.0_pp2hh_HeavyHiggsTHDM' : 1.3919,
-   'loose_TopYuk_1.0_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.71114,
-   'loose_TopYuk_1.0_SlfCoup_m9.0_pp2hh_HeavyHiggsTHDM'  : 0.60241,
-   'loose_TopYuk_1.0_SlfCoup_m8.0_pp2hh_HeavyHiggsTHDM'  : 0.50274,
-   'loose_TopYuk_1.0_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.41211,
-   'loose_TopYuk_1.0_SlfCoup_m6.0_pp2hh_HeavyHiggsTHDM'  : 0.33079,
-   'loose_TopYuk_1.0_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.25842,
-   'loose_TopYuk_1.0_SlfCoup_m4.0_pp2hh_HeavyHiggsTHDM'  : 0.19529,
-   'loose_TopYuk_1.0_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.14117,
-   'loose_TopYuk_1.0_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.096246,
-   'loose_TopYuk_1.0_SlfCoup_m1.5_pp2hh_HeavyHiggsTHDM'  : 0.07717,
-   'loose_TopYuk_1.0_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.060419,
-   'loose_TopYuk_1.0_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.04591,
-   'loose_TopYuk_1.0_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.023744,
-   'loose_TopYuk_1.0_SlfCoup_0.8_pp2hh_HeavyHiggsTHDM'   : 0.018863,
-   'loose_TopYuk_1.0_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.016078,
-   'loose_TopYuk_1.0_SlfCoup_1.2_pp2hh_HeavyHiggsTHDM'   : 0.013651,
-   'loose_TopYuk_1.0_SlfCoup_1.5_pp2hh_HeavyHiggsTHDM'   : 0.010691,
-   'loose_TopYuk_1.0_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.0075864,
-   'loose_TopYuk_1.0_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.0082156,
-   'loose_TopYuk_1.0_SlfCoup_4.0_pp2hh_HeavyHiggsTHDM'   : 0.01797,
-   'loose_TopYuk_1.0_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.036819,
-   'loose_TopYuk_1.0_SlfCoup_6.0_pp2hh_HeavyHiggsTHDM'   : 0.064829,
-   'loose_TopYuk_1.0_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.10192,
-   'loose_TopYuk_1.0_SlfCoup_8.0_pp2hh_HeavyHiggsTHDM'   : 0.14813,
-   'loose_TopYuk_1.0_SlfCoup_9.0_pp2hh_HeavyHiggsTHDM'   : 0.2035,
-   'loose_TopYuk_1.0_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.26794,
-   'loose_TopYuk_1.0_SlfCoup_15.0_pp2hh_HeavyHiggsTHDM'  : 0.72691,
-   'loose_TopYuk_1.0_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.4143,
-   'loose_TopYuk_1.1_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 2.8461,
-   'loose_TopYuk_1.1_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 0.89591,
-   'loose_TopYuk_1.1_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.52603,
-   'loose_TopYuk_1.1_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.33467,
-   'loose_TopYuk_1.1_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.18749,
-   'loose_TopYuk_1.1_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.1304,
-   'loose_TopYuk_1.1_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.084344,
-   'loose_TopYuk_1.1_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.06546,
-   'loose_TopYuk_1.1_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.035942,
-   'loose_TopYuk_1.1_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.025329,
-   'loose_TopYuk_1.1_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.012381,
-   'loose_TopYuk_1.1_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.010459,
-   'loose_TopYuk_1.1_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.03971,
-   'loose_TopYuk_1.1_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.11313,
-   'loose_TopYuk_1.1_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.30598,
-   'loose_TopYuk_1.1_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.6661,
-   'loose_TopYuk_1.2_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 3.4621,
-   'loose_TopYuk_1.2_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 1.1095,
-   'loose_TopYuk_1.2_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 0.65961,
-   'loose_TopYuk_1.2_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.42544,
-   'loose_TopYuk_1.2_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.24384,
-   'loose_TopYuk_1.2_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.17275,
-   'loose_TopYuk_1.2_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.11473,
-   'loose_TopYuk_1.2_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.090659,
-   'loose_TopYuk_1.2_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.052327,
-   'loose_TopYuk_1.2_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.038111,
-   'loose_TopYuk_1.2_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.019517,
-   'loose_TopYuk_1.2_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.014026,
-   'loose_TopYuk_1.2_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.042466,
-   'loose_TopYuk_1.2_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.12343,
-   'loose_TopYuk_1.2_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.3433,
-   'loose_TopYuk_1.2_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 1.9299,
-   'loose_TopYuk_1.5_SlfCoup_m20.0_pp2hh_HeavyHiggsTHDM' : 5.7703,
-   'loose_TopYuk_1.5_SlfCoup_m10.0_pp2hh_HeavyHiggsTHDM' : 1.9438,
-   'loose_TopYuk_1.5_SlfCoup_m7.0_pp2hh_HeavyHiggsTHDM'  : 1.1967,
-   'loose_TopYuk_1.5_SlfCoup_m5.0_pp2hh_HeavyHiggsTHDM'  : 0.80087,
-   'loose_TopYuk_1.5_SlfCoup_m3.0_pp2hh_HeavyHiggsTHDM'  : 0.48725,
-   'loose_TopYuk_1.5_SlfCoup_m2.0_pp2hh_HeavyHiggsTHDM'  : 0.3612,
-   'loose_TopYuk_1.5_SlfCoup_m1.0_pp2hh_HeavyHiggsTHDM'  : 0.25562,
-   'loose_TopYuk_1.5_SlfCoup_m0.5_pp2hh_HeavyHiggsTHDM'  : 0.21048,
-   'loose_TopYuk_1.5_SlfCoup_0.5_pp2hh_HeavyHiggsTHDM'   : 0.13571,
-   'loose_TopYuk_1.5_SlfCoup_1.0_pp2hh_HeavyHiggsTHDM'   : 0.10598,
-   'loose_TopYuk_1.5_SlfCoup_2.0_pp2hh_HeavyHiggsTHDM'   : 0.061942,
-   'loose_TopYuk_1.5_SlfCoup_3.0_pp2hh_HeavyHiggsTHDM'   : 0.038406,
-   'loose_TopYuk_1.5_SlfCoup_5.0_pp2hh_HeavyHiggsTHDM'   : 0.052931,
-   'loose_TopYuk_1.5_SlfCoup_7.0_pp2hh_HeavyHiggsTHDM'   : 0.14951,
-   'loose_TopYuk_1.5_SlfCoup_10.0_pp2hh_HeavyHiggsTHDM'  : 0.44814,
-   'loose_TopYuk_1.5_SlfCoup_20.0_pp2hh_HeavyHiggsTHDM'  : 2.7778, 
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m20.0' : 0.51342,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m10.0' : 0.1438,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m7.0'  : 0.077355,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m5.0'  : 0.044446,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m3.0'  : 0.020674,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m2.0'  : 0.012206,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m1.0'  : 0.0060154,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m0.5'  : 0.0037762,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_0.5'   : 0.0010049,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0'   : 0.00047415,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_2.0'   : 0.0011231,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_3.0'   : 0.0040518,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_5.0'   : 0.016746,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_7.0'   : 0.038557,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_10.0'  : 0.088394,
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_20.0'  : 0.40269,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m20.0' : 1.4078,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m10.0' : 0.41912,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m7.0'  : 0.23617,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m5.0'  : 0.14345,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m3.0'  : 0.074079,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m2.0'  : 0.048166,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m1.0'  : 0.028062,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m0.5'  : 0.020193,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_0.5'   : 0.0088491,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0'   : 0.0053661,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_2.0'   : 0.0027707,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_3.0'   : 0.0060114,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_5.0'   : 0.029995,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_7.0'   : 0.077325,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_10.0'  : 0.19209,
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_20.0'  : 0.95416,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m10.0' : 0.55292,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m7.0'  : 0.3161,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m5.0'  : 0.19517,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m3.0'  : 0.10379,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m2.0'  : 0.069191,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m1.0'  : 0.041957,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m0.5'  : 0.031105,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_0.5'   : 0.01494,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_1.0'   : 0.0096347,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_2.0'   : 0.0045515,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_3.0'   : 0.0068599,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_5.0'   : 0.033622,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_7.0'   : 0.089949,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_10.0'  : 0.22978,
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_20.0'  : 1.1762,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m20.0' : 2.3008,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m15.0' : 1.3919,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 0.71114,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m9.0'  : 0.60241,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m8.0'  : 0.50274,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0'  : 0.41211,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m6.0'  : 0.33079,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0'  : 0.25842,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m4.0'  : 0.19529,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0'  : 0.14117,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0'  : 0.096246,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.5'  : 0.07717,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0'  : 0.060419,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m0.5'  : 0.04591,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5'   : 0.023744,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.8'   : 0.018863,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0'   : 0.016078,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.2'   : 0.013651,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.5'   : 0.010691,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0'   : 0.0075864,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0'   : 0.0082156,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_4.0'   : 0.01797,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0'   : 0.036819,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_6.0'   : 0.064829,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0'   : 0.10192,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_8.0'   : 0.14813,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_9.0'   : 0.2035,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0'  : 0.26794,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_15.0'  : 0.72691,
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_20.0'  : 1.4143,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m20.0' : 2.8461,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m10.0' : 0.89591,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m7.0'  : 0.52603,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m5.0'  : 0.33467,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m3.0'  : 0.18749,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m2.0'  : 0.1304,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m1.0'  : 0.084344,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m0.5'  : 0.06546,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_0.5'   : 0.035942,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0'   : 0.025329,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_2.0'   : 0.012381,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_3.0'   : 0.010459,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_5.0'   : 0.03971,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_7.0'   : 0.11313,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_10.0'  : 0.30598,
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_20.0'  : 1.6661,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m20.0' : 3.4621,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m10.0' : 1.1095,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m7.0'  : 0.65961,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m5.0'  : 0.42544,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m3.0'  : 0.24384,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m2.0'  : 0.17275,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m1.0'  : 0.11473,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m0.5'  : 0.090659,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_0.5'   : 0.052327,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0'   : 0.038111,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_2.0'   : 0.019517,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_3.0'   : 0.014026,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_5.0'   : 0.042466,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_7.0'   : 0.12343,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_10.0'  : 0.3433,
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_20.0'  : 1.9299,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m20.0' : 5.7703,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m10.0' : 1.9438,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m7.0'  : 1.1967,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m5.0'  : 0.80087,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m3.0'  : 0.48725,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m2.0'  : 0.3612,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m1.0'  : 0.25562,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m0.5'  : 0.21048,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_0.5'   : 0.13571,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_1.0'   : 0.10598,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_2.0'   : 0.061942,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_3.0'   : 0.038406,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_5.0'   : 0.052931,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_7.0'   : 0.14951,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_10.0'  : 0.44814,
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_20.0'  : 2.7778, 
   }
 
   return d_xsec
