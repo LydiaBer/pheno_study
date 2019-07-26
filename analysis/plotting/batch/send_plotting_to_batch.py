@@ -50,9 +50,9 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
   #'resolved-commonSR',
   #'intermediate-commonSR',
   #'boosted-commonSR',
-  'resolved-finalSR',
-  'intermediate-finalSR',
-  'boosted-finalSR',
+  #'resolved-finalSR',
+  #'intermediate-finalSR',
+  #'boosted-finalSR',
   ]
 
   my_vars = [
@@ -120,6 +120,14 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
 
    'met_Et',
    'met_Phi',
+    ]
+
+  my_vars = [
+   'm_hh',
+   'h1_M',
+   'h2_M',
+   'h1_Pt',
+   'h2_Pt',
     ]
   
   script_name = 'torque_plot.sh'

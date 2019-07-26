@@ -45,7 +45,7 @@ def configure_cuts(var, cut_sel, print_cuts=True):
   
   l_intermediate_SR = [
                    'h1_M > 90 && h1_M < 140',
-                   'h2_M > 50 && h2_M < 100',
+                   'h2_M > 80 && h2_M < 130',
                   ]
 
   l_boosted = ['n_large_jets == 2',

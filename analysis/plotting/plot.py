@@ -65,10 +65,10 @@ def main():
   
   #================================================
   # user set values
-  dir = 'jesse_linked_delphes' # directory input files to plot are in
-  dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
-  dir = '280119' # directory input files to plot are in
-  dir = '' 
+  #dir = 'jesse_linked_delphes' # directory input files to plot are in
+  #dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
+  #dir = '280119' # directory input files to plot are in
+  dir = '150719' 
 
   ### ATLAS analysis xcheck
   l_vars     = ['m_hh']     # corresponds to variable in variables.py
@@ -98,27 +98,24 @@ def main():
   annotate_text = 'Pileup 0'#, No k-factors'
   savedir = 'figs'+"/"+dir
 
-  # FIXME slicing matching use nEvents not manual number, can't if cuts applied to ntuples
-
   # Slicing weight (weight down by number of slices run over)
   # Don't include resolved, boosted etc. in key as depends on MC sample not analysis selection!  
   d_slicing_weight = {
-               'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
-               'noGenFilt_bkg_ttbar_trackJetBTag'    : 2100000./50000.,
-               'noGenFilt_bkg_ttbb_trackJetBTag'     : 1000000./50000.,
-               'noGenFilt_bkg_tth_trackJetBTag'      : 1000000./50000.,
-               'noGenFilt_bkg_bbh_trackJetBTag'      : 999998./50000., # FIXME strange number of events, got from printout of file
-               'noGenFilt_bkg_wh_trackJetBTag'       : 1000000./50000.,
-               'noGenFilt_bkg_zh_trackJetBTag'       : 1000000./50000.,
-               'noGenFilt_bkg_zz_trackJetBTag'       : 1000000./50000.,
-               'ptj1_20_to_200_bkg_2b2j'     : 2000000./50000.,
-               'ptj1_200_to_500_bkg_2b2j'    : 2000000./50000.,
-               'ptj1_500_to_1000_bkg_2b2j'   : 2000000./50000.,
-               'ptj1_1000_to_infty_bkg_2b2j' : 1100000./50000.,
-               'ptj1_20_to_200_bkg_4b'       : 2000000./50000.,
-               'ptj1_200_to_500_bkg_4b'      : 2000000./50000.,
-               'ptj1_500_to_1000_bkg_4b'     : 2000000./50000.,
-               'ptj1_1000_to_infty_bkg_4b'   : 2000000./50000.,
+               'noGenFilt_ttbar'    : 2100000./50000.,
+               'noGenFilt_ttbb'     : 1000000./50000.,
+               'noGenFilt_tth'      : 1000000./50000.,
+               'noGenFilt_bbh'      : 999998./50000., # FIXME strange number of events, got from printout of file
+               'noGenFilt_wh'       : 1000000./50000.,
+               'noGenFilt_zh'       : 1000000./50000.,
+               'noGenFilt_zz'       : 1000000./50000.,
+               'ptj1_20_to_200_2b2j'     : 2000000./50000.,
+               'ptj1_200_to_500_2b2j'    : 2000000./50000.,
+               'ptj1_500_to_1000_2b2j'   : 2000000./50000.,
+               'ptj1_1000_to_infty_2b2j' : 1100000./50000.,
+               'ptj1_20_to_200_4b'       : 2000000./50000.,
+               'ptj1_200_to_500_4b'      : 2000000./50000.,
+               'ptj1_500_to_1000_4b'     : 2000000./50000.,
+               'ptj1_1000_to_infty_4b'   : 2000000./50000.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
@@ -133,118 +130,28 @@ def main():
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
-               # Old sample names below for making comparison plots
-               'loop_hh' : 100000./50000.,
-               'noGenFilt_4b' : 1200000./50000.,
-               'noGenFilt_2b2j' : 1200000./50000.,
-               'noGenFilt_4j' :  1200000./50000.,
-               'xpt200_4b' : 1200000./50000.,
-               'xpt200_2b2j' : 1200000./50000.,
-               'xpt200_4j' : 1200000./50000.,
-               'hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_3.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_5.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_7.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_10.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_m1.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_m2.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_m3.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_m5.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
-               'hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
-               'hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
-               'noGenFilt_ttbar' : 2100000./50000.,
+               #'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
   }
 
-  # Matching weight (Delphes saves unmatched xsec not matched xsec which is lower)
-  # For now weight down 4j and 2b2j by ratio of matched xsec/non matched xsec (using xsec from single 50k slice as proxy for all slices)
-  # In future can reproduce samples with explicit pT filter cut (increase stats) and xqcut removed then this step will not be necessary
-  # Set to 1 for all other samples 
-
-  # xsecs for ratios taken from: 
-  # /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/pp2jjjj/01/Events/pp_1/pp_1_tag_1_banner.txt
-  # /data/atlas/atlasdata/jesseliu/pheno/fcc/samples/14TeV/2018sep13/pp2bbjj/01/Events/pp_1/pp_1_tag_1_banner.txt
-
-  d_matching_weight = {
-               'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 1.,
-               'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
-               'noGenFilt_bkg_ttbb_trackJetBTag' : 1.,
-               'noGenFilt_bkg_tth_trackJetBTag' : 1.,
-               'noGenFilt_bkg_bbh_trackJetBTag' : 1.,
-               'noGenFilt_bkg_wh_trackJetBTag'  : 1.,
-               'noGenFilt_bkg_zh_trackJetBTag'  : 1.,
-               'noGenFilt_bkg_zz_trackJetBTag'  : 1.,
-               'ptj1_20_to_200_bkg_2b2j'     : 1.,
-               'ptj1_200_to_500_bkg_2b2j'    : 1.,
-               'ptj1_500_to_1000_bkg_2b2j'   : 1.,
-               'ptj1_1000_to_infty_bkg_2b2j' : 1.,
-               'ptj1_20_to_200_bkg_4b'       : 1.,
-               'ptj1_200_to_500_bkg_4b'      : 1.,
-               'ptj1_500_to_1000_bkg_4b'     : 1.,
-               'ptj1_1000_to_infty_bkg_4b'   : 1.,
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
-               # Old sample names below for making comparison plots
-               'loop_hh' : 1.,
-               'noGenFilt_ttbar' : 1.,
-               'noGenFilt_4j' : 106811.992819/887124.3069,
-               'noGenFilt_2b2j' : 38165.8048156/116266.19204,
-               'xpt200_4j' :13515.2473531/71702.662768,
-               'xpt200_2b2j' :655.237254906/1799.7624417,
-               'noGenFilt_4b' : 1.,
-               'xpt200_4b' : 1.,
-               'hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
-               'hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
-}
-
-
   # K-factors xsec NNLO / xsec LO 
-
-  # xsecs for signal from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH
-  # FIXME only done for HH signal for now!! 36.69/16.244 
+  # FIXME only done for HH signal for now!! 
   d_k_factor = {
-               'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26,
-               'noGenFilt_bkg_ttbar_trackJetBTag' : 1.,
-               'noGenFilt_bkg_ttbb_trackJetBTag' : 1.,
-               'noGenFilt_bkg_tth_trackJetBTag' : 1.,
-               'noGenFilt_bkg_bbh_trackJetBTag' : 1.,
-               'noGenFilt_bkg_wh_trackJetBTag'  : 1.,
-               'noGenFilt_bkg_zh_trackJetBTag'  : 1.,
-               'noGenFilt_bkg_zz_trackJetBTag'  : 1.,
-               'ptj1_20_to_200_bkg_2b2j'        : 1.,
-               'ptj1_200_to_500_bkg_2b2j'       : 1.,
-               'ptj1_500_to_1000_bkg_2b2j'      : 1.,
-               'ptj1_1000_to_infty_bkg_2b2j'    : 1.,
-               'ptj1_20_to_200_bkg_4b'          : 1.,
-               'ptj1_200_to_500_bkg_4b'         : 1.,
-               'ptj1_500_to_1000_bkg_4b'        : 1.,
-               'ptj1_1000_to_infty_bkg_4b'      : 1.,
+               #'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26, # 36.69/16.244 from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH
+               'noGenFilt_ttbar' : 1.,
+               'noGenFilt_ttbb' : 1.,
+               'noGenFilt_tth' : 1.,
+               'noGenFilt_bbh' : 1.,
+               'noGenFilt_wh'  : 1.,
+               'noGenFilt_zh'  : 1.,
+               'noGenFilt_zz'  : 1.,
+               'ptj1_20_to_200_2b2j'        : 1.,
+               'ptj1_200_to_500_2b2j'       : 1.,
+               'ptj1_500_to_1000_2b2j'      : 1.,
+               'ptj1_1000_to_infty_2b2j'    : 1.,
+               'ptj1_20_to_200_4b'          : 1.,
+               'ptj1_200_to_500_4b'         : 1.,
+               'ptj1_500_to_1000_4b'        : 1.,
+               'ptj1_1000_to_infty_4b'      : 1.,
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
@@ -259,30 +166,7 @@ def main():
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
                'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
-               # Old sample names below for making comparison plots
-               'loop_hh' : 1.,
-               'noGenFilt_ttbar' : 1.,
-               'noGenFilt_4j' : 1.,
-               'noGenFilt_2b2j' : 1.,
-               'xpt200_4j' : 1.,
-               'xpt200_2b2j' : 1.,
-               'noGenFilt_4b' : 1.,
-               'xpt200_4b' : 1.,
-               'hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
-               'hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
-               'hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
-}
+  }
 
   #================================================
   
@@ -358,7 +242,7 @@ def main():
           print_lumi = lumi # [1/fb]
           print('Lumi to print: {0}'.format(print_lumi))
         
-          calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY, UnitNorm)
+          calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY, UnitNorm)
   
   tfinish = time.time()
   telapse = tfinish - t0
@@ -369,7 +253,7 @@ def main():
   print('--------------------------------------------------')
 
 #____________________________________________________________________________
-def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_matching_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, UnitNorm = False, l_print_cuts=[]):
+def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, UnitNorm = False, l_print_cuts=[]):
   '''
   Extract trees given a relevant variable
   '''
@@ -481,19 +365,18 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     # assign TFile to a dictionary entry
     d_files[samp] = TFile(full_path)
    
-    # Get sample part of name for use in d_slicing_weight and d_matching_weight and d_k_factor
+    # Get sample part of name for use in d_slicing_weight and d_k_factor
     # i.e. remove resolved_, boosted_ or loose_ from name
     l_samp_split = samp.split("_")[1:]
     no_ana_name_samp = '_'.join(l_samp_split)
 
     # hh weight so visible on plots
     my_weight = 1.
-    # FIXME automate
     #if "hh" in samp:
     #  my_weight = 100.0
 
     # Get TH1F histogram from the TTree in the TFile and store to dictionary entry
-    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_matching_weight[no_ana_name_samp], d_k_factor[no_ana_name_samp], my_weight, samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
+    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_k_factor[no_ana_name_samp], my_weight, samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
 
     # ---------------------------------------------------- 
     # Stacked histogram: construct and format
@@ -614,7 +497,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
 
 
 #_______________________________________________________
-def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname, var, sig_reg, cutsAfter='', Nbins=100, xmin=0, xmax=100, lumifb=0, variable_bin=False, hXarray=0):
+def tree_get_th1f(f, slicing_weight, my_weight, k_factor, hname, var, sig_reg, cutsAfter='', Nbins=100, xmin=0, xmax=100, lumifb=0, variable_bin=False, hXarray=0):
   '''
   from a TTree, project a leaf 'var' and return a TH1F
   '''
@@ -635,9 +518,9 @@ def tree_get_th1f(f, slicing_weight, matching_weight, my_weight, k_factor, hname
     mc_weight += b_tag_weights
   
   if cutsAfter is '':
-    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(mc_weight, lumi, my_weight, matching_weight, k_factor, slicing_weight) 
+    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) / ({4}))'.format(mc_weight, lumi, my_weight, k_factor, slicing_weight) 
   else:
-    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) * ({5}) / ({6}))'.format(cutsAfter, mc_weight, lumi, my_weight, matching_weight, k_factor, slicing_weight) 
+    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(cutsAfter, mc_weight, lumi, my_weight, k_factor, slicing_weight) 
   
   print('---------------------------------')
   print('Final weighted cut string: ')
@@ -747,7 +630,6 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   # draw signal samples
   for samp in d_hsig:
     print('Drawing {0}'.format(samp))
-    # FIXME TEST
     #d_hsig[samp].Scale(1/100)
     #for i in range(1,d_hsig[samp].GetNbinsX() + 1):
     #  val = 0
@@ -897,7 +779,6 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
     hist        = d_hists[samp][0]
     sample_type = d_samp[samp]['type']
     leg_entry   = d_samp[samp]['leg']
-    # FIXME automate
     #if "HH" in leg_entry:
     #  leg_entry = leg_entry+" x100"
     legMk       = d_legMk[sample_type]
