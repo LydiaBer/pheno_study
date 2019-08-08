@@ -53,6 +53,10 @@ int main(int argc, char* argv[]) {
                  ++n_largeR_jets) {
                 std::string selection =
                       fmt::format("n_large_jets=={}", n_largeR_jets);
+                if (n_largeR_jets == 2) {
+                    selection = "n_large_jets>=2";
+                }
+
                 fmt::print("\t{}: ", regions[n_largeR_jets]);
                 std::fflush(stdout);
 
