@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 
 #include <TFile.h>
+#include <TH1I.h>
 #include <TTree.h>
 
 using namespace std::literals;
@@ -49,6 +50,16 @@ int main(int argc, char* argv[]) {
             }
 
             fmt::print("Processing file {}\n", filename);
+            std::string cf_filename = fmt::format("{}.cutflow.root", prefix);
+            auto cutflow_file = TFile::Open(cf_filename.c_str(), "RECREATE");
+            TH1I* cf = nullptr;
+            input->GetObject("loose_cutflow", cf);
+            cutflow_file->cd();
+            TH1I* cf_copy = (TH1I*)cf->Clone();
+            cf_copy->SetDirectory(cutflow_file);
+            cf_copy->Write();
+            cutflow_file->Close();
+             
             for (std::size_t n_largeR_jets = 0; n_largeR_jets < 3;
                  ++n_largeR_jets) {
                 std::string selection =
