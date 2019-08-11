@@ -14,7 +14,7 @@ to be applied to this region.
 '''
 
 #____________________________________________________________________________
-def configure_cuts(var, cut_sel, print_cuts=True):
+def configure_cuts(cut_sel, print_cuts=True):
 
   ''' 
   Can define multiple lists and combine them
