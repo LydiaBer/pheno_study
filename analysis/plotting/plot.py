@@ -10,6 +10,7 @@ and /home/jesseliu/pheno/fcc/PhenoSim/analyse/conventional/hh4b/plotting
 
 * This is a script to efficiently make 1-dimensional plots from ntuples 
 * Configure various aspects in other files
+    - xsecs.py
     - cuts.py
     - samples.py
     - variables.py
@@ -29,8 +30,9 @@ import os, sys, time, argparse
 from math       import sqrt
 from random     import gauss
 from array      import array
-from samples    import *
+from xsecs      import *
 from cuts       import *
+from samples    import *
 from variables  import *
 from beautify   import *
 
@@ -68,7 +70,7 @@ def main():
   #dir = 'jesse_linked_delphes' # directory input files to plot are in
   #dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
   #dir = '280119' # directory input files to plot are in
-  dir = '150719' 
+  dir = '150719'
 
   ### ATLAS analysis xcheck
   l_vars     = ['m_hh']     # corresponds to variable in variables.py
@@ -96,77 +98,11 @@ def main():
   IsLogY   = True
 
   annotate_text = 'Pileup 0'#, No k-factors'
-  savedir = 'figs'+"/"+dir
+  savedir = os.getcwd()+'/figs'+"/"+dir
 
-  # Slicing weight (weight down by number of slices run over)
-  # Don't include resolved, boosted etc. in key as depends on MC sample not analysis selection!  
-  d_slicing_weight = {
-               'noGenFilt_ttbar'    : 2100000./50000.,
-               'noGenFilt_ttbb'     : 1000000./50000.,
-               'noGenFilt_tth'      : 1000000./50000.,
-               'noGenFilt_bbh'      : 999998./50000., # FIXME strange number of events, got from printout of file
-               'noGenFilt_wh'       : 1000000./50000.,
-               'noGenFilt_zh'       : 1000000./50000.,
-               'noGenFilt_zz'       : 1000000./50000.,
-               'ptj1_20_to_200_2b2j'     : 2000000./50000.,
-               'ptj1_200_to_500_2b2j'    : 2000000./50000.,
-               'ptj1_500_to_1000_2b2j'   : 2000000./50000.,
-               'ptj1_1000_to_infty_2b2j' : 1100000./50000.,
-               'ptj1_20_to_200_4b'       : 2000000./50000.,
-               'ptj1_200_to_500_4b'      : 2000000./50000.,
-               'ptj1_500_to_1000_4b'     : 2000000./50000.,
-               'ptj1_1000_to_infty_4b'   : 2000000./50000.,
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 100000./50000., 
-               'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 100000./50000.,
-               #'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 100000./50000.,
-  }
 
-  # K-factors xsec NNLO / xsec LO 
-  # FIXME only done for HH signal for now!! 
-  d_k_factor = {
-               #'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26, # 36.69/16.244 from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH
-               'noGenFilt_ttbar' : 1.,
-               'noGenFilt_ttbb' : 1.,
-               'noGenFilt_tth' : 1.,
-               'noGenFilt_bbh' : 1.,
-               'noGenFilt_wh'  : 1.,
-               'noGenFilt_zh'  : 1.,
-               'noGenFilt_zz'  : 1.,
-               'ptj1_20_to_200_2b2j'        : 1.,
-               'ptj1_200_to_500_2b2j'       : 1.,
-               'ptj1_500_to_1000_2b2j'      : 1.,
-               'ptj1_1000_to_infty_2b2j'    : 1.,
-               'ptj1_20_to_200_4b'          : 1.,
-               'ptj1_200_to_500_4b'         : 1.,
-               'ptj1_500_to_1000_4b'        : 1.,
-               'ptj1_1000_to_infty_4b'      : 1.,
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 1., 
-               'noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0' : 1.,
-  }
+  # TODO do in xsecs.py file K-factors xsec NNLO / xsec LO 
+  #'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26, # 36.69/16.244 from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH
 
   #================================================
   
@@ -242,7 +178,7 @@ def main():
           print_lumi = lumi # [1/fb]
           print('Lumi to print: {0}'.format(print_lumi))
         
-          calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY, UnitNorm)
+          calc_selections(var, yield_var, dir, savedir, analysis, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text, IsLogY, UnitNorm)
   
   tfinish = time.time()
   telapse = tfinish - t0
@@ -253,7 +189,7 @@ def main():
   print('--------------------------------------------------')
 
 #____________________________________________________________________________
-def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_k_factor, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, UnitNorm = False, l_print_cuts=[]):
+def calc_selections(var, yield_var, dir, savedir, analysis, lumi, save_name, sig_reg, cut_sel, print_lumi, annotate_text='', IsLogY=True, UnitNorm = False, l_print_cuts=[]):
   '''
   Extract trees given a relevant variable
   '''
@@ -276,7 +212,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
   # Get dictionary of histogram configurations from variables.py
   d_vars = configure_vars()
   
-  cut_string, l_cuts = configure_cuts(var, cut_sel) 
+  cut_string, l_cuts = configure_cuts(cut_sel) 
   #
   #----------------------------------------------------
 
@@ -327,12 +263,17 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
 
   # ----------------------------------------------------------------- 
   # set up yields file before sample loop 
-  # sample sig/bkg yield yieldErr raw
   # ----------------------------------------------------------------- 
 
+  # Total yields file: sample, sig/bkg, yield, yieldErr, raw
   yield_file = savedir + '/YIELD_{0}_{1}_{2}.txt'.format(analysis, sig_reg, cut_sel)
-  if var is yield_var:
-    with open(yield_file, 'w') as f_out: 
+  if UnitNorm: 
+    yield_file = savedir + '/YIELD_{0}_{1}_{2}_UnitNorm.txt'.format(analysis, sig_reg, cut_sel)
+  if var == yield_var:
+    print('Opening yield file: '+yield_file)
+    open(yield_file, 'w') # Open new yield file & overwrite existing one
+    with open(yield_file, 'a+') as f_out: 
+      print("Writing headings to yield file: "+yield_file)
       f_out.write('sample,sample_type,yield,yieldErr,raw\n')
 
   # ----------------------------------------------------------------- 
@@ -365,18 +306,8 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     # assign TFile to a dictionary entry
     d_files[samp] = TFile(full_path)
    
-    # Get sample part of name for use in d_slicing_weight and d_k_factor
-    # i.e. remove resolved_, boosted_ or loose_ from name
-    l_samp_split = samp.split("_")[1:]
-    no_ana_name_samp = '_'.join(l_samp_split)
-
-    # hh weight so visible on plots
-    my_weight = 1.
-    #if "hh" in samp:
-    #  my_weight = 100.0
-
     # Get TH1F histogram from the TTree in the TFile and store to dictionary entry
-    d_hists[samp] = tree_get_th1f( d_files[samp], d_slicing_weight[no_ana_name_samp], d_k_factor[no_ana_name_samp], my_weight, samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
+    d_hists[samp] = tree_get_th1f( d_files[samp], samp, var, sig_reg, cutsAfter, hNbins, hXmin, hXmax, lumi, variable_bin, hXarray)
 
     # ---------------------------------------------------- 
     # Stacked histogram: construct and format
@@ -410,15 +341,17 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
     # sample sig/bkg yield yieldErr raw
     # ----------------------------------------------------------------- 
  
-    if var is yield_var:
+    # Total yields file: sample, sig/bkg, yield, yieldErr, raw
+    if var == yield_var:
+      print('Writing to yield file: '+yield_file)
       with open(yield_file, 'a') as f_out: 
-        f_out.write('{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp]/my_weight,d_yieldErr[samp]/my_weight,d_raw[samp]))
+        f_out.write('{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp],d_yieldErr[samp],d_raw[samp]))
         #print '{0},{1},{2},{3},{4}\n'.format(samp,sample_type,d_yield[samp],d_yieldErr[samp],d_raw[samp])
  
   errStatBkg = sqrt( nVarBkg ) # treat total statistical error as sum in quadrature of sample stat errors
   errTotBkg  = sqrt( errStatBkg**2 + (0.2 * nTotBkg) ** 2 )
     
-  if var is yield_var:
+  if var == yield_var:
     with open(yield_file, 'a') as f_out: 
       print('Writing total background count')
       f_out.write( 'TotBkg,bkg,{0},{1},{2}\n'.format( nTotBkg, errTotBkg, nTotBkgRaw ) )
@@ -497,7 +430,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, d_slicing_weight, d_
 
 
 #_______________________________________________________
-def tree_get_th1f(f, slicing_weight, my_weight, k_factor, hname, var, sig_reg, cutsAfter='', Nbins=100, xmin=0, xmax=100, lumifb=0, variable_bin=False, hXarray=0):
+def tree_get_th1f(f, hname, var, sig_reg, unweighted_cuts='', Nbins=100, xmin=0, xmax=100, lumifb=0, variable_bin=False, hXarray=0):
   '''
   from a TTree, project a leaf 'var' and return a TH1F
   '''
@@ -508,35 +441,33 @@ def tree_get_th1f(f, slicing_weight, my_weight, k_factor, hname, var, sig_reg, c
  
   h_AfterCut.Sumw2()
   
-  lumi     = lumifb * 1000 # convert to [pb^{-1}]
+  N_raw = f.Get('loose_cutflow').GetBinContent(1)
 
-  mc_weight = "mc_sf" # Delphes Event.Weight = xsec / (Nevents generated per chunck)
-
+  d_xsecs = configure_xsecs()
+  xsec = d_xsecs[hname]
+  
   # Impose 4 b-tags as weight (TODO: do 2 or 3-tag as options)
   if do_BTagWeight:
-    b_tag_weights = " * h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight"
-    mc_weight += b_tag_weights
-  
-  if cutsAfter is '':
-    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) / ({4}))'.format(mc_weight, lumi, my_weight, k_factor, slicing_weight) 
+    my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
   else:
-    cut_after = '(({0}) * ({1}) * ({2}) * ({3}) * ({4}) / ({5}))'.format(cutsAfter, mc_weight, lumi, my_weight, k_factor, slicing_weight) 
+    my_weight = 1.
+
+  cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format( unweighted_cuts, xsec, lumifb, my_weight, N_raw ) # Factor of 1000 to convert xsec from ifb to ipb
   
   print('---------------------------------')
   print('Final weighted cut string: ')
-  print(cut_after)
+  print(cuts)
   print('---------------------------------')
 
   # ========================================================= 
   t = f.Get(sig_reg)
-  t.Project(hname + '_hist', var, cut_after )
-
+  t.Project(hname + '_hist', var, cuts)
+  
   # =========================================================
   # perform integrals to find 
   # total yield, one-sided lower and upper cumulative histos
   nYieldErr = ROOT.Double(0)
   nYield    = h_AfterCut.IntegralAndError(0, Nbins+1, nYieldErr)
-
   
   for my_bin in range( h_AfterCut.GetXaxis().GetNbins() + 1 ):
     

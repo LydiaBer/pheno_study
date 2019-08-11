@@ -9,7 +9,7 @@ import sys, os, time, argparse
 #____________________________________________________________________________
 def main():
 
-  doTorque = False
+  doTorque = True
   doCondor = False
 
   # Parse in arguments
@@ -50,9 +50,9 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
   #'resolved-commonSR',
   #'intermediate-commonSR',
   #'boosted-commonSR',
-  #'resolved-finalSR',
-  #'intermediate-finalSR',
-  #'boosted-finalSR',
+  'resolved-finalSR',
+  'intermediate-finalSR',
+  'boosted-finalSR',
   ]
 
   my_vars = [
@@ -129,6 +129,7 @@ def mk_batch_scripts(doTorque=False, doCondor=False):
    'h1_Pt',
    'h2_Pt',
     ]
+  my_vars = ['m_hh']
   
   script_name = 'torque_plot.sh'
   

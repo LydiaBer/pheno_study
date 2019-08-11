@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Welcome to HiggsinoFitter make_batch_scripts.py
+Welcome to make_batch_scripts.py
   - This is called on the first setup to make the torque and condor batch submission scripts
   - These are made to live in torque/ and condor/ directories
   - If they are unsatisfactory, modify the content of this script and rerun it to regenerate those batch scripts
@@ -13,12 +13,14 @@ import sys, os, time, argparse
 #____________________________________________________________________________
 def main():
 
-  mk_batch_script( 'torque' )
-  mk_batch_script( 'condor' )
+  mk_batch_script( 'torque', 'plot' )
+  mk_batch_script( 'torque', 'make_cutflow', True )
+  mk_batch_script( 'torque', 'ntuples_to_chiSq', False, True)
+  #mk_batch_script( 'condor', 'plot' )
 
 
 #_________________________________________________________________________
-def mk_batch_script( batch_type ):
+def mk_batch_script( batch_type, plotscript, cutflow = False, chi2 = False):
   '''
   Make the batch script program that the cluster computer core runs
   '''
@@ -27,7 +29,7 @@ def mk_batch_script( batch_type ):
   cwd = os.getcwd()
 
   # Name batch submission script
-  script_name = '{0}/{1}_plot.sh'.format( cwd, batch_type )
+  script_name = '{0}/{1}_{2}.sh'.format( cwd, batch_type, plotscript )
   print( 'Present working directory is {0}'.format(cwd) )
   print( 'Making script {0}'.format(script_name) )
 
@@ -41,12 +43,23 @@ def mk_batch_script( batch_type ):
     f_script.write( '# Batch script for {0} submission created by plotting/batch/make_batch_scripts.py\n'.format(batch_type) )
     f_script.write( 'cd {0} ; cd ../../.. \n'.format(cwd) )
     f_script.write( 'source setup.sh ; cd analysis/plotting\n' )
-    
-    if 'torque' in batch_type:
-      f_script.write( './plot.py -s $SIGREG -v $VARIABLE\n' )
-    if 'condor' in batch_type:
-      f_script.write( './plot.py -s $1 -v $2\n' )
 
+
+    if cutflow:
+      if 'torque' in batch_type:
+        f_script.write( './'+plotscript+'.py -s $CUTSEL -o $ONESAMPLE\n' )
+      if 'condor' in batch_type:
+        f_script.write( './'+plotscript+'.py -s $1 -o $2\n' )
+    elif chi2:
+      if 'torque' in batch_type:
+        f_script.write( './'+plotscript+'.py -s $CUTSEL\n' )
+      if 'condor' in batch_type:
+        f_script.write( './'+plotscript+'.py -s $1\n' )
+    else:
+      if 'torque' in batch_type:
+        f_script.write( './'+plotscript+'.py -s $CUTSEL -v $VARIABLE\n' )
+      if 'condor' in batch_type:
+        f_script.write( './'+plotscript+'.py -s $1 -v $2\n' )
 
 #_______________________________
 if __name__ == "__main__":

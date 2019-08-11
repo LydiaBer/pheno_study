@@ -10,22 +10,29 @@ Requires running plot.py once to compute YIELD file for total background counts
 
 * Configure various aspects in other files
     - cuts.py
-    - xsecs.py
     - samples.py
+    - xsecs.py
 '''
 
 import argparse, os, sys, math
 from array import array
+import ROOT
 from ROOT import *
 from cuts import *
-  
-# Path to the intermediate ntuples
-#SIG_PATH = '/home/jesseliu/pheno/fcc/PhenoSim/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25/merged_signals'
-SIG_PATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
+from samples import *
+from xsecs import *
+
+# Directory samples and in and will also be used in output names etc  
 dir = '150719'
 
+# Get the sample paths from samples.py
+bkg_path, sig_path, bkg_suffix, sig_suffix = get_sample_paths(dir)
+ 
 # Impose 4 b-tags as weights
 do_BTagWeight = True
+
+# nominal signal name
+samp_nom = 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0'
 
 #____________________________________________________________________________
 def main():
@@ -38,7 +45,7 @@ def main():
   #
   # Luminosity
   lumi = 3000.0 # inverse fb
-  # Analysis (defined in samples.py)
+  # Analysis 
   l_samples  = ['loose']
   # Signal region (define in cuts.py)
   l_sig_regs = ['preselection'] 
@@ -66,12 +73,12 @@ def main():
         print('Input file with background yield: {0}'.format( yield_file ) )
         print('Output file to store chi squares: {0}'.format( save_file  ) )
 
-        do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel )
+        do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom)
 
 #____________________________________________________________________________
-def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
+def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
   '''
-  Given N_bkg from yield file, analysis, sig_reg, cut_sel, 
+  Given N_bkg from yield file, sig_reg, cut_sel, 
   will loop over signals and output the chi squares into save_file
   '''
     
@@ -88,13 +95,13 @@ def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
   # 
   # Prepare the signals and cuts
   #
-  # Get the cross-section file
-  d_sig_xsec = get_signal_xsec()
+  # Get the signal list 
+  l_sig_list = get_signal_list()
 
   # Variable to plot in
   var  = 'm_hh'
   # Get cut strings from cuts.py
-  unweighted_cuts, l_cuts = configure_cuts(var, cut_sel) 
+  unweighted_cuts, l_cuts = configure_cuts(cut_sel) 
   # -----------------------------------------------------------
   
   print('Background yield: {0}'.format(N_bkg) )
@@ -104,7 +111,7 @@ def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
   # ---------------------------------------
   # Get nominal signal yield
   # ---------------------------------------
-  N_sig_nom = get_N_sig_nom( lumi, var, unweighted_cuts )
+  N_sig_nom = get_N_sig_nom( lumi, var, unweighted_cuts, samp_nom)
 
   # ---------------------------------------
   # Now loop through coupling variations
@@ -115,8 +122,8 @@ def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
     header += 'chiSq,chiSqSyst1pc,chiSqSyst5pc,acceptance\n'
     f_out.write( header )
 
-    for signal, xsec_sig in d_sig_xsec.iteritems():  
-      out_str = compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
+    for signal in l_sig_list:  
+      out_str = compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
       if not out_str == 'NoFile':
         f_out.write( out_str )
         print( out_str )
@@ -126,97 +133,105 @@ def do_selection( yield_file, save_file, lumi, analysis, sig_reg, cut_sel ):
   print('------------------------------------------------------')
 
 #____________________________________________________________________________
-def get_N_sig_nom( lumi, var, unweighted_cuts ):
+def get_N_sig_nom( lumi, var, unweighted_cuts, samp_nom):
   ''' 
   Get nominal yield for chi square calculation
   '''
   
   print('\nGetting the nominal signal yield\n')
   
-  root_nom = SIG_PATH + '/' + dir + '/loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0.root'
+  root_nom = sig_path + '/' +  samp_nom + '.root'
   print('Nominal root file: {0}'.format(root_nom))
+
   tfile = TFile( root_nom )
-  N_nom_raw = tfile.Get('loose_cutflow').GetBinContent(1)
-  nom_xsec = 0.016078 # Leading order MadGraph
+
+  # dictionary to store histogram info 
+  d_hists = {}
+  
+  # obtain histogram from file and store to dictionary entry
+  Nbins = 1
+  xmin = -100.0
+  xmax = 10000
+  d_hists[samp_nom] = apply_cuts_weights_to_tree( tfile, samp_nom, var, lumi, unweighted_cuts, Nbins, xmin, xmax)
+
+  # extract key outputs of histogram 
+  nYield, nYieldErr, nRaw, xsec = d_hists[samp_nom]
+  print('In cut: {0},{1},{2},{3}'.format(nYield, nYieldErr, nRaw,xsec)) 
+    
+  N_sig_nom = nYield
+  print('Nominal signal yield: {0}'.format( N_sig_nom ))
+
+  return N_sig_nom    
+
+#_______________________________________________________
+def apply_cuts_weights_to_tree(f, hname, var, lumi, unweighted_cuts='', Nbins=100, xmin=0, xmax=100000):
+  '''
+  Obtain yields by performing TTree.Project() to impose cuts & apply weights
+  '''
+  th1 = TH1D('h_sig', "", Nbins, xmin, xmax) 
+  ttree = f.Get('preselection')
+
+  N_raw = f.Get('loose_cutflow').GetBinContent(1)
+
+  d_xsecs = configure_xsecs()
+  xsec = d_xsecs[hname]
   
   if do_BTagWeight:
     my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
   else:
     my_weight = 1.
-  cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format( unweighted_cuts, nom_xsec, lumi, my_weight, N_nom_raw )
+
+  cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format( unweighted_cuts, xsec, lumi, my_weight, N_raw ) # Factor of 1000 to convert xsec from ifb to ipb
+
   print('Weighted signal cuts: {0}'.format(cuts) )
   
-  # Project and make histogram
-  Nbins = 1
-  xmin = -100.0
-  xmax = 10000
-  th1_nom = TH1D('h_sig_nom', "", Nbins, xmin, xmax) 
-  ttree_nom = tfile.Get('preselection')
-  ttree_nom.Project( 'h_sig_nom', var, cuts )
-  N_sig_nom =  float( th1_nom.Integral() )
-  print('Nominal signal yield: {0}'.format( N_sig_nom ))
+  ttree.Project( 'h_sig', var, cuts )
+  
+  # Perform integrals to find total yield
+  nYieldErr = ROOT.Double(0)
+  nYield    = th1.IntegralAndError(0, Nbins+1, nYieldErr)
 
-  return N_sig_nom    
+  print( 'Sample {0} has integral {1:.3f} +/- {2:.3f}'.format( hname, nYield, nYieldErr))
+  # =========================================================
+  
+  nRaw = th1.GetEntries()
+  
+  return nYield, nYieldErr, nRaw, xsec
 
 #____________________________________________________________________________
-def compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N_sig_nom ):
+def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom ):
   '''
   Perform cuts onto the signal file
   and compute various metrics like S/B, chi square etc
   ''' 
   print('\nComputing chi square for {0}'.format(signal) )
   
-  d_sig_file = {}
-  d_sig_hist = {}
-  d_sig_tree = {}
-  d_sig_yield = {}
-
   # ------------------------------------------------------
   # Extract coupling values from file name
   # ------------------------------------------------------
   info = signal.split('_')
   TopYuk  = float( info[5] )
   SlfCoup = float( info[7].replace('m', '-') )
-  root_signal = SIG_PATH + '/' + dir + '/' + signal + '.root'
+  root_signal = sig_path + '/' + signal + '.root'
   print( 'Root file: {0}'.format( root_signal ) )
+
+  tfile = TFile( root_signal )
+
+  # dictionary to store histogram info 
+  d_sig_hists = {}
+  
+  # obtain histogram from file and store to dictionary entry
   Nbins = 1
   xmin = -100.0
   xmax = 10000
-  d_sig_file[signal] = TFile( root_signal )
-  d_sig_hist[signal] = TH1D('h_sig_' + signal, "", Nbins, xmin, xmax) 
+  d_sig_hists[signal] = apply_cuts_weights_to_tree( tfile, signal, var, lumi, unweighted_cuts, Nbins, xmin, xmax)
 
-  # Inititalise
-  N_orig_raw = 1
+  # extract key outputs of histogram 
+  nYield, nYieldErr, nRaw, xsec = d_sig_hists[signal]
+  print('In cut: {0},{1},{2},{3}'.format(nYield, nYieldErr, nRaw, xsec)) 
 
-  # ------------------------------------------------------
-  # Get the initial number of events before any cuts
-  # ------------------------------------------------------
-  try:
-    N_orig_raw = d_sig_file[signal].Get('loose_cutflow').GetBinContent(1)
-  except AttributeError:
-    return 'NoFile'
-    print('{0} has no loose_cutflow histogram, skipping...'.format(d_sig_file[signal]))
-
-  if do_BTagWeight:
-    my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
-  else:
-    my_weight = 1.
-
-  # ------------------------------------------------------
-  # Construct cut string for TTree.Project()
-  # ------------------------------------------------------
-  cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format(unweighted_cuts, xsec_sig, lumi, my_weight, N_orig_raw)
-  print('Weighted signal cuts: {0}'.format(cuts) )
-  
-  # ------------------------------------------------------
-  # Project to histogram and compute yields
-  # ------------------------------------------------------
-  d_sig_tree[signal] = d_sig_file[signal].Get('preselection')
-  d_sig_tree[signal].Project( 'h_sig_' + signal, var, cuts )
-
-  N_sig     = float( d_sig_hist[signal].Integral() )
-  N_sig_raw = int( d_sig_hist[signal].GetEntries() )
-  
+  N_sig     = nYield 
+  N_sig_raw = nRaw 
   print('Signal {0} yield: {1:.3g}, raw: {2}'.format(signal, N_sig, N_sig_raw))
 
   # ------------------------------------------------------
@@ -237,7 +252,7 @@ def compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N
   # ------------------------------------------------------
   # Calculate acceptance
   # ------------------------------------------------------
-  acceptance = N_sig / ( xsec_sig * lumi * 1000.)
+  acceptance = N_sig / ( xsec * lumi * 1000.)
 
   # ------------------------------------------------------
   # Construct string of values to output
@@ -250,139 +265,139 @@ def compute_chiSq( f_out, signal, xsec_sig, lumi, var, unweighted_cuts, N_bkg, N
   return out_str
 
 #_________________________________________________________________________
-def get_signal_xsec():
+def get_signal_list():
   '''
-  Leading order MG cross-sections in pb
+  Get list of signals to consider 
   '''
-  d_xsec = {
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m20.0' : 0.51342,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m10.0' : 0.1438,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m7.0'  : 0.077355,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m5.0'  : 0.044446,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m3.0'  : 0.020674,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m2.0'  : 0.012206,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m1.0'  : 0.0060154,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m0.5'  : 0.0037762,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_0.5'   : 0.0010049,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0'   : 0.00047415,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_2.0'   : 0.0011231,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_3.0'   : 0.0040518,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_5.0'   : 0.016746,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_7.0'   : 0.038557,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_10.0'  : 0.088394,
-   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_20.0'  : 0.40269,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m20.0' : 1.4078,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m10.0' : 0.41912,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m7.0'  : 0.23617,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m5.0'  : 0.14345,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m3.0'  : 0.074079,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m2.0'  : 0.048166,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m1.0'  : 0.028062,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m0.5'  : 0.020193,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_0.5'   : 0.0088491,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0'   : 0.0053661,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_2.0'   : 0.0027707,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_3.0'   : 0.0060114,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_5.0'   : 0.029995,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_7.0'   : 0.077325,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_10.0'  : 0.19209,
-   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_20.0'  : 0.95416,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m10.0' : 0.55292,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m7.0'  : 0.3161,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m5.0'  : 0.19517,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m3.0'  : 0.10379,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m2.0'  : 0.069191,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m1.0'  : 0.041957,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m0.5'  : 0.031105,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_0.5'   : 0.01494,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_1.0'   : 0.0096347,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_2.0'   : 0.0045515,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_3.0'   : 0.0068599,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_5.0'   : 0.033622,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_7.0'   : 0.089949,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_10.0'  : 0.22978,
-   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_20.0'  : 1.1762,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m20.0' : 2.3008,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m15.0' : 1.3919,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0' : 0.71114,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m9.0'  : 0.60241,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m8.0'  : 0.50274,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0'  : 0.41211,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m6.0'  : 0.33079,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0'  : 0.25842,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m4.0'  : 0.19529,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0'  : 0.14117,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0'  : 0.096246,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.5'  : 0.07717,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0'  : 0.060419,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m0.5'  : 0.04591,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5'   : 0.023744,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.8'   : 0.018863,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0'   : 0.016078,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.2'   : 0.013651,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.5'   : 0.010691,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0'   : 0.0075864,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0'   : 0.0082156,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_4.0'   : 0.01797,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0'   : 0.036819,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_6.0'   : 0.064829,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0'   : 0.10192,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_8.0'   : 0.14813,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_9.0'   : 0.2035,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0'  : 0.26794,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_15.0'  : 0.72691,
-   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_20.0'  : 1.4143,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m20.0' : 2.8461,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m10.0' : 0.89591,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m7.0'  : 0.52603,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m5.0'  : 0.33467,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m3.0'  : 0.18749,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m2.0'  : 0.1304,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m1.0'  : 0.084344,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m0.5'  : 0.06546,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_0.5'   : 0.035942,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0'   : 0.025329,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_2.0'   : 0.012381,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_3.0'   : 0.010459,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_5.0'   : 0.03971,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_7.0'   : 0.11313,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_10.0'  : 0.30598,
-   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_20.0'  : 1.6661,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m20.0' : 3.4621,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m10.0' : 1.1095,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m7.0'  : 0.65961,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m5.0'  : 0.42544,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m3.0'  : 0.24384,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m2.0'  : 0.17275,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m1.0'  : 0.11473,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m0.5'  : 0.090659,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_0.5'   : 0.052327,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0'   : 0.038111,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_2.0'   : 0.019517,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_3.0'   : 0.014026,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_5.0'   : 0.042466,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_7.0'   : 0.12343,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_10.0'  : 0.3433,
-   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_20.0'  : 1.9299,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m20.0' : 5.7703,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m10.0' : 1.9438,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m7.0'  : 1.1967,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m5.0'  : 0.80087,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m3.0'  : 0.48725,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m2.0'  : 0.3612,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m1.0'  : 0.25562,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m0.5'  : 0.21048,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_0.5'   : 0.13571,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_1.0'   : 0.10598,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_2.0'   : 0.061942,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_3.0'   : 0.038406,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_5.0'   : 0.052931,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_7.0'   : 0.14951,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_10.0'  : 0.44814,
-   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_20.0'  : 2.7778, 
-  }
+  l_sig_list = [
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m20.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m7.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m5.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m3.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m2.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m1.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_m0.5',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_0.5',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_1.0',   
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_2.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_5.0',   
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_7.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.5_SlfCoup_20.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m20.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m7.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m2.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m1.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_m0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_0.5',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_2.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_3.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_5.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_7.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_10.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m7.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m2.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m1.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_m0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_1.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_2.0',   
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_3.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_7.0',
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_10.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_0.9_SlfCoup_20.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m15.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m9.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m8.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m6.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m4.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.8',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.2', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_4.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_6.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0',   
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_8.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_9.0',   
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_15.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m7.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m2.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m1.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_m0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_2.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_3.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_5.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_7.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_10.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m20.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m10.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m7.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m5.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m2.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m1.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_m0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_2.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_3.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_5.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_7.0',  
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m20.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m7.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m2.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m1.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_m0.5',
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_0.5', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_1.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_2.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_3.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_5.0', 
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_7.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_10.0',
+   'loose_noGenFilt_signal_hh_TopYuk_1.5_SlfCoup_20.0',
+  ]
 
-  return d_xsec
+  return l_sig_list
 
 #_________________________________________________________________________
 def mkdir(dirPath):
