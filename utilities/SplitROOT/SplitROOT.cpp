@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 
+#define FMT_HEADER_ONLY 1
 #include <fmt/format.h>
 
 #include <TFile.h>
@@ -56,6 +57,7 @@ int main(int argc, char* argv[]) {
             input->GetObject("loose_cutflow", cf);
             cutflow_file->cd();
             TH1I* cf_copy = (TH1I*)cf->Clone();
+            cf_copy->Scale(0.5);
             cf_copy->SetDirectory(cutflow_file);
             cf_copy->Write();
             cutflow_file->Close();
