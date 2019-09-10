@@ -1,0 +1,2 @@
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_noGenFilt_4b_highstats_signal_hh_TopYuk_1.0_SlfCoup_m0.5_merged.ro.intermediate_2.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_noGenFilt_4b_highstats_signal_hh_TopYuk_1.0_SlfCoup_m0.5_merged.ro.intermediate_3.root

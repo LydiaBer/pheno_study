@@ -1,0 +1,8 @@
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_20_to_200_4b.ro.intermediate_2.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_20_to_200_4b.ro.intermediate_3.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_200_to_500_4b.ro.intermediate_2.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_200_to_500_4b.ro.intermediate_3.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_500_to_1000_4b.ro.intermediate_2.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_500_to_1000_4b.ro.intermediate_3.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_1000_to_infty_4b.ro.intermediate_2.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_ptj1_1000_to_infty_4b.ro.intermediate_3.root

@@ -1,0 +1,4 @@
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/split_ntuples/loose_ptj1_1000_to_infty_2b2j.root.intermediate_1.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/split_ntuples/loose_ptj1_200_to_500_2b2j.root.intermediate_1.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/split_ntuples/loose_ptj1_20_to_200_2b2j.root.intermediate_1.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/split_ntuples/loose_ptj1_500_to_1000_2b2j.root.intermediate_1.root

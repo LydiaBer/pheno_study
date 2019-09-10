@@ -1,0 +1,2 @@
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_noGenFilt_ttbar.ro.resolved_0.root
+/data/atlas/atlasdata/DiHiggsPheno/ntuples/150719/new_split_ntuples/loose_noGenFilt_ttbar.ro.resolved_1.root
