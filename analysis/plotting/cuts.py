@@ -32,8 +32,8 @@ def configure_cuts(cut_sel, print_cuts=True):
   ]
   
   l_resolved_SR = [
-                   'h1_M > 90 && h1_M < 140',
-                   'h2_M > 80 && h2_M < 130',
+                   'event.h1_M > 90 && event.h1_M < 140',
+                   'event.h2_M > 80 && event.h2_M < 130',
                   ]
 
   l_intermediate = [
@@ -44,8 +44,8 @@ def configure_cuts(cut_sel, print_cuts=True):
   ]
   
   l_intermediate_SR = [
-                   'h1_M > 90 && h1_M < 140',
-                   'h2_M > 80 && h2_M < 130',
+                   'event.h1_M > 90 && event.h1_M < 140',
+                   'event.h2_M > 80 && event.h2_M < 130',
                   ]
 
   l_boosted = ['n_large_jets == 2',
@@ -54,17 +54,17 @@ def configure_cuts(cut_sel, print_cuts=True):
   ]
   
   l_boosted_SR = [
-                   'h1_M > 90 && h1_M < 140',
-                   'h2_M > 90 && h2_M < 140',
+                   'event.h1_M > 90 && event.h1_M < 140',
+                   'event.h2_M > 90 && event.h2_M < 140',
                   ]
 
   l_common = [ 
-              'met_Et < 150',
+              'event.met_Et < 150',
               'nElec == 0',
               'nMuon == 0',
-              'dEta_hh < 1.5',
-              'h1_M > 50',
-              'h2_M > 50',
+              'event.dEta_hh < 1.5',
+              'event.h1_M > 50',
+              'event.h2_M > 50',
               ]
   #jesse_intermediate: ['n_large_jets == 1',
   #                       'pT_h1 > 200',
@@ -102,9 +102,9 @@ def configure_cuts(cut_sel, print_cuts=True):
     print('===============================================')
     print('Cuts applied:')
     for x in l_cuts:
-      print x
+      print(x)
     print('-----------------------------------------------')
-    print 'Unweighted final cut-string:', added_cuts
+    print('Unweighted final cut-string:', added_cuts)
     print('===============================================')
  
   return added_cuts, l_cuts

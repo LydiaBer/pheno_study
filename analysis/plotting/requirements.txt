@@ -1,0 +1,8 @@
+numpy
+matplotlib
+atlas_mpl_style
+uproot
+probfit
+iminuit
+parse
+formulate
