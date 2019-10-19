@@ -66,9 +66,9 @@ def get_samples_to_plot(analysis = ''):
     l_samp_bkg = [
                   'loose_noGenFilt_wh',
                   'loose_noGenFilt_zh',
+                  'loose_noGenFilt_zz',
                   'loose_noGenFilt_bbh',
                   'loose_noGenFilt_tth',
-                  'loose_noGenFilt_zz',
                   'loose_noGenFilt_ttbb',
                   'loose_noGenFilt_ttbar',
                   'loose_ptj1_1000_to_infty_4b',
@@ -280,14 +280,14 @@ def configure_samples():
     'loose_ptj1_1000_to_infty_4b'       :{'type':'bkg', 'leg':'4b 1000-#infty',   'f_color':myLighterBlue},
 
     # Colour merging of samples
-    'loose_noGenFilt_zz'   :{'type':'bkg', 'leg':'ZZ',          'f_color':myMediumOrange},    
-    'loose_noGenFilt_ttbar':{'type':'bkg', 'leg':'t#bar{t} + t#bar{t}b#bar{b}',    'f_color':myMediumGreen},    
-    'loose_noGenFilt_ttbb' :{'type':'bkg', 'leg':'t#bar{t}+b#bar{b}', 'f_color':myMediumGreen},    
+    'loose_noGenFilt_ttbar':{'type':'bkg', 'leg':'t#bar{t}+t#bar{t}b#bar{b}',  'f_color':myMediumGreen},    
+    'loose_noGenFilt_ttbb' :{'type':'bkg', 'leg':'t#bar{t}+b#bar{b}',          'f_color':myMediumGreen},    
     
-    'loose_noGenFilt_tth'  :{'type':'bkg', 'leg':'t#bar{t}h + b#bar{b}h',   'f_color':myLightOrange},    
-    'loose_noGenFilt_bbh'  :{'type':'bkg', 'leg':'b#bar{b}h',   'f_color':myLightOrange},    
-    'loose_noGenFilt_zh'   :{'type':'bkg', 'leg':'Zh + Wh',          'f_color':myLighterOrange},    
-    'loose_noGenFilt_wh'   :{'type':'bkg', 'leg':'Wh',          'f_color':myLighterOrange},    
+    'loose_noGenFilt_tth'  :{'type':'bkg', 'leg':'t#bar{t}h+b#bar{b}h', 'f_color':myMediumOrange},    
+    'loose_noGenFilt_bbh'  :{'type':'bkg', 'leg':'b#bar{b}h',           'f_color':myMediumOrange},    
+    'loose_noGenFilt_zz'   :{'type':'bkg', 'leg':'ZZ',                  'f_color':myLightOrange},    
+    'loose_noGenFilt_zh'   :{'type':'bkg', 'leg':'Zh+Wh',               'f_color':myLighterOrange},    
+    'loose_noGenFilt_wh'   :{'type':'bkg', 'leg':'Wh',                  'f_color':myLighterOrange},    
   
     'loose_ptj1_20_to_200_2b2j'         :{'type':'bkg', 'leg':'2b2j',             'f_color':myLightBlue},
     'loose_ptj1_200_to_500_2b2j'        :{'type':'bkg', 'leg':'2b2j 200-500',     'f_color':myLightBlue},

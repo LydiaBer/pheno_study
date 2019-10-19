@@ -147,9 +147,9 @@ def configure_vars(cut_sel):
     'met_Et'  : {'tlatex':'E_{T}^{miss}'            ,'units':'GeV','hXNbins':80,'hXmin':0   ,'hXmax':400},
     'met_Phi' : {'tlatex':'#phi(#bf{p}_{T}^{miss})' ,'units':''   ,'hXNbins':20,'hXmin':-3.5,'hXmax':3.5}, 
     
-    'nnscore_SlfCoup_1.0_sig'       : {'tlatex':'NN signal score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
-    'nnscore_SlfCoup_1.0_top'       : {'tlatex':'NN top score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
-    'nnscore_SlfCoup_1.0_qcd'       : {'tlatex':'NN qcd score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_1.0_sig'       : {'tlatex':'NN signal score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_1.0_top'       : {'tlatex':'NN top score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_1.0_qcd'       : {'tlatex':'NN QCD score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
     
     'nnscore_SlfCoup_5.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 5','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
     'nnscore_SlfCoup_m5.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = -5','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
@@ -162,16 +162,16 @@ def configure_vars(cut_sel):
   # analysis specific binning and ranges 
   if 'resolved' in cut_sel:
     d_vars['m_hh']   = {'tlatex':'#it{m}_{hh}'               ,'units':'GeV','hXNbins':50,'hXmin':100,'hXmax':1100}
-    d_vars['h1_Pt']  = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :600}
-    d_vars['h2_Pt']  = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :600}
+    d_vars['h1_Pt']  = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'  ,'units':'GeV','hXNbins':25,'hXmin':0, 'hXmax' :500}
+    d_vars['h2_Pt']  = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'  ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :600}
   if 'intermediate' in cut_sel:
-    d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins' :50,'hXmin':100,'hXmax':1600}
-    d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':200, 'hXmax' :1400}
-    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :1000}
+    d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins':40,'hXmin':200,'hXmax':1800}
+    d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})' ,'units':'GeV','hXNbins':20,'hXmin':200,'hXmax':1000}
+    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':0,  'hXmax':1000}
   if 'boosted' in cut_sel:
-    d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins' :60,'hXmin':100,'hXmax':3100}
-    d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':200, 'hXmax':1700}
-    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax':1500}
+    d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins':50,'hXmin':200,'hXmax':2700}
+    d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':200,'hXmax':1700}
+    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':0,  'hXmax':1500}
 
   return d_vars
 

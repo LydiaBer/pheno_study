@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 '''
 
-Welcome to plot.py
+Welcome to plot.py for 4b Pheno studies
 
-Plotting script from Jesse Liu modified for HH4b pheno
-
-From: /data/atlas/atlasdata/jesseliu/atlas/susy/compressed_ew/atlas-susy-ew/various_higgsinofitter/r21/v2_3/HiggsinoFitter/plotting
-and /home/jesseliu/pheno/fcc/PhenoSim/analyse/conventional/hh4b/plotting
+Plotting script by Lydia Beresford and Jesse Liu
 
 * This is a script to efficiently make 1-dimensional plots from ntuples 
 * Configure various aspects in other files
@@ -26,10 +23,10 @@ from ROOT import *
 
 import time 
 import os, sys, time, argparse
-
 from math       import sqrt
 from random     import gauss
 from array      import array
+
 from xsecs      import *
 from cuts       import *
 from samples    import *
@@ -60,8 +57,6 @@ show_legend_slices = False
 # Impose 4 b-tags as weight rather than cutting away events 
 # (TODO: do 2 or 3-tag as options)
 do_BTagWeight = True
-
-
 #
 #--------------------------------------------------
 
@@ -81,24 +76,18 @@ def main():
 
   ### ATLAS analysis xcheck
   l_vars     = ['m_hh']     # corresponds to variable in variables.py
-  l_samples = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
-  l_sig_regs = ['signal']   # gets specific region from input ROOT file
+  l_samples  = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
+  l_sig_regs = ['preselection']   # gets specific region from input ROOT file
   cut_sel    = ['ntag4']     # corresponds to set of cuts in cuts.py 
   ###
 
   ### Loose analysis plotting
-  #l_vars     = ['m_hh','pT_h1']
-  l_vars     = ['h1_Pt']
-  l_vars     = ['nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
-  l_vars     = ['m_hh']
-  l_samples  = ['loose','loose_kl','loose_kt']
+  l_vars     = ['m_hh', 'h1_Pt','nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
   l_samples  = ['loose']
-  l_sig_regs = ['preselection'] 
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR', 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN','resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR']#, 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN','resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   ###
-
 
   lumi    =  3000.0 #24.3 
   yield_var = "m_hh" # Will plot multiple variables but only want to save yield file for a single variable
@@ -386,9 +375,9 @@ def calc_selections(var, yield_var, dir, savedir, analysis, lumi, save_name, sig
     d_bkg_leg['samp1'] = mk_leg(0.64, 0.38, 0.88, 0.90, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
   else:
     # Legend for signals
-    leg = mk_leg(0.57, 0.71, 0.95, 0.91, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.045)
+    leg = mk_leg(0.57, 0.70, 0.95, 0.91, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.045)
     # Legend for backgrounds
-    d_bkg_leg['samp1'] = mk_leg(0.58, 0.55, 0.93, 0.70, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.045, Ncols=2)
+    d_bkg_leg['samp1'] = mk_leg(0.77, 0.40, 0.93, 0.69, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.045, Ncols=1)
   #d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
 
   print('==============================================')
@@ -733,16 +722,14 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
   for samp in l_samp: 
     #print( 'Processing legend {0}'.format(samp) )
     # obtain sample attributes 
+    hist        = d_hists[samp][0]
+    sample_type = d_samp[samp]['type']
+    leg_entry   = d_samp[samp]['leg']
+    legMk       = d_legMk[sample_type]
+    print('{0}, {1}, {2:.3f} +/- {3:.3f}, {4:.0f}'.format(cut_sel, samp, d_yield[samp], d_yieldErr[samp], d_raw[samp]) )
+    
     if samp not in l_leg_do_not_show:   
 
-      hist        = d_hists[samp][0]
-      sample_type = d_samp[samp]['type']
-      leg_entry   = d_samp[samp]['leg']
-      #if "HH" in leg_entry:
-      #  leg_entry = leg_entry+" x100"
-      legMk       = d_legMk[sample_type]
-    
-      #print('samp: {0}, type: {1}, legMk: {2}'.format(samp, sample_type, legMk) ) 
       # calculate the % of each background component and put in legend
       pc_yield   = 0
       if sample_type == 'bkg':
@@ -761,24 +748,17 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
 
       leg.AddEntry(hist, leg_txt, legMk)
       #print('{0}, {1}, {2:.3f}, {3:.3f}%'.format(sig_reg, samp, d_yield[samp], pc_yield) )
-      print('{0}, {1}, {2:.3f} +/- {3:.3f}, {4:.0f}'.format(cut_sel, samp, d_yield[samp], d_yieldErr[samp], d_raw[samp]) )
  
-  
   return leg
     
 #_________________________________________________________________________
 def mkdir(dirPath):
-
   # Makes new directory @dirPath
-
   try:
     os.makedirs(dirPath)
     print 'Successfully made new directory ' + dirPath
   except OSError:
     pass
 
-
- 
 if __name__ == "__main__":
   main()
-
