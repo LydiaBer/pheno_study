@@ -9,7 +9,7 @@ using a dictionary d_vars = {}
 '''
 
 #____________________________________________________________________________
-def configure_vars():
+def configure_vars(cut_sel):
   
    
   # ---------------------------------------------
@@ -48,7 +48,7 @@ def configure_vars():
     #'m_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':200, 'hXmax':800},
     #'m_hh':{'tlatex':'m_hh','units':'GeV','hXNbins':'var','hXmin':150,'hXmax':2076,'binsLowE':[150, 250, 262, 275, 288, 302, 317, 332, 348, 365, 383, 402, 422, 443, 465, 488, 512, 537, 563, 591, 620, 651, 683, 717, 752, 789, 828, 869, 912, 957, 1004, 1054, 1106, 1161, 1219, 1279, 1342, 1409, 1479, 1552, 1629, 1710, 1795, 1884, 1978, 2076]},
     #'m_hh':{'tlatex':'m_hh','units':'GeV','hXNbins':'var','hXmin':150,'hXmax':2076,'binsLowE':[262, 275, 288, 302, 317, 332, 348, 365, 383, 402, 422, 443, 465, 488, 512, 537, 563, 591, 620, 651, 683, 717, 752, 789, 828, 869, 912, 957, 1004, 1054, 1106, 1161, 1219, 1279, 1342, 1409, 1479, 1552, 1629, 1710, 1795, 1884, 1978, 2076]},
-    'm_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':1000},
+    #'m_hh' :{'tlatex':'m_hh','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':1000},
 
     'm_h1' :{'tlatex':'m_h1','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300},
     'm_h2' :{'tlatex':'m_h2','units':'GeV','hXNbins':100,'hXmin':0, 'hXmax':300},
@@ -87,7 +87,6 @@ def configure_vars():
     'nElec' : {'tlatex':'N(electrons)' ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
     'nMuon' : {'tlatex':'N(muons)'     ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
 
-    'm_hh'    : {'tlatex':'#it{m}_{hh}'               ,'units':'GeV','hXNbins':70,'hXmin':100,'hXmax':1500},
     'pT_hh'   : {'tlatex':'p_{T}(hh)'                 ,'units':'GeV','hXNbins':100,'hXmin':0,'hXmax':1000},
     'dR_hh'   : {'tlatex':'#DeltaR(h_{1}, h_{2})'     ,'units':''   ,'hXNbins':20, 'hXmin':0,'hXmax':5},
     'dEta_hh' : {'tlatex':'|#Delta#eta(h_{1}, h_{2})|','units':''   ,'hXNbins':20, 'hXmin':0,'hXmax':5},
@@ -95,7 +94,6 @@ def configure_vars():
     'X_hh'    : {'tlatex':'X_{hh}                    ','units':'GeV','hXNbins':100,'hXmin':0,'hXmax':50},
 
     'h1_M'   : {'tlatex':'m(h_{1}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':200},
-    'h1_Pt'  : {'tlatex':'p_{T}(h_{1}^{cand})'              ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':1000},
     'h1_Eta' : {'tlatex':'#eta(h_{1}^{cand})'               ,'units':''   ,'hXNbins':50 ,'hXmin':-5  ,'hXmax':5},
     'h1_Phi' : {'tlatex':'#phi(h_{1}^{cand})'               ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
 
@@ -114,7 +112,6 @@ def configure_vars():
     'h1_j1_j2_dR' : {'tlatex':'#DeltaR(j_{1} #in h_{1}^{cand}, j_{2} #in h_{1}^{cand})' ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
 
     'h2_M'   : {'tlatex':'m(h_{2}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0,   'hXmax':200},
-    'h2_Pt'  : {'tlatex':'p_{T}(h_{2}^{cand})'              ,'units':'GeV','hXNbins':100,'hXmin':0,   'hXmax':1000},
     'h2_Eta' : {'tlatex':'#eta(h_{2}^{cand})'               ,'units':''   ,'hXNbins':50 ,'hXmin':-5,  'hXmax':5},
     'h2_Phi' : {'tlatex':'#phi(h_{2}^{cand})'               ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
 
@@ -150,9 +147,31 @@ def configure_vars():
     'met_Et'  : {'tlatex':'E_{T}^{miss}'            ,'units':'GeV','hXNbins':80,'hXmin':0   ,'hXmax':400},
     'met_Phi' : {'tlatex':'#phi(#bf{p}_{T}^{miss})' ,'units':''   ,'hXNbins':20,'hXmin':-3.5,'hXmax':3.5}, 
     
+    'nnscore_SlfCoup_1.0_sig'       : {'tlatex':'NN signal score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_1.0_top'       : {'tlatex':'NN top score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_1.0_qcd'       : {'tlatex':'NN qcd score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    
+    'nnscore_SlfCoup_5.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 5','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_m5.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = -5','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_10.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 10','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_m10.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = -10','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
     # -------------------//------------------------
 
   } # end of d_vars = {} dictionary
+
+  # analysis specific binning and ranges 
+  if 'resolved' in cut_sel:
+    d_vars['m_hh']   = {'tlatex':'#it{m}_{hh}'               ,'units':'GeV','hXNbins':50,'hXmin':100,'hXmax':1100}
+    d_vars['h1_Pt']  = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :600}
+    d_vars['h2_Pt']  = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :600}
+  if 'intermediate' in cut_sel:
+    d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins' :50,'hXmin':100,'hXmax':1600}
+    d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':200, 'hXmax' :1400}
+    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :1000}
+  if 'boosted' in cut_sel:
+    d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins' :60,'hXmin':100,'hXmax':3100}
+    d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':200, 'hXmax':1700}
+    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'       ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax':1500}
 
   return d_vars
 

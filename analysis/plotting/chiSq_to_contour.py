@@ -44,6 +44,9 @@ def main():
   # ------------------------------------------------------
   
   l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
+  # resolved + intermediate + boosted
+  l_cut_sels = ['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined']
+  l_cut_sels = ['boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
   l_zCol = ['acceptance',
             'N_sig',
             'N_sig_raw',
@@ -55,6 +58,7 @@ def main():
             'chiSqSyst1pc',
             'chiSqSyst5pc'
             ]
+  l_zCol = ['chiSqSyst1pc']
   
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
@@ -73,9 +77,9 @@ def main():
     'SoverSqrtB'        : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B}'},
     'SoverSqrtBSyst1pc' : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B + (1%B)^{2}}'},
     'SoverSqrtBSyst5pc' : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B + (5%B)^{2}}'},
-    'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} = (S #minus S_{SM})^{2} / B'},
-    'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
-    'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
+    'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},# = (S #minus S_{SM})^{2} / B'},
+    'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
+    'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
   }
 
   xCol, yCol = 'SlfCoup', 'TopYuk'
@@ -172,9 +176,9 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   tgraph_cont.Draw('same')
   tgraph_cont.SetLineColor(kGray+3)
 
-  process = 'hh #rightarrow 4b'
-  xtitle = '#kappa_{#lambda} = #lambda_{hhh} / #lambda_{hhh}^{SM}'
-  ytitle = '#kappa_{top} = #it{y}_{top} / #it{y}_{top}^{SM}'
+  process = 'hh'
+  xtitle = '#kappa_{#lambda}'
+  ytitle = '#kappa_{top}'
   ztitle = d_axis_tlatex[zCol]['tlatex']
   zMin = d_axis_tlatex[zCol]['zMin']
   zMax = d_axis_tlatex[zCol]['zMax']
@@ -237,9 +241,17 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   #leg.Draw('same')
   
   # Annotating text to add to top
-  cut_name = cut_sel.split('-')
-  cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1] 
-  myText(0.18, 0.91, SQRTS_LUMI + ', {0}, {1}'.format(process, cut_txt), 0.040, kBlack, 0, True)
+  #cut_name = cut_sel.split('-')
+  #cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1]
+ 
+  if zCol == 'chiSq':
+    syst_txt = ', #zeta_{b} = 0'
+  elif zCol == 'chiSqSyst1pc':
+    syst_txt = ', #zeta_{b} = 0.01'
+  else:
+    syst_txt = ''
+
+  myText(0.18, 0.91, SQRTS_LUMI + ', {0} {1}'.format(process, syst_txt), 0.040, kBlack, 0, True)
   
   #-------------------------------------------------
   # Palette (Z axis colourful legend)

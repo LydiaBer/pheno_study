@@ -23,7 +23,9 @@ from samples import *
 from xsecs import *
 
 # Directory samples and in and will also be used in output names etc  
+#dir = 'original_full_stats'
 dir = '150719'
+dir = '150719/merged_nn_score_ntuples'
 
 # Get the sample paths from samples.py
 bkg_path, sig_path, bkg_suffix, sig_suffix = get_sample_paths(dir)
@@ -52,7 +54,18 @@ def main():
   # Cut selections
   l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection',
                 'resolved-commonSR',     'intermediate-commonSR',     'boosted-commonSR',
-                'resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR' ] 
+                'resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR', 
+                'resolved-finalSRNN',      'intermediate-finalSRNN',      'boosted-finalSRNN' ] 
+  #================================================
+  
+  # -------------------------------------------------------------
+  # Argument parser
+  parser = argparse.ArgumentParser(description='Analyse background/signal TTrees and make plots.')
+  parser.add_argument('-s', '--cut_sel', type=str, nargs='?', help='Selection cuts considered.')
+ 
+  args = parser.parse_args()
+  if args.cut_sel:
+    l_cut_sels = [ args.cut_sel ] 
   #
   # -----------------------------------------------------------
 
@@ -119,7 +132,7 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
   with open(save_file, 'w') as f_out:
     header  = 'TopYuk,SlfCoup,N_bkg,N_sig,N_sig_raw,'
     header += 'SoverB,SoverSqrtB,SoverSqrtBSyst1pc,SoverSqrtBSyst5pc,'
-    header += 'chiSq,chiSqSyst1pc,chiSqSyst5pc,acceptance\n'
+    header += 'chiSq,chiSqSyst1pc,chiSqSyst5pc,acceptance,xsec\n'
     f_out.write( header )
 
     for signal in l_sig_list:  
@@ -259,7 +272,7 @@ def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
   # ------------------------------------------------------
   out_str  = '{0},{1},{2:.4g},{3:.4g},{4:.4g},'.format( TopYuk, SlfCoup,      N_bkg,             N_sig, N_sig_raw )
   out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},'.format( SoverB, SoverSqrtB,   SoverSqrtBSyst1pc, SoverSqrtBSyst5pc  )
-  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g}'.format( chiSq,  chiSqSyst1pc, chiSqSyst5pc,      acceptance )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},{4}'.format( chiSq,  chiSqSyst1pc, chiSqSyst5pc,      acceptance, xsec )
   out_str += '\n'
 
   return out_str

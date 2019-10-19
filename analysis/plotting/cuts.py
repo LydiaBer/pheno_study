@@ -32,8 +32,8 @@ def configure_cuts(cut_sel, print_cuts=True):
   ]
   
   l_resolved_SR = [
-                   'event.h1_M > 90 && event.h1_M < 140',
-                   'event.h2_M > 80 && event.h2_M < 130',
+                   'h1_M > 90 && h1_M < 140',
+                   'h2_M > 80 && h2_M < 130',
                   ]
 
   l_intermediate = [
@@ -44,8 +44,8 @@ def configure_cuts(cut_sel, print_cuts=True):
   ]
   
   l_intermediate_SR = [
-                   'event.h1_M > 90 && event.h1_M < 140',
-                   'event.h2_M > 80 && event.h2_M < 130',
+                   'h1_M > 90 && h1_M < 140',
+                   'h2_M > 80 && h2_M < 130',
                   ]
 
   l_boosted = ['n_large_jets == 2',
@@ -54,17 +54,17 @@ def configure_cuts(cut_sel, print_cuts=True):
   ]
   
   l_boosted_SR = [
-                   'event.h1_M > 90 && event.h1_M < 140',
-                   'event.h2_M > 90 && event.h2_M < 140',
+                   'h1_M > 90 && h1_M < 140',
+                   'h2_M > 90 && h2_M < 140',
                   ]
 
   l_common = [ 
-              'event.met_Et < 150',
+              'met_Et < 150',
               'nElec == 0',
               'nMuon == 0',
-              'event.dEta_hh < 1.5',
-              'event.h1_M > 50',
-              'event.h2_M > 50',
+              'dEta_hh < 1.5',
+              'h1_M > 50',
+              'h2_M > 50',
               ]
   #jesse_intermediate: ['n_large_jets == 1',
   #                       'pT_h1 > 200',
@@ -78,15 +78,52 @@ def configure_cuts(cut_sel, print_cuts=True):
   d_cuts = {
     'ntag4'        : l_ntag4,
     'all-preselection'          : ['n_large_jets >= 0'],
+
     'resolved-preselection'     : l_resolved,
     'intermediate-preselection' : l_intermediate,
     'boosted-preselection'      : l_boosted,
+
     'resolved-commonSR'         : l_common + l_resolved,
     'intermediate-commonSR'     : l_common + l_intermediate,
     'boosted-commonSR'          : l_common + l_boosted,
+
     'resolved-finalSR'          : l_common + l_resolved     + l_resolved_SR,
     'intermediate-finalSR'      : l_common + l_intermediate + l_intermediate_SR,
     'boosted-finalSR'           : l_common + l_boosted      + l_boosted_SR,
+
+    'resolved-finalSRNNQCD'     : l_common + l_resolved     + l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'],
+    'intermediate-finalSRNNQCD' : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'],
+    'boosted-finalSRNNQCD'      : l_common + l_boosted      + l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'],
+
+    'resolved-finalSRNNQCDTop'     : l_common + l_resolved     + l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.2'],
+    'intermediate-finalSRNNQCDTop' : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'],
+    'boosted-finalSRNNQCDTop'      : l_common + l_boosted      + l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'],
+
+    'resolved-finalSRNNlow'     : l_common + l_resolved +     l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.2'] + ['nnscore_SlfCoup_1.0_sig <= 0.85'],
+    'intermediate-finalSRNNlow' : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_1.0_sig <= 0.85'],
+    'boosted-finalSRNNlow'      : l_common + l_boosted +      l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_1.0_sig <= 0.85'],
+
+    'resolved-finalSRNN'        : l_common + l_resolved +     l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.2'] + ['nnscore_SlfCoup_1.0_sig > 0.85'],
+    'intermediate-finalSRNN'    : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_1.0_sig > 0.85'],
+    'boosted-finalSRNN'         : l_common + l_boosted +      l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_1.0_sig > 0.85'],
+
+    'resolved-finalSRNNlamm5'        : l_common + l_resolved +     l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.2'] + ['nnscore_SlfCoup_m5.0_sig > 0.85'],
+    'intermediate-finalSRNNlamm5'    : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_m5.0_sig > 0.85'],
+    'boosted-finalSRNNlamm5'         : l_common + l_boosted +      l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_m5.0_sig > 0.85'],
+
+    'resolved-finalSRNNlam10'        : l_common + l_resolved +     l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.2'] + ['nnscore_SlfCoup_10.0_sig > 0.85'],
+    'intermediate-finalSRNNlam10'    : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_10.0_sig > 0.85'],
+    'boosted-finalSRNNlam10'         : l_common + l_boosted +      l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_10.0_sig > 0.85'],
+
+    'resolved-finalSRNNlam10low'        : l_common + l_resolved +     l_resolved_SR +     ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.2'] + ['nnscore_SlfCoup_10.0_sig <= 0.85'],
+    'intermediate-finalSRNNlam10low'    : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_10.0_sig <= 0.85'],
+    'boosted-finalSRNNlam10low'         : l_common + l_boosted +      l_boosted_SR +      ['nnscore_SlfCoup_1.0_qcd < 0.2'] + ['nnscore_SlfCoup_1.0_top < 0.1'] + ['nnscore_SlfCoup_10.0_sig <= 0.85'],
+
+    'resolved-finalSRNNSig'     : l_common + l_resolved     + l_resolved_SR +     ['nnscore_SlfCoup_1.0_sig > 0.6'],
+    'intermediate-finalSRNNSig' : l_common + l_intermediate + l_intermediate_SR + ['nnscore_SlfCoup_1.0_sig > 0.6'],
+    'boosted-finalSRNNSig'      : l_common + l_boosted      + l_boosted_SR +      ['nnscore_SlfCoup_1.0_sig > 0.6'],
+
+
     #'SR-1ibsmall-2ibtrk' : l_SR_1ibsmall_2ibtrk,
   } 
   
@@ -102,9 +139,9 @@ def configure_cuts(cut_sel, print_cuts=True):
     print('===============================================')
     print('Cuts applied:')
     for x in l_cuts:
-      print(x)
+      print x
     print('-----------------------------------------------')
-    print('Unweighted final cut-string:', added_cuts)
+    print 'Unweighted final cut-string:', added_cuts
     print('===============================================')
  
   return added_cuts, l_cuts

@@ -54,21 +54,29 @@ def main():
   mkdir('contours')
   
   # Cut selections
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR' ] 
-  #
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
+ 
   l_zCols = ['chiSq', 'chiSqSyst1pc']
+  IsLogY = False
+  #l_zCols = ['xsec','acceptance']
+  #IsLogY = True
 
-  d_axis_latex = {
-    'SoverB'            : r'$S / B$',
-    'SoverSqrtB'        : r'$S / \sqrt{B}$',
-    'SoverSqrtBSyst1pc' : r'$S / \sqrt{B + (1\%B)^{2}}$',
-    'SoverSqrtBSyst5pc' : r'$S / \sqrt{B + (5\%B)^{2}}$',
-    'chiSq'             : r'$\chi^{2} = (S - S_\mathrm{SM})^{2} / B$',
-    'chiSqSyst1pc'      : r'$\chi^{2}_\mathrm{syst} = (S - S_\mathrm{SM})^{2} / (B + (1\%B)^{2})$',
-    'chiSqSyst5pc'      : r'$\chi^{2}_\mathrm{syst} = (S - S_{SM})^{2} / (B + (5\%B)^{2})$',
-  }
+  
+
+  #d_axis_latex = {
+  #  'SoverB'            : r'$S / B$',
+  #  'SoverSqrtB'        : r'$S / \sqrt{B}$',
+  #  'SoverSqrtBSyst1pc' : r'$S / \sqrt{B + (1\%B)^{2}}$',
+  #  'SoverSqrtBSyst5pc' : r'$S / \sqrt{B + (5\%B)^{2}}$',
+  #  'chiSq'             : r'$\chi^{2} = (S - S_\mathrm{SM})^{2} / B$',
+  #  'chiSqSyst1pc'      : r'$\chi^{2}_\mathrm{syst} = (S - S_\mathrm{SM})^{2} / (B + (1\%B)^{2})$',
+  #  'chiSqSyst5pc'      : r'$\chi^{2}_\mathrm{syst} = (S - S_{SM})^{2} / (B + (5\%B)^{2})$',
+  #  'acceptance'        : 'Acceptance #times efficiency (S / #sigma #times L)',
+  #  'xsec'              : r'xsec [pb]',
+  #}
   d_axis_tlatex = {
-    'acceptance'        : 'Acceptance #times efficiency (S / #sigma #times L)',
+    'acceptance'        : 'A #times \epsilon (S / #sigma #times L) [%]',
+    'xsec'              : 'xsec [pb]',
     'N_sig'             : 'Signal yield',
     'N_sig_raw'         : 'Raw signal yield',
     'SoverB'            : 'S / B',
@@ -92,10 +100,10 @@ def main():
     
     print('Output file to store chi squares: {0}'.format( out_file  ) )
 
-    make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex )
+    make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex, IsLogY)
 
 #____________________________________________________________________________
-def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex ):
+def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex, IsLogY ):
 
   '''
   fig, ax = plt.subplots()
@@ -106,11 +114,13 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex ):
   plt.rcParams['font.serif']  = 'times'
   '''
 
-  l_colours = [myDarkBlue, myDarkGreen, myMediumOrange ]
-  l_widths  = [5, 4, 3]
+  l_colours = [myDarkBlue, myDarkGreen, myMediumOrange, myMediumPurple, myMediumPink ]
+  l_widths  = [5, 5, 5, 5, 5]
   # gPad left/right margins
   can  = TCanvas('','',1000,800)
 
+  if IsLogY:
+    can.SetLogy()
   #==========================================================
   # Build canvas   
 
@@ -149,7 +159,11 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex ):
     for x, y, z in sorted(zip(in_x, in_y, in_z)):
       if y == 1.0: 
         l_SlfCoup.append(x)
-        l_chiSq.append(z)
+        if zCol == 'acceptance':
+          l_chiSq.append(z*100) # convert to percentage
+        else:
+          l_chiSq.append(z)
+        #l_chiSq.append(z)
 
     tg = TGraph( len(l_chiSq) )
     tg.SetMarkerColor(colour)
@@ -162,8 +176,13 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex ):
       tg.SetPoint(i, x, y)
     d_tgraphs[cut_sel] = tg
    
-    cut_name = cut_sel.split('-')
-    cut_txt = cut_name[0].capitalize()# + ' ' + cut_name[1] 
+    if cut_sel == 'resolved-finalSR_AND_intermediate-finalSR_combined':
+      cut_txt = 'Res + Int'
+    elif cut_sel == 'boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined':
+      cut_txt = 'Res + Int + Bst'
+    else:
+      cut_name = cut_sel.split('-')
+      cut_txt = cut_name[0].capitalize()# + ' ' + cut_name[1] 
     leg.AddEntry(tg, cut_txt, 'l')
     
     #plt.plot(l_SlfCoup, l_chiSq, colour, linewidth=width, zorder=2, linestyle='-', label=cut_txt)
@@ -171,6 +190,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex ):
   d_tgraphs['resolved-finalSR'].Draw('PLA')
   d_tgraphs['intermediate-finalSR'].Draw('PL same')
   d_tgraphs['boosted-finalSR'].Draw('PL same')
+  d_tgraphs['resolved-finalSR_AND_intermediate-finalSR_combined'].Draw('PL same')
+  d_tgraphs['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'].Draw('PL same')
 
   leg.Draw('same')
 
@@ -179,14 +200,21 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex ):
 
   xtitle = '#lambda_{hhh} / #lambda_{hhh}^{SM}'
   ytitle = d_axis_tlatex[zCol]
-  customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8)
+  customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
 
-  line = TLine(-20,1,20,1);
-  line.SetLineColor(kGray+1)
-  line.SetLineWidth(2)
-  line.Draw()
+  if 'chiSq' in zCol:
+    line = TLine(-20,1,20,1);
+    line.SetLineColor(kGray+1)
+    line.SetLineWidth(2)
+    line.Draw()
+
+    line2 = TLine(-20,4,20,4);
+    line2.SetLineColor(kGray+1)
+    line2.SetLineWidth(2)
+    line2.Draw()
 
   gPad.RedrawAxis() 
+  customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
   
   #==========================================================
   # save everything
@@ -300,10 +328,12 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   if IsLogY:
     hist.SetMaximum(ymax)
     hist.SetMinimum(ymin)
-  if not IsLogY:
     hist.SetMaximum(10)
-    #hist.SetMaximum(ymax*scaleFactor) 
+    hist.SetMinimum(0.01)
+  if not IsLogY:
+    hist.SetMaximum(5)
     hist.SetMinimum(0.0)
+    #hist.SetMaximum(ymax*scaleFactor) 
 
   gPad.SetTicky()
 
