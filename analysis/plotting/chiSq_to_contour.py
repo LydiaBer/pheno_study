@@ -23,6 +23,7 @@ import os, sys, time, argparse, math, datetime, csv
 SQRTS_LUMI = '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}'
   
 interpolate_logy = False
+overlay_points = False
 
 #____________________________________________________________________________
 def main():
@@ -43,10 +44,12 @@ def main():
   # Input/output file names TODO: clumsy, use argparse etc
   # ------------------------------------------------------
   
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
   # resolved + intermediate + boosted
   l_cut_sels = ['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined']
   l_cut_sels = ['boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
+  
+  l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN']
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
   l_zCol = ['acceptance',
             'N_sig',
             'N_sig_raw',
@@ -63,7 +66,8 @@ def main():
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
   # ------------------------------------------------------
-  zThreshold = 1e-9
+  #zThreshold = 1e-9
+  zThreshold = 1.
              
   # ------------------------------------------------------
   # Set column headers of in_file CSV we want to plot
@@ -135,7 +139,7 @@ def main():
           out_x = x
           out_y = y
           f_out.write( '{0:.4f},{1:.4f}\n'.format(out_x, out_y) )
-          #print('x: {0}, y: {1}, mN1: {2}'.format(out_x, out_y, mN1))
+          #print('x: {0}, y: {1}'.format(out_x, out_y))
       # ------------------------------------------------------
 
       # ------------------------------------------------------
@@ -169,16 +173,18 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   hist = tg2d.GetHistogram()
   #hist.Draw('CONTZ')
   hist.Draw('COLZ')
-  hist.GetXaxis().SetRangeUser(-30,6000)
-  hist.GetYaxis().SetRangeUser(-30,1000)
+  #hist.GetXaxis().SetRangeUser(-30,6000)
+  #hist.GetYaxis().SetRangeUser(-30,1000)
+  hist.GetXaxis().SetRangeUser(-20,20)
+  hist.GetYaxis().SetRangeUser(0.5,1.5)
   #hist.Draw('COLZ')
   #hist.Draw('CONT4Z LIST')
   tgraph_cont.Draw('same')
   tgraph_cont.SetLineColor(kGray+3)
 
   process = 'hh'
-  xtitle = '#kappa_{#lambda}'
-  ytitle = '#kappa_{top}'
+  xtitle = '#kappa(#lambda_{hhh})'
+  ytitle = '#kappa(#it{y}_{top})'
   ztitle = d_axis_tlatex[zCol]['tlatex']
   zMin = d_axis_tlatex[zCol]['zMin']
   zMax = d_axis_tlatex[zCol]['zMax']
@@ -193,53 +199,54 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   #-------------------------------------------------
   # Plot points on top
   #-------------------------------------------------
-  tg = TGraph()
-  tg_excl = TGraph()
-  for count, ( x_val, y_val, z_val ) in enumerate( zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) ) :
-    # Make a separate TGraph for points above desired threshold
-    if float(z_val) > zThreshold: 
-      tg_excl.SetPoint(count, float(x_val), float(y_val) )
-    else:         
-      tg.SetPoint(     count, float(x_val), float(y_val) )
-      
-  #-------------------------------------------------
-  # Format the excluded points differently from the not excluded ones
-  #-------------------------------------------------
-  tg.SetMarkerStyle(20)
-  tg.SetMarkerSize(0.8)
-  tg.SetMarkerColor(kGray+2)
-  tg.Draw('P same') 
-  
-  tg_excl.SetMarkerStyle(21)
-  tg_excl.SetMarkerSize(0.8)
-  tg_excl.SetMarkerColor(kOrange+2)
-  tg_excl.Draw('P same') 
+  if overlay_points:
+    tg = TGraph()
+    tg_excl = TGraph()
+    for count, ( x_val, y_val, z_val ) in enumerate( zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) ) :
+      # Make a separate TGraph for points above desired threshold
+      if float(z_val) > zThreshold: 
+        tg_excl.SetPoint(count, float(x_val), float(y_val) )
+      else:         
+        tg.SetPoint(     count, float(x_val), float(y_val) )
+        
+    #-------------------------------------------------
+    # Format the excluded points differently from the not excluded ones
+    #-------------------------------------------------
+    tg.SetMarkerStyle(20)
+    tg.SetMarkerSize(0.8)
+    tg.SetMarkerColor(kGray+2)
+    tg.Draw('P same') 
+    
+    tg_excl.SetMarkerStyle(21)
+    tg_excl.SetMarkerSize(0.8)
+    tg_excl.SetMarkerColor(kOrange+2)
+    tg_excl.Draw('P same') 
 
-  #-------------------------------------------------
-  # Draw values as text for points
-  #-------------------------------------------------
-  for x_val, y_val, z_val in zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) :
-    myText( float(x_val), float(y_val), '{0:.3g}'.format( float(z_val) ), 0.01, kBlack, 0, False)
+    #-------------------------------------------------
+    # Draw values as text for points
+    #-------------------------------------------------
+    for x_val, y_val, z_val in zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) :
+      myText( float(x_val), float(y_val), '{0:.3g}'.format( float(z_val) ), 0.01, kBlack, 0, False)
   
-  #-------------------------------------------------
-  # Construct and add plots to legend
-  #-------------------------------------------------
-  xl1=0.22
-  yl1=0.71
-  xl2=xl1+0.15
-  yl2=yl1-0.15
-  leg = TLegend(xl1,yl1,xl2,yl2)
-  leg.SetBorderSize(0)
-  leg.SetTextFont(132)
-  leg.SetTextSize(0.04)
-  leg.SetNColumns(1)
+    #-------------------------------------------------
+    # Construct and add plots to legend
+    #-------------------------------------------------
+    xl1=0.22
+    yl1=0.71
+    xl2=xl1+0.15
+    yl2=yl1-0.15
+    leg = TLegend(xl1,yl1,xl2,yl2)
+    leg.SetBorderSize(0)
+    leg.SetTextFont(132)
+    leg.SetTextSize(0.04)
+    leg.SetNColumns(1)
 
-  leg.AddEntry(tgraph_cont, 'Z = 2',    'l')
-  leg.AddEntry(tg,          'Z #leq 2', 'p')
-  leg.AddEntry(tg_excl,     'Z > 2',    'p')
+    leg.AddEntry(tgraph_cont, 'Z = 2',    'l')
+    leg.AddEntry(tg,          'Z #leq 2', 'p')
+    leg.AddEntry(tg_excl,     'Z > 2',    'p')
 
-  #leg.Draw('same')
-  
+    #leg.Draw('same')
+    
   # Annotating text to add to top
   #cut_name = cut_sel.split('-')
   #cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1]
@@ -251,7 +258,19 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   else:
     syst_txt = ''
 
-  myText(0.18, 0.91, SQRTS_LUMI + ', {0} {1}'.format(process, syst_txt), 0.040, kBlack, 0, True)
+  if 'resolved' in out_file:
+    analysis = 'Resolved'
+  if 'intermediate' in out_file:
+    analysis = 'Intermediate'
+  if 'boosted' in out_file:
+    analysis = 'Boosted'
+
+  if 'SRNN' in out_file:
+    analysis += ' DNN'
+  else:
+    analysis += ' Baseline'
+
+  myText(0.18, 0.91, SQRTS_LUMI + ', {0}{1}, {2}'.format(process, syst_txt, analysis), 0.040, kBlack, 0, True)
   
   #-------------------------------------------------
   # Palette (Z axis colourful legend)
@@ -279,8 +298,24 @@ def csv_to_graph( d_csv, xCol, yCol, zCol, zMin=0.001, interpolate_logy=False ):
   tg = TGraph2D()
 
   count = 0 
- 
+
+  # -----------------------------------------------------------------------------
+  # Add dummy points to close contour in kappa(ytop) vs kappa(lambda_hhh) plane
+  # -----------------------------------------------------------------------------
+  # kappa(lambda_hhh)
+  l_dummy_x = [-25., 0., 25., -25., 0., 25.]
+  # kappa(ytop)
+  l_dummy_y = [0., 0., 0., 2., 2., 2.]
+  # chiSq
+  l_dummy_z = [200., 20., 200., 200., 20., 200.]
+
+  d_csv[xCol] += l_dummy_x 
+  d_csv[yCol] += l_dummy_y 
+  d_csv[zCol] += l_dummy_z 
+
+  # -------------------------------------------
   # Loop over points in CSV and plot them 
+  # -------------------------------------------
   for count, ( x_val, y_val, z_val ) in enumerate( zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) ) :
     if interpolate_logy:
       y_val = math.log10( float( y_val ) )
@@ -313,12 +348,12 @@ def contour_from_graph( tg2d, level_val=1.64458 ):
   gr0 = ROOT.TGraph()
   h = hist.Clone()
   #h.Print()
-  h.GetYaxis().SetRangeUser(-30,30)
-  h.GetXaxis().SetRangeUser(0,2)
+  h.GetXaxis().SetRangeUser(-30,30)
+  h.GetYaxis().SetRangeUser(0,2)
   gr = gr0.Clone(h.GetName())
   h.SetContour( 1 )
   
-  # Get the contour whose value corresponds to 1.64458 (Zsignificance for CLs=0.05)
+  # Get the contour whose value corresponds to level_val
   h.SetContourLevel( 0, level_val )
   
   h.Draw("CONT LIST")

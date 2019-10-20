@@ -87,13 +87,13 @@ def configure_vars(cut_sel):
     'nElec' : {'tlatex':'N(electrons)' ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
     'nMuon' : {'tlatex':'N(muons)'     ,'units':'','hXNbins':6,'hXmin':-0.5,'hXmax':5.5},
 
-    'pT_hh'   : {'tlatex':'p_{T}(hh)'                 ,'units':'GeV','hXNbins':100,'hXmin':0,'hXmax':1000},
+    'pT_hh'   : {'tlatex':'#it{p}_{T}(hh)'            ,'units':'GeV','hXNbins':40,'hXmin':0,'hXmax':1000},
     'dR_hh'   : {'tlatex':'#DeltaR(h_{1}, h_{2})'     ,'units':''   ,'hXNbins':20, 'hXmin':0,'hXmax':5},
     'dEta_hh' : {'tlatex':'|#Delta#eta(h_{1}, h_{2})|','units':''   ,'hXNbins':20, 'hXmin':0,'hXmax':5},
     'dPhi_hh' : {'tlatex':'|#Delta#phi(h_{1}, h_{2})|','units':''   ,'hXNbins':35, 'hXmin':0,'hXmax':3.5},
     'X_hh'    : {'tlatex':'X_{hh}                    ','units':'GeV','hXNbins':100,'hXmin':0,'hXmax':50},
 
-    'h1_M'   : {'tlatex':'m(h_{1}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0   ,'hXmax':200},
+    'h1_M'   : {'tlatex':'#it{m}(h_{1}^{cand})'             ,'units':'GeV','hXNbins':50,'hXmin':0   ,'hXmax':500},
     'h1_Eta' : {'tlatex':'#eta(h_{1}^{cand})'               ,'units':''   ,'hXNbins':50 ,'hXmin':-5  ,'hXmax':5},
     'h1_Phi' : {'tlatex':'#phi(h_{1}^{cand})'               ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
 
@@ -111,7 +111,7 @@ def configure_vars(cut_sel):
     'h1_j2_dR'    : {'tlatex':'#DeltaR(j_{2} #in h_{1}^{cand}, h_{1}^{cand})'           ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
     'h1_j1_j2_dR' : {'tlatex':'#DeltaR(j_{1} #in h_{1}^{cand}, j_{2} #in h_{1}^{cand})' ,'units':'','hXNbins':20,'hXmin':0,'hXmax':5},
 
-    'h2_M'   : {'tlatex':'m(h_{2}^{cand})'                  ,'units':'GeV','hXNbins':100,'hXmin':0,   'hXmax':200},
+    'h2_M'   : {'tlatex':'#it{m}(h_{2}^{cand})'             ,'units':'GeV','hXNbins':50,'hXmin':0,   'hXmax':500},
     'h2_Eta' : {'tlatex':'#eta(h_{2}^{cand})'               ,'units':''   ,'hXNbins':50 ,'hXmin':-5,  'hXmax':5},
     'h2_Phi' : {'tlatex':'#phi(h_{2}^{cand})'               ,'units':''   ,'hXNbins':70 ,'hXmin':-3.5,'hXmax':3.5},
 
@@ -163,15 +163,15 @@ def configure_vars(cut_sel):
   if 'resolved' in cut_sel:
     d_vars['m_hh']   = {'tlatex':'#it{m}_{hh}'               ,'units':'GeV','hXNbins':50,'hXmin':100,'hXmax':1100}
     d_vars['h1_Pt']  = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'  ,'units':'GeV','hXNbins':25,'hXmin':0, 'hXmax' :500}
-    d_vars['h2_Pt']  = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'  ,'units':'GeV','hXNbins':30,'hXmin':0, 'hXmax' :600}
+    d_vars['h2_Pt']  = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'  ,'units':'GeV','hXNbins':25,'hXmin':0, 'hXmax' :500}
   if 'intermediate' in cut_sel:
     d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins':40,'hXmin':200,'hXmax':1800}
     d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})' ,'units':'GeV','hXNbins':20,'hXmin':200,'hXmax':1000}
-    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':0,  'hXmax':1000}
+    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':20,'hXmin':0,  'hXmax':800}
   if 'boosted' in cut_sel:
     d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins':50,'hXmin':200,'hXmax':2700}
     d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':200,'hXmax':1700}
-    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':0,  'hXmax':1500}
+    d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':200,'hXmax':1700}
 
   return d_vars
 

@@ -83,10 +83,12 @@ def main():
 
   ### Loose analysis plotting
   l_vars     = ['m_hh', 'h1_Pt','nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
+  l_vars     = ['h1_M', 'h2_M', 'h2_Pt', 'pT_hh']
+  l_vars     = ['m_hh']
   l_samples  = ['loose']
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR']#, 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN','resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR', 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN']#,'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   ###
 
   lumi    =  3000.0 #24.3 

@@ -80,7 +80,6 @@ def get_samples_to_plot(analysis = ''):
                   'loose_ptj1_200_to_500_2b2j',
                   'loose_ptj1_20_to_200_2b2j',
                  ]
-
     l_samp_sig = [
                  #'loose_noGenFilt_4b',
                  #'loose_ptj1_20_to_200_4b',
@@ -88,6 +87,9 @@ def get_samples_to_plot(analysis = ''):
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0', 
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0', 
     ]
 
 
@@ -314,7 +316,7 @@ def configure_samples():
     'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
 
     'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
-    #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1','l_color':kRed }, 
+    'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.1','l_color':kRed }, 
     'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
      
     #------------------------------------
