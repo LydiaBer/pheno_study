@@ -15,7 +15,7 @@ mplt.use('Agg') # So we can use without X forwarding
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import csv
+import csv, os
 import matplotlib.colors as colors
 
 # So we can produce PDFs
@@ -158,14 +158,6 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, zlabel, my_fil
 
 #_______________________________________
 def main():
-
-  bkg_correlation_matrix = []
-  bkg_correlation = []
-  sig_correlation_matrix = []
-  sig_correlation = []    
-  
-  l_varX = []
-  l_varY = []
   
   #----------------------------------------------
   # Lambda values to plot
@@ -189,6 +181,15 @@ def main():
   ]
 
   for my_file in l_files:
+
+    bkg_correlation_matrix = []
+    bkg_correlation = []
+    sig_correlation_matrix = []
+    sig_correlation = []    
+    
+    l_varX = []
+    l_varY = []
+    
     file_loc = 'data/' + my_file
     print('Processing {0}'.format(file_loc))
     
