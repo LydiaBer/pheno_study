@@ -4,7 +4,8 @@
 Welcome to combine_chiSq.py
 
  - This script takes in the csv files made by ntuples_to_chiSq.py.
- - This finds the chiSq values for the 2 files so we can produce a combined contour (sum SRs chi2 values)
+ - Once the signal regions are specified, the script combines the chiSqs from their corresponding files.
+ - Currently combines by evaluating the sum and maximum of the given chiSqSyst1pc
  - Outputs a single csv file containing the combined chiSq values
 '''
 
@@ -14,21 +15,21 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 from ROOT import *
 import os, sys, time, argparse, math, datetime, csv
-
-# NOTE set up to combine 2 SRs only at present!! If use more than 2 will only combine first two 
+from pprint import pprint
+import pandas as pd
 
 #____________________________________________________________________________
 def main():
   
   t0 = time.time()
   
+  # ------------------------------------------------------
   # Input dir
   dir = 'loose_preselection' 
-
+  #
   # For shape analysis
-  l_SRs = [("resolved-finalSRNNlow","resolved-finalSRNN"),("intermediate-finalSRNNlow","intermediate-finalSRNN"),("boosted-finalSRNNlow","boosted-finalSRNN")]
-  l_SRs = [("resolved-finalSRNNlam10low","resolved-finalSRNNlam10"),("intermediate-finalSRNNlam10low","intermediate-finalSRNNlam10"),("boosted-finalSRNNlam10low","boosted-finalSRNNlam10")]
-
+  #l_SRs = [("resolved-finalSRNNlow","resolved-finalSRNN","intermediate-finalSRNNlow","intermediate-finalSRNN","boosted-finalSRNNlow","boosted-finalSRNN"]
+  #l_SRs = [("resolved-finalSRNNlam10low","resolved-finalSRNNlam10","intermediate-finalSRNNlam10low","intermediate-finalSRNNlam10","boosted-finalSRNNlam10low","boosted-finalSRNNlam10")]
   # Signal regions definition
   #l_SRs = [("resolved-finalSR","intermediate-finalSR"),("boosted-finalSR","resolved-finalSR_AND_intermediate-finalSR_combined")]
   #l_SRs = [("resolved-finalSRNNQCD","intermediate-finalSRNNQCD"),("boosted-finalSRNNQCD","resolved-finalSRNNQCD_AND_intermediate-finalSRNNQCD_combined")]
@@ -36,123 +37,81 @@ def main():
   #l_SRs = [("resolved-finalSRNN","intermediate-finalSRNN"),("boosted-finalSRNN","resolved-finalSRNN_AND_intermediate-finalSRNN_combined")]
   #l_SRs = [("resolved-finalSRNN","intermediate-finalSRNN"),("boosted-finalSRNN","resolved-finalSRNN_AND_intermediate-finalSRNN_combined")]
   #l_SRs = [("resolved-finalSRNNlow_AND_resolved-finalSRNN_combined","intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined"),("boosted-finalSRNNlow_AND_boosted-finalSRNN_combined","resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined")]
-  l_SRs = [("resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined","intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined"),("boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined","resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined")]
+  #l_SRs = [("resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined","intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined"),("boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined","resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined")]
   # ------------------------------------------------------
-  # Loop over pairs of signal regions
+  # Input SRs to combine
+  l_SRs = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
+  #
+  # Column header whose value we want to combine
+  to_sum_var = 'chiSqSyst1pc'
+  #
+  # Join SRs as the combined name output
+  out_file = 'data/CHISQ_{0}_{1}_combined.csv'.format(dir, '_'.join(l_SRs))
+  #
+  # Columns to delete in new dataframe 
+  l_del = ['N_bkg','N_sig','N_sig_raw',
+    'SoverB','SoverSqrtB','SoverSqrtBSyst1pc','SoverSqrtBSyst5pc',
+    'chiSq','chiSqSyst1pc','chiSqSyst5pc','acceptance','xsec'] 
+  #  
   # ------------------------------------------------------
-  for SRpair in l_SRs:
   
-    # list of csv dictionaries for this pair
-    l_d_csv = []
-
-    out_file = 'data/CHISQ_{0}_{1}_AND_{2}_combined.csv'.format(dir,SRpair[0],SRpair[1])
- 
-    # ------------------------------------------------------
-    # Loop over signal region in pair 
-    # ------------------------------------------------------ 
-    for SR in SRpair:
-
-      in_file = 'data/CHISQ_{0}_{1}.csv'.format(dir,SR)
+  print('-----------------------------------\n')
+  print('List of SRs to combine:')
+  pprint(l_SRs)
+  print('Variable to combine: {0}'.format(to_sum_var) ) 
+  print('\n-----------------------------------\n')
   
+  # ------------------------------------------------------
+  # Import data files for each SR into pandas dataframe
+  # ------------------------------------------------------
+  d_df = {}
+  for SR in l_SRs:
+    print( 'Processing {0}'.format(SR) )
 
-      # ------------------------------------------------------
-      # First Convert the csv into lists 
-      # where column header is key of dictionary, values as list
-      # ------------------------------------------------------
-      d_csv = csv_to_lists( in_file )
-
-      # ------------------------------------------------------
-      # Save list of d_csv 
-      # ------------------------------------------------------
-      l_d_csv.append(d_csv)
-
-    #print l_d_csv
-
-    # ------------------------------------------------------
-    #
-    # Now commence combination of chiSq
-    #
-    # ------------------------------------------------------
-
-    # ------------------------------------------------------
-    # Loop over zCols 
-    # ------------------------------------------------------
+    # Input CSV file
+    in_file = 'data/CHISQ_{0}_{1}.csv'.format(dir,SR)
     
-    d_zCol_combined_chiSq = {}
-    
-    xCol, yCol, l_zCols = 'TopYuk', 'SlfCoup', ['chiSq','chiSqSyst1pc'] 
- 
-    for zCol in l_zCols:
-            
-      print( '--------------------------------------------------------------' )
-      print( '\nWelcome to combine_chiSq.py\n' )
-      print( 'Input: {0}'.format(in_file) )  
-      print( 'Using the column headers: {0} {1} {2}'.format(xCol, yCol, zCol))
-      print( 'Saving combined chiSq csv to file:\n  {0}\n'.format(out_file) )
-      print( '-----------------------------------------------------------------\n' )
+    # Read in CSV as pandas dataframe (like an excel spreadsheet but python-able)
+    d_df[SR] = pd.read_csv( in_file )
+    #print(d_df[SR])
 
-      # ------------------------------------------------------
-      # loop over dictionaries in d_csv and save zCol for each
-      # l_zCol is list containing zCol from each of the SRs 
-      # ------------------------------------------------------
-      l_zCol = [] 
-      for d_csv in l_d_csv:
-        l_zCol.append(d_csv[zCol])
+  # ------------------------------------------------------
+  # Clone the first dataframe into a new dataframe
+  # ------------------------------------------------------
+  combo_df = d_df[l_SRs[0]].copy()
 
-      # ------------------------------------------------------
-      # Sum chi2 index wise value for list of zCol
-      # i.e. for each mass point in two signal regions sum both chi2 
-      #------------------------------------------------------
-  
-      a,b = l_zCol[0], l_zCol[1]
- 
-      a = map(float,a)
-      b = map(float,b) 
-      from operator import add
-      l_combined_chiSq = list(map(add, a,b))
+  for var in l_del:
+    del combo_df[var]
 
-      d_zCol_combined_chiSq[zCol] = l_combined_chiSq
+  # ------------------------------------------------------
+  # Import chiSq from other dataframes and add to combo_df
+  # ------------------------------------------------------
+  for SR in l_SRs:
+    new_col_name = SR + '_' + to_sum_var
+    combo_df[new_col_name] = d_df[SR][to_sum_var]
 
-    # ------------------------------------------------------
-    # Rebuild combined csv file with xCol, yCol and combined zCol
-    # ------------------------------------------------------
-    #print 'dict'
-    #print d_zCol_combined_chiSq
+  # ------------------------------------------------------
+  # List the columns we want to sum by header name
+  # ------------------------------------------------------
+  l_cols_to_combine = [SR + '_' + to_sum_var for SR in l_SRs]
 
-    keys = []
-    values = []
+  # ------------------------------------------------------
+  # Perform the combination of the values as new column
+  # ------------------------------------------------------
+  combo_sum = 'sum_' + to_sum_var
+  combo_max = 'max_' + to_sum_var
+  # Sum the chiSqs
+  combo_df[combo_sum] = combo_df[l_cols_to_combine].astype(float).sum(axis=1)
+  # Find the maximum of the chiSqs
+  combo_df[combo_max] = combo_df[l_cols_to_combine].astype(float).max(axis=1)
 
-    for key,value in d_zCol_combined_chiSq.iteritems():
-      keys.append(key)
-      values.append(value) 
-     
-    with open(out_file, 'w') as f_out: 
-      f_out.write('{0},{1},{2}\n'.format(xCol, yCol, ','.join(keys)))
-      for count, ( x_val, y_val) in enumerate( zip( l_d_csv[0][xCol], l_d_csv[0][yCol]) ) :
-        # make list of quad combined chi2 values for specified zCols for this signal point (count)
-        combined_chiSq = list(zip(*values)[count])
-        # turn list entries from float to string so can join with comma
-        for i in range(len(combined_chiSq)): combined_chiSq[i]=str(combined_chiSq[i])
-        # make into comma separated list 
-        str_combined_chiSq=','.join(combined_chiSq)
-        f_out.write('{0},{1},{2}\n'.format(x_val, y_val, str_combined_chiSq))
-    
-#__________________________________________
-def csv_to_lists(csv_file):
-  '''
-  converts csv to dictionary of lists containing columns
-  the dictionary keys is the header
-  '''
-  with open(csv_file) as input_file:
-      reader = csv.reader(input_file)
-      col_names = next(reader)
-      #print col_names
-      data = {name: [] for name in col_names}
-      for line in reader:
-        for pos, name in enumerate(col_names):
-          data[name].append(line[pos])
-  
-  return data
+  # ------------------------------------------------------
+  # Save new combined dataframe as 
+  # ------------------------------------------------------
+  #print(combo_df)
+  print('Saving as: {0}'.format(out_file))
+  combo_df.to_csv(out_file, float_format='%g', index=False)
+
 
 if __name__ == "__main__":
   main()
