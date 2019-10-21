@@ -113,6 +113,8 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   myMediumOrange  = TColor.GetColor('#fe9929')
   myDarkOrange    = TColor.GetColor('#ec7014')
   myDarkerOrange  = TColor.GetColor('#cc4c02')
+  
+  myDarkRed       = TColor.GetColor('#a50f15')
 
   # Pinks
   myLightPink     = TColor.GetColor('#fde0dd')
@@ -131,7 +133,7 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
     myDarkPurple,
     myLightOrange,
     myMediumOrange,
-    myDarkerOrange,
+    myDarkRed,
     myDarkPink
     ]
  
@@ -146,6 +148,9 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   tg_dummy.SetTitle('')
   tg_dummy.GetXaxis().SetRangeUser(-19,18)
   tg_dummy.GetYaxis().SetRangeUser(0.6,1.4)
+  
+  xtitle = '#kappa(#lambda_{hhh})'
+  ytitle = '#kappa(#it{y}_{top})'
   customise_axes(tg_dummy, xtitle, ytitle)
 
   # Marker for SM
@@ -213,17 +218,14 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   # Text
   #-------------------------------------------------
   # Extra text
-  top_txt = 'hh #rightarrow 4b, 68% CL limits, 1% systematics'
-  xtitle = '#kappa(#lambda_{hhh})'
-  ytitle = '#kappa(#it{y}_{top})'
- 
+  top_txt = 'hh #rightarrow 4b, 68% CL contours, 1% systematics'
   # Text at top
-  myText(0.18, 0.91, SQRTS_LUMI + ', {0}'.format(process), 0.040, kBlack, 0, True)
+  myText(0.18, 0.91, SQRTS_LUMI + ', ' + top_txt, 0.040, kBlack, 0, True)
 
   # Add text to plot interior
   myText(0.510, 0.41, 'DNN', 0.035, kBlack, 0, True)
   myText(0.575, 0.41, 'Baseline', 0.035, kBlack, 0, True)
-  myText(0.60, 0.56,  'SM', 0.04, kGray+2, 0, True)
+  myText(0.60, 0.55,  'SM', 0.04, kGray+2, 0, True)
   
   gPad.RedrawAxis()
 
