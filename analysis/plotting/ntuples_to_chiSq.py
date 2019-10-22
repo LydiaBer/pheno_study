@@ -59,7 +59,7 @@ def main():
 
   l_cut_sels = ['resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR',
                 'resolved-finalSRNN',    'intermediate-finalSRNN',    'boosted-finalSRNN' ] 
-  #l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10',    'boosted-finalSRNNlam10' ] 
+  l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10',    'boosted-finalSRNNlam10' ] 
   #================================================
   
   # -------------------------------------------------------------

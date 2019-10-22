@@ -79,6 +79,8 @@ d_cut_sel_colour = {'resolved-finalSR' : myRedPink3,
                     'intermediate-finalSRNN' : myMediumPurple,
                     'boosted-finalSRNN' : myLightPurple,
                     #'resolved-finalSRNN_AND_intermediate-finalSRNN_combined' : myVeryDarkPurple,
+                    'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined': myMediumBlue,
+                    'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined': myMediumBlue,
                     'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined' : myMediumBlue,
                     #boosted-finalSRNN_AND_resolved-finalSRNN_AND_intermediate-finalSRNN_combined_combined' : myGrey,
 
@@ -106,6 +108,10 @@ d_cut_sel_colour = {'resolved-finalSR' : myRedPink3,
                     'resolved-finalSRNNlam10' : myDarkerOrange,
                     'intermediate-finalSRNNlam10' : myDarkOrange,
                     'boosted-finalSRNNlam10' : myMediumOrange,
+                    
+                    'resolved-finalSRNNlam10' : myDarkPurple,
+                    'intermediate-finalSRNNlam10' : myMediumPurple,
+                    'boosted-finalSRNNlam10' : myLightPurple,
                    }
 
 # Labels
@@ -136,6 +142,8 @@ def main():
 
   # combos
   l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
+  l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10', 'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined']
+  l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
   #resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
   #l_cut_sels = ['resolved-finalSRNNlow_AND_resolved-finalSRNN_combined', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined','resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
   ###
@@ -153,7 +161,8 @@ def main():
   #l_cut_sels = ['resolved-finalSRNNQCD','resolved-finalSRNNQCDTop', 'intermediate-finalSRNNQCD','intermediate-finalSRNNQCDTop', 'boosted-finalSRNNQCD','boosted-finalSRNNQCDTop'] 
   #l_cut_sels = ['resolved-finalSRNNQCDTop','resolved-finalSRNN', 'intermediate-finalSRNNQCDTop','intermediate-finalSRNN', 'boosted-finalSRNNQCDTop','boosted-finalSRNN']
  
-  l_zCols = ['chiSq', 'chiSqSyst1pc']
+  #l_zCols = ['chiSq', 'chiSqSyst1pc']
+  l_zCols = ['chiSqSyst1pc']
   
   IsLogY = False
   
@@ -237,11 +246,14 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       xl1, yl1 = 0.45, 0.54
     else:
       xl1, yl1 = 0.45, 0.6
-  else:
+  elif extra_space > 0.:
     if zoom_in: 
       xl1, yl1 = 0.45, 0.54
     else:
       xl1, yl1 = 0.48, 0.50
+
+  if 'lam10' in l_cut_sels[0]:
+    xl1 = 0.23 
 
   if legend_outside_plot:
     xl1 = 0.6
@@ -337,21 +349,49 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     elif 'NNlow' in cut_sel:
      cut_txt += ' QTS Low'
     elif 'NN' in cut_sel:
-     cut_txt += ' QTS'
-   
-    if 'lam10' in cut_sel:
-     cut_txt += ' #lambda_{10} '
+     #cut_txt += ' QTS'
+     cut_txt += ''
+  
+    if 'NN' in cut_sel: 
+      if 'lam10' in cut_sel:
+        #cut_txt += ' #lambda_{10} '
+        myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 10', 0.035, kGray+2, 0, True)
+      else:
+        myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 1', 0.035, kGray+2, 0, True)
 
     leg.AddEntry(tg, cut_txt, 'l')
 
     #plt.plot(l_SlfCoup, l_chiSq, colour, linewidth=width, zorder=2, linestyle='-', label=cut_txt)
 
+    tg = d_tgraphs[str(cut_sel)]
     if count==0:
-      d_tgraphs['{0}'.format(cut_sel)].Draw('PLA')
+      tg.Draw('PLA')
     else:
-      d_tgraphs['{0}'.format(cut_sel)].Draw('PL same')
-    count+=1
+      tg.Draw('PL same')
     
+    count+=1
+    # ------------------------------------------------------ 
+    # Attempt to search x where chiSq = 1, 3.84 points
+    # ------------------------------------------------------ 
+    search_min, search_max = -20., 20. # x-axis range to search
+    N_scan = 200 # number of search steps
+    threshold = 0.1
+    # lambda values satisfying 68% CL and 95% CL
+    l_68CL = []
+    l_95CL = []
+    for i in range( N_scan+1 ):
+      # calculate search steps
+      dx = ( i * ( search_max - search_min ) ) / N_scan
+      x = search_min + dx
+      y = tg.Eval(x)
+
+      if abs( y - 1.) < threshold: 
+        l_68CL.append(x)
+      if abs( y - 3.84 ) < threshold:
+        l_95CL.append(x)
+      #print('x: {0:.4g}, TGraph eval: {1:.4g}'.format( x, tg.Eval(x) ))
+    print('68% CL: {0}'.format(l_68CL))
+    print('95% CL: {0}'.format(l_95CL))
   #d_tgraphs['resolved-finalSR'].Draw('PLA')
   #d_tgraphs['intermediate-finalSR'].Draw('PL same')
   #d_tgraphs['boosted-finalSR'].Draw('PL same')
@@ -367,7 +407,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   else:
     label_x = 0.83
     label_y = 0.84
-
+  
   if do_ktop:
     fixed_coupling = '#kappa(#lambda_{hhh}) = 1'
   else:
@@ -428,6 +468,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       label_x = 0.135
     else:
       label_x = 0.55
+      if 'lam10' in l_cut_sels[0]:
+        label_x = 0.3
+
 
     if do_ktop:
       myText(label_x, 0.7, '68% CL', 0.037, kGray+1, 0, True)

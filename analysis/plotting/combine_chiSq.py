@@ -40,12 +40,13 @@ def main():
   #l_SRs = [("resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined","intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined"),("boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined","resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined")]
   # ------------------------------------------------------
   # Input SRs to combine
-  l_SRs = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
   l_SRs = ['resolved-finalSR','intermediate-finalSR','boosted-finalSR']
+  l_SRs = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
+  l_SRs = ['resolved-finalSRNNlam10','intermediate-finalSRNNlam10','boosted-finalSRNNlam10']
   #
   # Column header whose value we want to combine
-  to_sum_var = 'chiSqSyst1pc'
   to_sum_var = 'chiSq'
+  to_sum_var = 'chiSqSyst1pc'
   #
   # Join SRs as the combined name output
   out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
