@@ -41,12 +41,14 @@ def main():
   # ------------------------------------------------------
   # Input SRs to combine
   l_SRs = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
+  l_SRs = ['resolved-finalSR','intermediate-finalSR','boosted-finalSR']
   #
   # Column header whose value we want to combine
   to_sum_var = 'chiSqSyst1pc'
+  to_sum_var = 'chiSq'
   #
   # Join SRs as the combined name output
-  out_file = 'data/CHISQ_{0}_{1}_combined.csv'.format(dir, '_'.join(l_SRs))
+  out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
   #
   # Columns to delete in new dataframe 
   l_del = ['N_bkg','N_sig','N_sig_raw',
@@ -111,7 +113,6 @@ def main():
   #print(combo_df)
   print('Saving as: {0}'.format(out_file))
   combo_df.to_csv(out_file, float_format='%g', index=False)
-
 
 if __name__ == "__main__":
   main()

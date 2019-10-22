@@ -78,8 +78,9 @@ d_cut_sel_colour = {'resolved-finalSR' : myRedPink3,
                     'resolved-finalSRNN' : myDarkPurple,
                     'intermediate-finalSRNN' : myMediumPurple,
                     'boosted-finalSRNN' : myLightPurple,
-                    'resolved-finalSRNN_AND_intermediate-finalSRNN_combined' : myVeryDarkPurple,
-                    'boosted-finalSRNN_AND_resolved-finalSRNN_AND_intermediate-finalSRNN_combined_combined' : myGrey,
+                    #'resolved-finalSRNN_AND_intermediate-finalSRNN_combined' : myVeryDarkPurple,
+                    'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined' : myMediumBlue,
+                    #boosted-finalSRNN_AND_resolved-finalSRNN_AND_intermediate-finalSRNN_combined_combined' : myGrey,
 
                     'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined' : myBrightGreen,
                     'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined' : myMediumGreen,
@@ -124,23 +125,22 @@ def main():
   do_ktop = False
  
   # When lots of samples, put leg outside plot so less crowded
-  legend_outside_plot = True
+  legend_outside_plot = False
  
   # Cut selections
   # all step by step improvements 
   ###
-  l_cut_sels = ['resolved-finalSR','resolved-finalSRNNQCD', 'resolved-finalSRNNQCDTop','resolved-finalSRNN', 'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined']
+  #l_cut_sels = ['resolved-finalSR','resolved-finalSRNNQCD', 'resolved-finalSRNNQCDTop','resolved-finalSRNN', 'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined']
   #l_cut_sels = ['intermediate-finalSR','intermediate-finalSRNNQCD', 'intermediate-finalSRNNQCDTop','intermediate-finalSRNN', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined']
   #l_cut_sels = ['boosted-finalSR','boosted-finalSRNNQCD', 'boosted-finalSRNNQCDTop','boosted-finalSRNN', 'boosted-finalSRNNlow_AND_boosted-finalSRNN_combined']
 
   # combos
-  #l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
+  #resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
   #l_cut_sels = ['resolved-finalSRNNlow_AND_resolved-finalSRNN_combined', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined','resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
   ###
   #l_cut_sels = ['resolved-finalSRNNlow_AND_resolved-finalSRNN_combined', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined','resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined']
-  l_cut_sels = ['resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined', 'intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined','boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined','resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined']
-
-
+  #l_cut_sels = ['resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined', 'intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined','boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined','resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined']
 
   #l_cut_sels = ['resolved-finalSRNNlam','intermediate-finalSRNNlam','boosted-finalSRNNlam']
   #l_cut_sels = ['resolved-finalSRNNlamm5','intermediate-finalSRNNlamm5','boosted-finalSRNNlamm5']
@@ -169,16 +169,14 @@ def main():
     'SoverB'            : 'S / B',
     'SoverSqrtB'        : 'S / #sqrt{B}',
     'SoverSqrtBSyst1pc' : 'S / #sqrt{B + (1%B)^{2}}',
-    'chiSq'             : '#chi^{2}',# = (S #minus S_{SM})^{2} / B',
-    'chiSqSyst1pc'      : '#chi^{2}',#_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
+    'chiSq'             : '#chi^{2}',
+    'chiSqSyst1pc'      : '#chi^{2}',
+    'sum_chiSq'         : '#chi^{2}',
+    'sum_chiSqSyst1pc'  : '#chi^{2}',
   }
 
   d_in_data = {}
 
-  for cut_sel in l_cut_sels:
-    # Input file made from ntuples_to_chiSq.py
-    d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
- 
   # Build part of output name, shorten by abbreviating some names
   cut_sel_out_name = ''.join(l_cut_sels).replace("finalSR","SR").replace("resolved","R").replace("intermediate","I").replace("boosted","B").replace("combined","c")
  
@@ -188,20 +186,21 @@ def main():
     else: 
       out_file = 'figs/limit1d_TopYuk_1p0_SlfCoup_vary_{0}_{1}'.format(cut_sel_out_name, zCol)
     
+    for cut_sel in l_cut_sels:
+      print(cut_sel)
+      # Input file made from ntuples_to_chiSq.py
+      if 'combined' in cut_sel:
+        d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}_{1}.csv'.format(cut_sel, zCol)
+      else:
+        d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
+ 
     print('Output file to store chi squares: {0}'.format( out_file  ) )
     make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, IsLogY, legend_outside_plot)
 
 #____________________________________________________________________________
 def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, IsLogY, legend_outside_plot ):
 
-  '''
-  fig, ax = plt.subplots()
-  fig.set_size_inches(11, 8)
-
-  plt.rcParams['text.usetex'] = True
-  plt.rcParams['font.family'] = 'serif'
-  plt.rcParams['font.serif']  = 'times'
-  '''
+  print( d_in_data )
 
   # TODO remove l_colours = [myDarkBlue, myDarkGreen, myMediumOrange, myMediumPurple, myMediumPink ]
   l_widths  = [5]*10 
@@ -220,12 +219,13 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
 
   #gpLeft = 0.21
   gpLeft = 0.11
-  customise_gPad(top=0.07, bot=0.17, left=gpLeft, right=gpRight)
+  customise_gPad(top=0.08, bot=0.20, left=gpLeft, right=gpRight)
   
   # construct legend
   #xl1, yl1 = 0.45, 0.68
   #xl2, yl2 = xl1+0.25, yl1+0.20
   extra_space = (0.05*len(l_cut_sels))+(0.03*str(l_cut_sels).count("combined"))
+  print('Extra space: {0}'.format(extra_space))
   
   if extra_space > 0.5:
     if zoom_in: 
@@ -241,7 +241,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     if zoom_in: 
       xl1, yl1 = 0.45, 0.54
     else:
-      xl1, yl1 = 0.45, 0.70
+      xl1, yl1 = 0.48, 0.50
 
   if legend_outside_plot:
     xl1 = 0.6
@@ -249,7 +249,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   if zCol == 'acceptance':
     xl1 = 0.25
 
-  xl2, yl2 = xl1+0.25, yl1+extra_space
+  xl2, yl2 = xl1+0.20, yl1+extra_space
 
   if extra_space > 0.5:
     xl2, yl2 = xl1+0.25, yl1+extra_space-0.2
@@ -257,7 +257,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   leg = TLegend(xl1,yl1,xl2,yl2)
   leg.SetBorderSize(0)
   leg.SetFillStyle(0) # transparent
-  leg.SetTextSize(0.055)
+  leg.SetTextSize(0.045)
   leg.SetTextFont(132)
   
   #------------------------------------------------------
@@ -281,6 +281,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       in_x = [float(i) for i in d_csv['SlfCoup'] ]
       in_y = [float(i) for i in d_csv['TopYuk'] ]
 
+    if 'combined' in cut_sel:
+      print(zCol)
+      zCol = 'sum_' + str(zCol)
     in_z = [float(i) for i in d_csv[zCol] ]
 
     l_SlfCoup_or_TopYuk = []
@@ -305,17 +308,22 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     for i, (x, y) in enumerate( zip( l_SlfCoup_or_TopYuk, l_chiSq) ):
       tg.SetPoint(i, x, y)
     d_tgraphs[cut_sel] = tg
+  
+    if 'SRNN' in cut_sel:
+      analysis = 'DNN'
+    else:
+      analysis = 'Baseline'
 
     if 'resolved' in cut_sel and 'intermediate' in cut_sel and 'boosted' in cut_sel:
-      cut_txt = 'Res + Int + Bst '
+      cut_txt = 'Combined '
     elif 'resolved' in cut_sel and 'intermediate' in cut_sel:
       cut_txt = 'Res + Int '
     elif 'resolved' in cut_sel:
-      cut_txt = 'Res '
+      cut_txt = 'Resolved '
     elif 'intermediate' in cut_sel:
-      cut_txt = 'Int '
+      cut_txt = 'Intermediate '
     elif 'boosted' in cut_sel:
-      cut_txt = 'Bst '
+      cut_txt = 'Boosted '
     else:
       cut_name = cut_sel.split('-')
       cut_txt = cut_name[0].capitalize()# + ' ' + cut_name[1] 
@@ -361,27 +369,29 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     label_y = 0.84
 
   if do_ktop:
-    myText(label_x, label_y, '#kappa_{#lambda} = 1.0' , 0.04, kBlack)
+    fixed_coupling = '#kappa(#lambda_{hhh}) = 1'
   else:
-    myText(label_x, label_y, '#kappa_{top} = 1.0' , 0.04, kBlack)
+    fixed_coupling = '#kappa(#it{y}_{top}) = 1'
 
   if do_ktop:
-    xtitle = '#kappa_{top}'
+    xtitle = '#kappa(#it{y}_{top})'
   else:
-    xtitle = '#kappa_{#lambda}'
+    xtitle = '#kappa(#lambda_{hhh})'
 
   ytitle = d_axis_tlatex[zCol]
 
-  if zCol == 'chiSq':
-    syst_txt = ', #zeta_{b} = 0'
-  elif zCol == 'chiSqSyst1pc':
-    syst_txt = ', #zeta_{b} = 0.01'
+  if 'chiSqSyst1pc' in zCol:
+    syst_txt = '1% systematics'
+  elif 'chiSq' in zCol and 'pc' not in zCol:
+    syst_txt = '0% systematics'
   else:
     syst_txt = ''
+
+    
   if legend_outside_plot:
-    myText(0.2, 0.95, SQRTS_LUMI + ', {0} {1}'.format('hh',syst_txt), 0.04, kBlack, 0, True)
+    myText(0.2, 0.95, SQRTS_LUMI + ', {0}, {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
   else:
-    myText(0.35, 0.95, SQRTS_LUMI + ', {0} {1}'.format('hh',syst_txt), 0.04, kBlack, 0, True)
+    myText(0.11, 0.95, SQRTS_LUMI + ', {0}, {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
 
   #customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
   customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop)#, 2.8)
@@ -403,10 +413,10 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
         mymin = -10
         mymax = 10
       else:
-        #mymin = -20
-        #mymax = 20
-        mymin = -15.5
-        mymax = 15.5
+        mymin = -20
+        mymax = 20
+        #mymin = -15.5
+        #mymax = 15.5
  
     # 68% CL line, chi2 = 1
     line = TLine(mymin,1,mymax,1);
@@ -417,12 +427,12 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     if legend_outside_plot:
       label_x = 0.135
     else:
-      label_x = 0.235
+      label_x = 0.55
 
     if do_ktop:
-      myText(label_x, 0.7, '68 % CL', 0.037, kGray+1, 0, True)
+      myText(label_x, 0.7, '68% CL', 0.037, kGray+1, 0, True)
     else:
-      myText(label_x, 0.335, '68 % CL', 0.037, kGray+1, 0, True)
+      myText(label_x, 0.305, '68% CL', 0.037, kGray+1, 0, True)
   
     # 95% CL line, chi2 = 3.84
     line1 = TLine(mymin,3.84,mymax,3.84);
@@ -430,7 +440,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     line1.SetLineWidth(3)
     line1.Draw("same")
     if not do_ktop: 
-      myText(label_x, 0.765, '95 % CL', 0.037, kGray+1, 0, True)
+      myText(label_x, 0.77, '95% CL', 0.037, kGray+1, 0, True)
   
   gPad.RedrawAxis() 
   #customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
@@ -497,8 +507,8 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
     if zoom_in:
       xax.SetRangeUser(-10,10) 
     else:
-      #xax.SetRangeUser(-20,20) 
-      xax.SetRangeUser(-15,15) 
+      xax.SetRangeUser(-20,20) 
+      #xax.SetRangeUser(-15,15) 
  
   #xax.SetNdivisions(-505) 
   gPad.SetTickx() 

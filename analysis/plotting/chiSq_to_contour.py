@@ -48,8 +48,7 @@ def main():
   l_cut_sels = ['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined']
   l_cut_sels = ['boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
   
-  l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN']
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
+  
   l_zCol = ['acceptance',
             'N_sig',
             'N_sig_raw',
@@ -61,8 +60,14 @@ def main():
             'chiSqSyst1pc',
             'chiSqSyst5pc'
             ]
-  l_zCol = ['chiSqSyst1pc']
   
+  l_cut_sels = ['resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
+  l_cut_sels = ['resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
+  l_zCol = ['sum_chiSqSyst1pc']
+  
+  l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN',
+  'resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
+  l_zCol = ['chiSqSyst1pc']
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
   # ------------------------------------------------------
@@ -84,6 +89,7 @@ def main():
     'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},# = (S #minus S_{SM})^{2} / B'},
     'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
     'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
+    'sum_chiSqSyst1pc'  : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
   }
 
   xCol, yCol = 'SlfCoup', 'TopYuk'
@@ -124,7 +130,7 @@ def main():
       # ------------------------------------------------------
       # Extract the contour and put it into a TGraph (1D)
       # ------------------------------------------------------
-      tgraph_cont = contour_from_graph( tg2d , zThreshold )
+      tgraph_cont   = contour_from_graph( tg2d , zThreshold )
       n_pts = tgraph_cont.GetN()
       
       # ------------------------------------------------------
@@ -140,6 +146,7 @@ def main():
           out_y = y
           f_out.write( '{0:.4f},{1:.4f}\n'.format(out_x, out_y) )
           #print('x: {0}, y: {1}'.format(out_x, out_y))
+     
       # ------------------------------------------------------
 
       # ------------------------------------------------------
@@ -181,8 +188,8 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   #hist.Draw('CONT4Z LIST')
   tgraph_cont.Draw('same')
   tgraph_cont.SetLineColor(kGray+3)
-
-  process = 'hh'
+  
+  process = 'hh #rightarrow 4b'
   xtitle = '#kappa(#lambda_{hhh})'
   ytitle = '#kappa(#it{y}_{top})'
   ztitle = d_axis_tlatex[zCol]['tlatex']
@@ -253,7 +260,7 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
  
   if zCol == 'chiSq':
     syst_txt = ', #zeta_{b} = 0'
-  elif zCol == 'chiSqSyst1pc':
+  if 'chiSqSyst1pc' in zCol:
     syst_txt = ', #zeta_{b} = 0.01'
   else:
     syst_txt = ''
@@ -264,6 +271,8 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
     analysis = 'Intermediate'
   if 'boosted' in out_file:
     analysis = 'Boosted'
+  if 'combined' in out_file:
+    analysis = 'Combined'
 
   if 'SRNN' in out_file:
     analysis += ' DNN'
@@ -280,7 +289,7 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   paletteAxis.SetX2NDC(0.84)
   paletteAxis.SetY1NDC(0.19)
   paletteAxis.SetY2NDC(0.88) 
-  
+ 
   can1.SetLogz()
 
   can1.SaveAs( out_file )
@@ -347,11 +356,11 @@ def contour_from_graph( tg2d, level_val=1.64458 ):
   
   gr0 = ROOT.TGraph()
   h = hist.Clone()
-  #h.Print()
   h.GetXaxis().SetRangeUser(-30,30)
   h.GetYaxis().SetRangeUser(0,2)
-  gr = gr0.Clone(h.GetName())
   h.SetContour( 1 )
+  
+  gr = gr0.Clone(h.GetName())
   
   # Get the contour whose value corresponds to level_val
   h.SetContourLevel( 0, level_val )
@@ -360,16 +369,11 @@ def contour_from_graph( tg2d, level_val=1.64458 ):
   h.SetDirectory(0)
   ROOT.gPad.Update()
   contours = ROOT.gROOT.GetListOfSpecials().FindObject("contours")
-  #print contours
   list = contours[0]
-  #list.Print()
   gr = list[0]
-  #gr.Print()
-  #grTmp = ROOT.TGraph()
   for k in xrange(list.GetSize()):
     if gr.GetN() < list[k].GetN(): gr = list[k]
   gr.SetName(hist.GetName())
-  #print gr
   return gr;
  
 

@@ -55,13 +55,16 @@ def main():
   
   # Cut selections
   l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
+  l_cut_sels = ['resolved-finalSR',
+                'intermediate-finalSR', 
+                'boosted-finalSR',
+                'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined'] 
  
   l_zCols = ['chiSq', 'chiSqSyst1pc']
+  l_zCols = ['chiSqSyst1pc']
   IsLogY = False
   #l_zCols = ['xsec','acceptance']
   #IsLogY = True
-
-  
 
   #d_axis_latex = {
   #  'SoverB'            : r'$S / B$',
@@ -85,6 +88,7 @@ def main():
     'SoverSqrtBSyst5pc' : 'S / #sqrt{B + (5%B)^{2}}',
     'chiSq'             : '#chi^{2} = (S #minus S_{SM})^{2} / B',
     'chiSqSyst1pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
+    'sum_chiSqSyst1pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
     'chiSqSyst5pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})',
   }
 
@@ -148,6 +152,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex, IsLogY ):
     print "Opening: ", in_file
     d_csv = csv_to_lists(in_file)
     #pprint( d_csv )
+    if 'combined' in cut_sel:
+      zCol = 'sum_chiSqSyst1pc'
+
 
     in_x = [float(i) for i in d_csv['SlfCoup'] ]
     in_y = [float(i) for i in d_csv['TopYuk'] ]
@@ -178,8 +185,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex, IsLogY ):
    
     if cut_sel == 'resolved-finalSR_AND_intermediate-finalSR_combined':
       cut_txt = 'Res + Int'
-    elif cut_sel == 'boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined':
-      cut_txt = 'Res + Int + Bst'
+    elif cut_sel == 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined':
+      cut_txt = 'Combined'
     else:
       cut_name = cut_sel.split('-')
       cut_txt = cut_name[0].capitalize()# + ' ' + cut_name[1] 
@@ -190,15 +197,15 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex, IsLogY ):
   d_tgraphs['resolved-finalSR'].Draw('PLA')
   d_tgraphs['intermediate-finalSR'].Draw('PL same')
   d_tgraphs['boosted-finalSR'].Draw('PL same')
-  d_tgraphs['resolved-finalSR_AND_intermediate-finalSR_combined'].Draw('PL same')
-  d_tgraphs['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'].Draw('PL same')
+  d_tgraphs['resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined'].Draw('PL same')
+  #d_tgraphs['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'].Draw('PL same')
 
   leg.Draw('same')
 
-  myText(0.26, 0.95, '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}, hh #rightarrow 4b, finalSR' , 0.05, kBlack)
+  myText(0.26, 0.95, '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}, hh #rightarrow 4b, Baseline' , 0.05, kBlack)
   myText(0.26, 0.86, '#kappa(#it{y}_{top}) = 1.0' , 0.04, kBlack)
 
-  xtitle = '#lambda_{hhh} / #lambda_{hhh}^{SM}'
+  xtitle = '#kappa(#lambda_{hhh})'
   ytitle = d_axis_tlatex[zCol]
   customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
 
@@ -221,39 +228,6 @@ def make_plot( d_in_data, out_file, l_cut_sels, zCol, d_axis_tlatex, IsLogY ):
   can.cd()
   can.SaveAs(out_file + '.pdf')
   can.Close()
-  
-  '''
-  plt.xlim(-20, 20)
-  plt.ylim(0.0, 10)
-
-  x_txt = r'$\lambda_{hhh} / \lambda_{hhh}^\mathrm{SM}$'
-  y_txt = d_axis_latex[zCol]
-
-  # Axis label properties
-  plt.xlabel(x_txt, labelpad=15, size=35)
-  plt.ylabel(y_txt, labelpad=15, size=35)
-
-  line1 = plt.plot([-20, 20], [1, 1], myGrey, linewidth=2, linestyle='--', zorder=-1)
-  fig.text(0.16, 0.95, r'$\sqrt{s} = 14~\mathrm{TeV}, 3000~\mathrm{fb}^{-1}, hh\rightarrow 4b$', color='Black', size=24)
-  #fig.text(0.16, 0.95, r'$\sqrt{s} = 14 \mathrm{TeV}, 3000 \mathrm{fb}^{-1}, hh\rightarrow 4b$', color='Black', size=24)
-
-  # Adjust axis ticks
-  ax.minorticks_on()
-  ax.tick_params('x', length=12, width=1, which='major', labelsize='28', pad=10)
-  ax.tick_params('x', length=6,  width=1, which='minor')
-  ax.tick_params('y', length=12, width=1, which='major', labelsize='28', pad=10)
-  ax.tick_params('y', length=6,  width=1, which='minor')
-
-  plt.tight_layout(pad=0.3)
-  plt.subplots_adjust( top=0.93 )
-  
-  legend = ax.legend(loc='upper center', shadow=False, frameon=False, prop={'size':28} )
-  
-  save_name = out_file
-  print('Saving as {0}'.format(save_name))
-  plt.savefig(save_name + '.pdf', format='pdf', dpi=50)
-  plt.savefig(save_name + '.png', format='png', dpi=300)
-  '''
 
 #__________________________________________
 def csv_to_lists(csv_file):

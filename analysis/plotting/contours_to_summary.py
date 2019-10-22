@@ -45,13 +45,13 @@ def main():
   'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
   
   d_tlatex = {
-    'resolved-finalSR'       : 'Resolved Baseline',
-    'intermediate-finalSR'   : 'Intermediate Baseline',
-    'boosted-finalSR'        : 'Boosted Baseline',
+    'resolved-finalSR'       : 'Resolved',
+    'intermediate-finalSR'   : 'Intermediate',
+    'boosted-finalSR'        : 'Boosted',
     'resolved-finalSRNN'     : 'Resolved',
     'intermediate-finalSRNN' : 'Intermediate',
     'boosted-finalSRNN'      : 'Boosted',
-    'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined'       : 'Combined Baseline',
+    'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined'       : 'Combined',
     'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined' : 'Combined'
   }
 
@@ -167,14 +167,14 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   yl1=0.23
   xl2=xl1+0.20
   yl2=yl1+0.17
-  # Oranges DNN
+  # Blues baseline
   leg = TLegend(xl1,yl1,xl2,yl2)
   leg.SetBorderSize(0)
   leg.SetTextFont(132)
   leg.SetTextSize(0.04)
   leg.SetNColumns(1)
 
-  # Blues baseline
+  # Oranges DNN
   leg0 = TLegend(xl1-0.06,yl1,xl1+0.15,yl2)
   leg0.SetBorderSize(0)
   leg0.SetTextFont(132)
@@ -192,11 +192,11 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
     # Neural network contours
     if 'SRNN' in contour:
       tg.SetLineStyle(1)
-      leg.AddEntry(tg, d_tlatex[contour], 'L')
+      leg0.AddEntry(tg, '', 'L')
     # Baseline contours
     else:
       tg.SetLineStyle(2)
-      leg0.AddEntry(tg,'', 'L')
+      leg.AddEntry(tg, d_tlatex[contour], 'L')
 
     if 'resolved' in contour:
       tg.SetLineWidth(4)
