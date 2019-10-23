@@ -48,7 +48,6 @@ def main():
   l_cut_sels = ['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined']
   l_cut_sels = ['boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
   
-  
   l_zCol = ['acceptance',
             'N_sig',
             'N_sig_raw',
@@ -61,40 +60,34 @@ def main():
             'chiSqSyst5pc'
             ]
   
-  l_cut_sels = ['resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
-  l_cut_sels = ['resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
   l_zCol = ['sum_chiSqSyst1pc']
-  
-  l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN',
-  'resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
-
 
   l_cut_sels = [
-            'resolved-finalSRNNlam_m20', 
+          'resolved-finalSRNNlam_m20', 
           'intermediate-finalSRNNlam_m20',    
           'boosted-finalSRNNlam_m20', 
-            'resolved-finalSRNNlam_m10', 
+          'resolved-finalSRNNlam_m10', 
           'intermediate-finalSRNNlam_m10',    
           'boosted-finalSRNNlam_m10',
-            'resolved-finalSRNNlam_m7', 
+          'resolved-finalSRNNlam_m7', 
           'intermediate-finalSRNNlam_m7',    
           'boosted-finalSRNNlam_m7',
-            'resolved-finalSRNNlam_m5', 
+          'resolved-finalSRNNlam_m5', 
           'intermediate-finalSRNNlam_m5',    
           'boosted-finalSRNNlam_m5', 
-            'resolved-finalSRNNlam_m2', 
+          'resolved-finalSRNNlam_m2', 
           'intermediate-finalSRNNlam_m2',    
           'boosted-finalSRNNlam_m2', 
-            'resolved-finalSRNNlam_m1', 
+          'resolved-finalSRNNlam_m1', 
           'intermediate-finalSRNNlam_m1',    
           'boosted-finalSRNNlam_m1',
-            'resolved-finalSRNNlam0p5', 
+          'resolved-finalSRNNlam0p5', 
           'intermediate-finalSRNNlam0p5',    
           'boosted-finalSRNNlam0p5', 
-            'resolved-finalSRNN', 
+          'resolved-finalSRNN', 
           'intermediate-finalSRNN',    
           'boosted-finalSRNN',
-            'resolved-finalSRNNlam2', 
+          'resolved-finalSRNNlam2', 
           'intermediate-finalSRNNlam2',    
           'boosted-finalSRNNlam2',
           'resolved-finalSRNNlam3', 
@@ -113,6 +106,15 @@ def main():
           'intermediate-finalSRNNlam20',    
           'boosted-finalSRNNlam20'
   ]
+  
+  l_cut_sels = [
+                'resolved-finalSR',        'intermediate-finalSR',        'boosted-finalSR',
+                'resolved-finalSRNN',      'intermediate-finalSRNN',      'boosted-finalSRNN',
+                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10',
+                'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined',
+                'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined'
+                ]
+
   l_zCol = ['chiSqSyst1pc']
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
@@ -141,10 +143,13 @@ def main():
   xCol, yCol = 'SlfCoup', 'TopYuk'
 
   for cut_sel in l_cut_sels:
-    if 'resolved' not in cut_sel: continue
     for zCol in l_zCol: 
 
-      in_file = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
+      if 'combine' in cut_sel: 
+        in_file = 'data/CHISQ_loose_preselection_{0}_{1}.csv'.format(cut_sel, zCol)
+        zCol = 'sum_' + zCol
+      else:
+        in_file = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
       out_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_{1}.csv'.format(cut_sel, zCol)
       
       # ------------------------------------------------------
@@ -324,13 +329,14 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
 
   if 'SRNN' in out_file:
     analysis += ' DNN'
+    # Add some text to bookkeep which DNN training we're using
+    klambda = cut_sel.split('SRNN')[1].replace('lam', 'DNN trained on #kappa(#lambda_{hhh}) = ').replace('_m', '#minus')
+    print cut_sel, cut_sel.split('SRNN'), klambda
+    if not klambda: klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
+    myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
   else:
     analysis += ' Baseline'
 
-  klambda = cut_sel.split('SRNN')[1].replace('lam', 'DNN trained on #kappa(#lambda_{hhh}) = ').replace('_m', '#minus')
-  print cut_sel, cut_sel.split('SRNN'), klambda
-  if not klambda: klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
-  myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
   
   myText(0.18, 0.91, SQRTS_LUMI + ', {0}{1}, {2}'.format(process, syst_txt, analysis), 0.040, kBlack, 0, True)
   

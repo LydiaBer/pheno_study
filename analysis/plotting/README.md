@@ -11,6 +11,11 @@ The main files are as follows:
 4) ```cuts.py```: defines additional cut selections to be applied by specifying ```cut_sel``` in ```plot.py```.
 5) ```beautify.py```: contains additional plotting functions to change plot formatting. 
 
+## Automated production of paper plots from ntuples
+Simply run the script ```runMe_for_paper_results.sh```
+to obtain the 1D and 2D chi square plots in ```figs/``` directory for the paper.
+This script shows the sequence of scripts one needs to run.
+
 ## Hadding input ROOT files
 
 Before plotting your results, the output NTuples from the analysis steps should be 'hadded' together to form single files for each signal sample, or each bkg with or without a pT filter applied. In order to do this scripts are provided in the outputs directory. The scripts can be used as follows:

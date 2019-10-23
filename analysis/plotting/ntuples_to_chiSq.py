@@ -36,6 +36,9 @@ do_BTagWeight = True
 # nominal signal name
 samp_nom = 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0'
 
+# Do lambda_i vs lambda_j scan
+do_lambda_ij = True
+
 #____________________________________________________________________________
 def main():
 
@@ -57,9 +60,6 @@ def main():
                 'resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR', 
                 'resolved-finalSRNN',      'intermediate-finalSRNN',      'boosted-finalSRNN' ] 
 
-  l_cut_sels = ['resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR',
-                'resolved-finalSRNN',    'intermediate-finalSRNN',    'boosted-finalSRNN' ] 
-  
   l_cut_sels = [
           'resolved-finalSRNNlam_m20', 
           'intermediate-finalSRNNlam_m20',    
@@ -107,8 +107,10 @@ def main():
           'intermediate-finalSRNNlam20',    
           'boosted-finalSRNNlam20'
   ]
-  l_cut_sels = ['resolved-finalSRNN',    'intermediate-finalSRNN',    'boosted-finalSRNN' ] 
-  l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10',    'boosted-finalSRNNlam10' ] 
+
+  l_cut_sels = ['resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR',
+                'resolved-finalSRNN',    'intermediate-finalSRNN',    'boosted-finalSRNN', 
+                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10',    'boosted-finalSRNNlam10' ] 
   #================================================
   
   # -------------------------------------------------------------
@@ -199,33 +201,36 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
   # i.e. compare chiSq vs lambda_i vs lambda_j
   # Not just chiSq wrt SM value
   # ---------------------------------------
-  print('\n-----------------------------------------------')
-  print('Performing 2D chiSq(i,j) vs lambda_i vs lambda_j')
-  print('-------------------------------------------------')
 
-  save_file_2d = save_file.replace('CHISQ_', 'CHISQ_2Dlambda_')
-  with open(save_file_2d, 'w') as f_out2d:
-    header2d = 'lambda_i,lambda_j,chiSq_ij_Sys1pc,chiSq_ij\n'
-    f_out2d.write( header2d )
+  if do_lambda_ij:
 
-    for signal_i in l_sig_list:
-      # For simplicity do this for ytop = 1.0
-      if 'TopYuk_1.0' not in signal_i: continue 
-      N_sig_nom_i = get_N_sig_nom( lumi, var, unweighted_cuts, signal_i)
-      for signal_j in l_sig_list:
-        if 'TopYuk_1.0' not in signal_j: continue 
-        long_out = compute_chiSq( f_out, signal_j, lumi, var, unweighted_cuts, N_bkg, N_sig_nom_i )
-      
-        # Extract the lambdas
-        lambda_i = float( signal_i.split('_')[7].replace('m', '-') )
-        lambda_j = float( signal_j.split('_')[7].replace('m', '-') )
+    print('\n-----------------------------------------------')
+    print('Performing 2D chiSq(i,j) vs lambda_i vs lambda_j')
+    print('-------------------------------------------------')
+
+    save_file_2d = save_file.replace('CHISQ_', 'CHISQ_2Dlambda_')
+    with open(save_file_2d, 'w') as f_out2d:
+      header2d = 'lambda_i,lambda_j,chiSq_ij_Sys1pc,chiSq_ij\n'
+      f_out2d.write( header2d )
+
+      for signal_i in l_sig_list:
+        # For simplicity do this for ytop = 1.0
+        if 'TopYuk_1.0' not in signal_i: continue 
+        N_sig_nom_i = get_N_sig_nom( lumi, var, unweighted_cuts, signal_i)
+        for signal_j in l_sig_list:
+          if 'TopYuk_1.0' not in signal_j: continue 
+          long_out = compute_chiSq( f_out, signal_j, lumi, var, unweighted_cuts, N_bkg, N_sig_nom_i )
         
-        # Extract chi squares
-        chiSq       = float(long_out.split(',')[9])
-        chiSqSys1pc = float(long_out.split(',')[10])
-    
-        out_str = '{0:.1f},{1:.1f},{2:.4g},{3:.4g}\n'.format(lambda_i, lambda_j, chiSqSys1pc, chiSq)
-        f_out2d.write(out_str)
+          # Extract the lambdas
+          lambda_i = float( signal_i.split('_')[7].replace('m', '-') )
+          lambda_j = float( signal_j.split('_')[7].replace('m', '-') )
+          
+          # Extract chi squares
+          chiSq       = float(long_out.split(',')[9])
+          chiSqSys1pc = float(long_out.split(',')[10])
+      
+          out_str = '{0:.1f},{1:.1f},{2:.4g},{3:.4g}\n'.format(lambda_i, lambda_j, chiSqSys1pc, chiSq)
+          f_out2d.write(out_str)
 
   print('\n------------------------------------------------------')
   print('Saved outputs to: {0}'.format(save_file) )

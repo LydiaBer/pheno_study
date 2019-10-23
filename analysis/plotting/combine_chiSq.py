@@ -18,46 +18,45 @@ import os, sys, time, argparse, math, datetime, csv
 from pprint import pprint
 import pandas as pd
 
-do_2dlambda = False
 
 #____________________________________________________________________________
 def main():
   
   t0 = time.time()
+
+  print('\nCombine chi squares script\n')
   
   # ------------------------------------------------------
   # Input dir
-  dir = 'loose_preselection' 
+  my_dir = 'loose_preselection' 
   #
-  # For shape analysis
-  #l_SRs = [("resolved-finalSRNNlow","resolved-finalSRNN","intermediate-finalSRNNlow","intermediate-finalSRNN","boosted-finalSRNNlow","boosted-finalSRNN"]
-  #l_SRs = [("resolved-finalSRNNlam10low","resolved-finalSRNNlam10","intermediate-finalSRNNlam10low","intermediate-finalSRNNlam10","boosted-finalSRNNlam10low","boosted-finalSRNNlam10")]
-  # Signal regions definition
-  #l_SRs = [("resolved-finalSR","intermediate-finalSR"),("boosted-finalSR","resolved-finalSR_AND_intermediate-finalSR_combined")]
-  #l_SRs = [("resolved-finalSRNNQCD","intermediate-finalSRNNQCD"),("boosted-finalSRNNQCD","resolved-finalSRNNQCD_AND_intermediate-finalSRNNQCD_combined")]
-  #l_SRs = [("resolved-finalSRNNQCDTop","intermediate-finalSRNNQCDTop"),("boosted-finalSRNNQCDTop","resolved-finalSRNNQCDTop_AND_intermediate-finalSRNNQCDTop_combined")]
-  #l_SRs = [("resolved-finalSRNN","intermediate-finalSRNN"),("boosted-finalSRNN","resolved-finalSRNN_AND_intermediate-finalSRNN_combined")]
-  #l_SRs = [("resolved-finalSRNN","intermediate-finalSRNN"),("boosted-finalSRNN","resolved-finalSRNN_AND_intermediate-finalSRNN_combined")]
-  #l_SRs = [("resolved-finalSRNNlow_AND_resolved-finalSRNN_combined","intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined"),("boosted-finalSRNNlow_AND_boosted-finalSRNN_combined","resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined")]
-  #l_SRs = [("resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined","intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined"),("boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined","resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined")]
   # ------------------------------------------------------
   # Input SRs to combine
-  l_SRs = ['resolved-finalSR','intermediate-finalSR','boosted-finalSR']
-  l_SRs = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
-  l_SRs = ['resolved-finalSRNNlam10','intermediate-finalSRNNlam10','boosted-finalSRNNlam10']
+  l_SR        = ['resolved-finalSR','intermediate-finalSR','boosted-finalSR']
+  l_SRNN      = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
+  l_SRNNlam10 = ['resolved-finalSRNNlam10','intermediate-finalSRNNlam10','boosted-finalSRNNlam10']
   #
   # Column header whose value we want to combine
-  to_sum_var = 'chiSq'
-  to_sum_var = 'chiSq_ij_Sys1pc'
-  to_sum_var = 'chiSqSyst1pc'
-  to_sum_var = 'chiSqSyst0p5pc'
-  #'chiSq_ij'
   #
+  l_to_sum_vars = ['chiSq', 'chiSqSyst0p5pc', 'chiSqSyst1pc']
+
+  for var in l_to_sum_vars:
+    combine_set_of_SRs( l_SR,        var, my_dir )
+    combine_set_of_SRs( l_SRNN,      var, my_dir )
+    combine_set_of_SRs( l_SRNNlam10, var, my_dir )
+  
+  combine_set_of_SRs( l_SR,        'chiSq_ij_Sys1pc', my_dir, True )
+  combine_set_of_SRs( l_SRNN,      'chiSq_ij_Sys1pc', my_dir, True )
+  combine_set_of_SRs( l_SRNNlam10, 'chiSq_ij_Sys1pc', my_dir, True )
+
+#____________________________________________________________________________
+def combine_set_of_SRs(l_SRs, to_sum_var, my_dir, do_2dlambda=False):
+  
   # Join SRs as the combined name output
   if do_2dlambda:
-    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
+    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(my_dir, '_'.join(l_SRs), to_sum_var)
   else:
-    out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
+    out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(my_dir, '_'.join(l_SRs), to_sum_var)
 
   #
   # Columns to delete in new dataframe 
@@ -82,9 +81,9 @@ def main():
     
     # Input CSV file
     if do_2dlambda:
-      in_file = 'data/CHISQ_2Dlambda_{0}_{1}.csv'.format(dir, SR)
+      in_file = 'data/CHISQ_2Dlambda_{0}_{1}.csv'.format(my_dir, SR)
     else:
-      in_file = 'data/CHISQ_{0}_{1}.csv'.format(dir,SR)
+      in_file = 'data/CHISQ_{0}_{1}.csv'.format(my_dir,SR)
     
     # Read in CSV as pandas dataframe (like an excel spreadsheet but python-able)
     d_df[SR] = pd.read_csv( in_file )

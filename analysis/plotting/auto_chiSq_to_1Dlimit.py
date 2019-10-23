@@ -141,35 +141,14 @@ def main():
   #l_cut_sels = ['boosted-finalSR','boosted-finalSRNNQCD', 'boosted-finalSRNNQCDTop','boosted-finalSRNN', 'boosted-finalSRNNlow_AND_boosted-finalSRNN_combined']
 
   # combos
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
-  l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
-  l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10', 'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined']
-  #resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
-  #l_cut_sels = ['resolved-finalSRNNlow_AND_resolved-finalSRNN_combined', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined','resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
-  ###
-  #l_cut_sels = ['resolved-finalSRNNlow_AND_resolved-finalSRNN_combined', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined','resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined']
-  #l_cut_sels = ['resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined', 'intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined','boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined','resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined']
-
-  #l_cut_sels = ['resolved-finalSRNNlam','intermediate-finalSRNNlam','boosted-finalSRNNlam']
-  #l_cut_sels = ['resolved-finalSRNNlamm5','intermediate-finalSRNNlamm5','boosted-finalSRNNlamm5']
-  #l_cut_sels = ['resolved-finalSRNNlam10','intermediate-finalSRNNlam10','boosted-finalSRNNlam10','resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
-
-  #l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNN_AND_intermediate-finalSRNN_combined','boosted-finalSRNN_AND_resolved-finalSRNN_AND_intermediate-finalSRNN_combined_combined'] 
-  #l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined','intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined'] 
-  # sequential improvements
-  #l_cut_sels = ['resolved-finalSR','resolved-finalSRNNQCD', 'intermediate-finalSR','intermediate-finalSRNNQCD', 'boosted-finalSR','boosted-finalSRNNQCD']#, 'resolved-finalSR_AND_intermediate-finalSR_combined','resolved-finalSRNNQCD_AND_intermediate-finalSRNNQCD_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined','boosted-finalSRNNQCD_AND_resolved-finalSRNNQCD_AND_intermediate-finalSRNNQCD_combined_combined'] 
-  #l_cut_sels = ['resolved-finalSRNNQCD','resolved-finalSRNNQCDTop', 'intermediate-finalSRNNQCD','intermediate-finalSRNNQCDTop', 'boosted-finalSRNNQCD','boosted-finalSRNNQCDTop'] 
-  #l_cut_sels = ['resolved-finalSRNNQCDTop','resolved-finalSRNN', 'intermediate-finalSRNNQCDTop','intermediate-finalSRNN', 'boosted-finalSRNNQCDTop','boosted-finalSRNN']
+  d_SRsets = {}
+  d_SRsets['SRbase']    = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
+  d_SRsets['SRNN']      = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
+  d_SRsets['SRNNlam10'] = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10', 'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined']
  
-  #l_zCols = ['chiSq', 'chiSqSyst1pc']
-  #l_zCols = ['chiSqSyst1pc']
-  l_zCols = ['chiSqSyst0p5pc']
+  l_zCols = ['chiSqSyst1pc', 'chiSqSyst0p5pc', 'chiSq']
   
   IsLogY = False
-  
-  #l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR'] 
-  #l_zCols = ['xsec','acceptance']
-  #IsLogY = True
 
   d_axis_tlatex = {
     'acceptance'        : 'A #times \epsilon (S / #sigma #times L) [%]',
@@ -188,25 +167,27 @@ def main():
 
   d_in_data = {}
 
-  # Build part of output name, shorten by abbreviating some names
-  cut_sel_out_name = ''.join(l_cut_sels).replace("finalSR","SR").replace("resolved","R").replace("intermediate","I").replace("boosted","B").replace("combined","c")
- 
-  for zCol in l_zCols: 
-    if do_ktop:
-      out_file = 'figs/limit1d_TopYuk_vary_SlfCoup_1p0_{0}_{1}'.format(cut_sel_out_name, zCol)
-    else: 
-      out_file = 'figs/limit1d_TopYuk_1p0_SlfCoup_vary_{0}_{1}'.format(cut_sel_out_name, zCol)
-    
-    for cut_sel in l_cut_sels:
-      print(cut_sel)
-      # Input file made from ntuples_to_chiSq.py
-      if 'combined' in cut_sel:
-        d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}_{1}.csv'.format(cut_sel, zCol)
-      else:
-        d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
- 
-    print('Output file to store chi squares: {0}'.format( out_file  ) )
-    make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, IsLogY, legend_outside_plot)
+  for SRset in d_SRsets:
+    l_cut_sels = d_SRsets[SRset]
+    # Build part of output name, shorten by abbreviating some names
+    cut_sel_out_name = ''.join(l_cut_sels).replace("finalSR","SR").replace("resolved","R").replace("intermediate","I").replace("boosted","B").replace("combined","c")
+    print( 'Processing SR set: {0}'.format(l_cut_sels)) 
+    for zCol in l_zCols: 
+      if do_ktop:
+        out_file = 'figs/limit1d_TopYuk_vary_SlfCoup_1p0_{0}_{1}'.format(cut_sel_out_name, zCol)
+      else: 
+        out_file = 'figs/limit1d_TopYuk_1p0_SlfCoup_vary_{0}_{1}'.format(cut_sel_out_name, zCol)
+      
+      for cut_sel in l_cut_sels:
+        print(cut_sel)
+        # Input file made from ntuples_to_chiSq.py
+        if 'combined' in cut_sel:
+          d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}_{1}.csv'.format(cut_sel, zCol)
+        else:
+          d_in_data[cut_sel]  = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
+   
+      print('Output file to store chi squares: {0}'.format( out_file  ) )
+      make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, IsLogY, legend_outside_plot)
 
 #____________________________________________________________________________
 def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, IsLogY, legend_outside_plot ):

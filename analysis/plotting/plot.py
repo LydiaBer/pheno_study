@@ -105,7 +105,6 @@ def main():
 
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR']# 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN']#,'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   
   l_vars     = ['m_hh']
@@ -157,6 +156,10 @@ def main():
           'boosted-finalSRNNlam20'
   ]
   
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR',
+                'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN',
+                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10','boosted-finalSRNNlam10',
+               ] 
   
   ###
 
