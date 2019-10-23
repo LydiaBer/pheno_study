@@ -151,10 +151,21 @@ def configure_vars(cut_sel):
     'nnscore_SlfCoup_1.0_top'       : {'tlatex':'NN top score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
     'nnscore_SlfCoup_1.0_qcd'       : {'tlatex':'NN QCD score trained on #kappa(#lambda_{hhh}) = 1','units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
     
-    'nnscore_SlfCoup_5.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 5','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
-    'nnscore_SlfCoup_m5.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = -5','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
-    'nnscore_SlfCoup_10.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 10','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
-    'nnscore_SlfCoup_m10.0_sig'       : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = -10','units':'','hXNbins':20,'hXmin':0.0,'hXmax':1.0},
+    'nnscore_SlfCoup_m20.0_sig'   : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus20',  'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_m10.0_sig'   : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus10',  'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_m7.0_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus7',   'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_m5.0_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus5',   'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_m2.0_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus2',   'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_m1.0_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus1',   'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_m0.5_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = #minus0.5', 'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_0.5_sig'     : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 0.5',       'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_1.0_sig'     : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 1',         'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_2.0_sig'     : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 2',         'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_3.0_sig'     : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 3',         'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_5.0_sig'     : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 5',         'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_7.0_sig'     : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 7',         'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_10.0_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 10',        'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
+    'nnscore_SlfCoup_20.0_sig'    : {'tlatex':'NN signal score #kappa(#lambda_{hhh}) = 20',        'units':'','hXNbins':28,'hXmin':0.0,'hXmax':1.4},
     # -------------------//------------------------
 
   } # end of d_vars = {} dictionary

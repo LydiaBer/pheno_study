@@ -55,12 +55,12 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, zlabel, my_fil
     fig, ax = plt.subplots() 
     fig.set_size_inches(12, 8)
     my_cmap = mplt.cm.get_cmap('inferno_r')
-    my_cmap.set_under('w')
+    my_cmap.set_under('#ffffd9')
     
-    if 'lam10' in my_file:
-      c = ax.pcolor(AUC, edgecolors='#FFFFFF', linestyle= 'solid', linewidths=1, cmap=my_cmap, norm=colors.LogNorm(vmin=0.1, vmax=10e4))
-    else:
-      c = ax.pcolor(AUC, edgecolors='#FFFFFF', linestyle= 'solid', linewidths=1, cmap=my_cmap, vmin=0.0, vmax=70.0)
+    #if 'lam10' in my_file:
+    c = ax.pcolor(AUC, edgecolors='#FFFFFF', linestyle= 'solid', linewidths=1, cmap=my_cmap, norm=colors.LogNorm(vmin=0.001, vmax=1e3))
+    #else:
+    #c = ax.pcolor(AUC, edgecolors='#FFFFFF', linestyle= 'solid', linewidths=1, cmap=my_cmap, vmin=0.0, vmax=70.0)
      
     #----------------------------------------------
     # put the major ticks at the middle of each cell
@@ -102,17 +102,19 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, zlabel, my_fil
       for x in range(Nparam):
         
         cell_val = float(AUC[y, x])
-        if abs(cell_val) > 25:
+        if abs(cell_val) > 0.1:
           cell_color = '#EFEFEF'
-        if abs(cell_val) < 25:
+        if abs(cell_val) < 0.1:
           cell_color = '#232323'
         if x > y:
           if cell_val > 1000.:
             cell_text = r'$>10^3$'.format(cell_val)
           elif cell_val > 100.:
             cell_text = r'${0:.0f}$'.format(cell_val)
+          elif cell_val > 0.01:
+            cell_text = r'${0:.2g}$'.format(cell_val)
           else:
-            cell_text = r'${0:.1f}$'.format(cell_val)
+            cell_text = r'$< 0.01$'
         else:
           cell_text = ''
             
@@ -132,20 +134,20 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, zlabel, my_fil
       fig.text(0.17, 0.83, r'$hh \to 4b~\textrm{Neural network analysis}$', color='Black', size=25)
     else:
       fig.text(0.17, 0.83, r'$hh \to 4b~\textrm{Baseline analysis}$', color='Black', size=25)
-    fig.text(0.17, 0.765, r'$\textrm{Background systematics}~\zeta_b = 1\%$', color='Black', size=25)
+    fig.text(0.17, 0.765, r'$1\%~\textrm{systematics}$', color='Black', size=25)
     
     if 'resolved' in my_file:
-      fig.text(0.17, 0.71, r'$\textrm{Resolved~finalSR}$', color='Black', size=25)
+      fig.text(0.17, 0.71, r'$\textrm{Resolved~category}$', color='Black', size=25)
     elif 'intermediate' in my_file:
-      fig.text(0.17, 0.71, r'$\textrm{Intermediate~finalSR}$', color='Black', size=25)
+      fig.text(0.17, 0.71, r'$\textrm{Intermediate~category}$', color='Black', size=25)
     else:
-      fig.text(0.17, 0.71, r'$\textrm{Boosted~finalSR}$', color='Black', size=25)
+      fig.text(0.17, 0.71, r'$\textrm{Boosted~category}$', color='Black', size=25)
     
     if 'SRNN' in my_file:
       if 'lam10' in my_file:
-        fig.text(0.17, 0.65, r'$\textrm{NN trained on}~\kappa(\lambda_{hhh}) = 10$', color='Black', size=25)
+        fig.text(0.17, 0.65, r'$\textrm{DNN trained on}~\kappa(\lambda_{hhh}) = 10$', color='Black', size=25)
       else:
-        fig.text(0.17, 0.65, r'$\textrm{NN trained on}~\kappa(\lambda_{hhh}) = 1$', color='Black', size=25)
+        fig.text(0.17, 0.65, r'$\textrm{DNN trained on}~\kappa(\lambda_{hhh}) = 1$', color='Black', size=25)
     
     plt.tight_layout(pad=0.5)
 

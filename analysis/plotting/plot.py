@@ -84,11 +84,80 @@ def main():
   ### Loose analysis plotting
   l_vars     = ['m_hh', 'h1_Pt','nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
   l_vars     = ['h1_M', 'h2_M', 'h2_Pt', 'pT_hh']
-  l_vars     = ['m_hh']
   l_samples  = ['loose']
+  
+  l_vars = [
+            'nnscore_SlfCoup_m20.0_sig',
+            'nnscore_SlfCoup_m10.0_sig',
+            'nnscore_SlfCoup_m7.0_sig',
+            'nnscore_SlfCoup_m5.0_sig',
+            'nnscore_SlfCoup_m2.0_sig',
+            'nnscore_SlfCoup_m1.0_sig',
+            'nnscore_SlfCoup_m0.5_sig',
+            'nnscore_SlfCoup_0.5_sig',
+            'nnscore_SlfCoup_1.0_sig',
+            'nnscore_SlfCoup_2.0_sig',
+            'nnscore_SlfCoup_3.0_sig',
+            'nnscore_SlfCoup_5.0_sig',
+            'nnscore_SlfCoup_7.0_sig',
+            'nnscore_SlfCoup_10.0_sig',
+            'nnscore_SlfCoup_20.0_sig']
+
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR', 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN']#,'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR']# 'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN']#,'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  
+  l_vars     = ['m_hh']
+  l_cut_sels = [
+          'resolved-finalSRNNlam_m20', 
+          'intermediate-finalSRNNlam_m20',    
+          'boosted-finalSRNNlam_m20', 
+          'resolved-finalSRNNlam_m10', 
+          'intermediate-finalSRNNlam_m10',    
+          'boosted-finalSRNNlam_m10',
+          'resolved-finalSRNNlam_m7', 
+          'intermediate-finalSRNNlam_m7',    
+          'boosted-finalSRNNlam_m7',
+          'resolved-finalSRNNlam_m5', 
+          'intermediate-finalSRNNlam_m5',    
+          'boosted-finalSRNNlam_m5', 
+          'resolved-finalSRNNlam_m2', 
+          'intermediate-finalSRNNlam_m2',    
+          'boosted-finalSRNNlam_m2', 
+          'resolved-finalSRNNlam_m1', 
+          'intermediate-finalSRNNlam_m1',    
+          'boosted-finalSRNNlam_m1',
+          'resolved-finalSRNNlam_m0p5', 
+          'intermediate-finalSRNNlam_m0p5',    
+          'boosted-finalSRNNlam_m0p5', 
+          'resolved-finalSRNNlam0p5', 
+          'intermediate-finalSRNNlam0p5',    
+          'boosted-finalSRNNlam0p5', 
+          'resolved-finalSRNN', 
+          'intermediate-finalSRNN',    
+          'boosted-finalSRNN',
+          'resolved-finalSRNNlam2', 
+          'intermediate-finalSRNNlam2',    
+          'boosted-finalSRNNlam2',
+          'resolved-finalSRNNlam3', 
+          'intermediate-finalSRNNlam3',    
+          'boosted-finalSRNNlam3', 
+          'resolved-finalSRNNlam5', 
+          'intermediate-finalSRNNlam5',    
+          'boosted-finalSRNNlam5', 
+          'resolved-finalSRNNlam7', 
+          'intermediate-finalSRNNlam7',    
+          'boosted-finalSRNNlam7', 
+          'resolved-finalSRNNlam10', 
+          'intermediate-finalSRNNlam10',    
+          'boosted-finalSRNNlam10', 
+          'resolved-finalSRNNlam20', 
+          'intermediate-finalSRNNlam20',    
+          'boosted-finalSRNNlam20'
+  ]
+  
+  
   ###
 
   lumi    =  3000.0 #24.3 

@@ -18,6 +18,8 @@ import os, sys, time, argparse, math, datetime, csv
 from pprint import pprint
 import pandas as pd
 
+do_2dlambda = False
+
 #____________________________________________________________________________
 def main():
   
@@ -46,15 +48,22 @@ def main():
   #
   # Column header whose value we want to combine
   to_sum_var = 'chiSq'
+  to_sum_var = 'chiSq_ij_Sys1pc'
   to_sum_var = 'chiSqSyst1pc'
+  to_sum_var = 'chiSqSyst0p5pc'
+  #'chiSq_ij'
   #
   # Join SRs as the combined name output
-  out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
+  if do_2dlambda:
+    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
+  else:
+    out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(dir, '_'.join(l_SRs), to_sum_var)
+
   #
   # Columns to delete in new dataframe 
   l_del = ['N_bkg','N_sig','N_sig_raw',
     'SoverB','SoverSqrtB','SoverSqrtBSyst1pc','SoverSqrtBSyst5pc',
-    'chiSq','chiSqSyst1pc','chiSqSyst5pc','acceptance','xsec'] 
+    'chiSq','chiSqSyst1pc','chiSqSyst0p5pc','acceptance','xsec'] 
   #  
   # ------------------------------------------------------
   
@@ -70,9 +79,12 @@ def main():
   d_df = {}
   for SR in l_SRs:
     print( 'Processing {0}'.format(SR) )
-
+    
     # Input CSV file
-    in_file = 'data/CHISQ_{0}_{1}.csv'.format(dir,SR)
+    if do_2dlambda:
+      in_file = 'data/CHISQ_2Dlambda_{0}_{1}.csv'.format(dir, SR)
+    else:
+      in_file = 'data/CHISQ_{0}_{1}.csv'.format(dir,SR)
     
     # Read in CSV as pandas dataframe (like an excel spreadsheet but python-able)
     d_df[SR] = pd.read_csv( in_file )
@@ -83,8 +95,9 @@ def main():
   # ------------------------------------------------------
   combo_df = d_df[l_SRs[0]].copy()
 
-  for var in l_del:
-    del combo_df[var]
+  if not do_2dlambda:
+    for var in l_del:
+      del combo_df[var]
 
   # ------------------------------------------------------
   # Import chiSq from other dataframes and add to combo_df

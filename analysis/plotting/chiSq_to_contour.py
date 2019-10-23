@@ -67,6 +67,52 @@ def main():
   
   l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN',
   'resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
+
+
+  l_cut_sels = [
+            'resolved-finalSRNNlam_m20', 
+          'intermediate-finalSRNNlam_m20',    
+          'boosted-finalSRNNlam_m20', 
+            'resolved-finalSRNNlam_m10', 
+          'intermediate-finalSRNNlam_m10',    
+          'boosted-finalSRNNlam_m10',
+            'resolved-finalSRNNlam_m7', 
+          'intermediate-finalSRNNlam_m7',    
+          'boosted-finalSRNNlam_m7',
+            'resolved-finalSRNNlam_m5', 
+          'intermediate-finalSRNNlam_m5',    
+          'boosted-finalSRNNlam_m5', 
+            'resolved-finalSRNNlam_m2', 
+          'intermediate-finalSRNNlam_m2',    
+          'boosted-finalSRNNlam_m2', 
+            'resolved-finalSRNNlam_m1', 
+          'intermediate-finalSRNNlam_m1',    
+          'boosted-finalSRNNlam_m1',
+            'resolved-finalSRNNlam0p5', 
+          'intermediate-finalSRNNlam0p5',    
+          'boosted-finalSRNNlam0p5', 
+            'resolved-finalSRNN', 
+          'intermediate-finalSRNN',    
+          'boosted-finalSRNN',
+            'resolved-finalSRNNlam2', 
+          'intermediate-finalSRNNlam2',    
+          'boosted-finalSRNNlam2',
+          'resolved-finalSRNNlam3', 
+          'intermediate-finalSRNNlam3',    
+          'boosted-finalSRNNlam3', 
+          'resolved-finalSRNNlam5', 
+          'intermediate-finalSRNNlam5',    
+          'boosted-finalSRNNlam5', 
+          'resolved-finalSRNNlam7', 
+          'intermediate-finalSRNNlam7',    
+          'boosted-finalSRNNlam7', 
+          'resolved-finalSRNNlam10', 
+          'intermediate-finalSRNNlam10',    
+          'boosted-finalSRNNlam10', 
+          'resolved-finalSRNNlam20', 
+          'intermediate-finalSRNNlam20',    
+          'boosted-finalSRNNlam20'
+  ]
   l_zCol = ['chiSqSyst1pc']
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
@@ -95,6 +141,7 @@ def main():
   xCol, yCol = 'SlfCoup', 'TopYuk'
 
   for cut_sel in l_cut_sels:
+    if 'resolved' not in cut_sel: continue
     for zCol in l_zCol: 
 
       in_file = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
@@ -183,6 +230,7 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   #hist.GetXaxis().SetRangeUser(-30,6000)
   #hist.GetYaxis().SetRangeUser(-30,1000)
   hist.GetXaxis().SetRangeUser(-20,20)
+  #hist.GetXaxis().SetRangeUser(-5,8)
   hist.GetYaxis().SetRangeUser(0.5,1.5)
   #hist.Draw('COLZ')
   #hist.Draw('CONT4Z LIST')
@@ -279,6 +327,11 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   else:
     analysis += ' Baseline'
 
+  klambda = cut_sel.split('SRNN')[1].replace('lam', 'DNN trained on #kappa(#lambda_{hhh}) = ').replace('_m', '#minus')
+  print cut_sel, cut_sel.split('SRNN'), klambda
+  if not klambda: klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
+  myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
+  
   myText(0.18, 0.91, SQRTS_LUMI + ', {0}{1}, {2}'.format(process, syst_txt, analysis), 0.040, kBlack, 0, True)
   
   #-------------------------------------------------

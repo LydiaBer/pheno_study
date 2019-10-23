@@ -142,8 +142,8 @@ def main():
 
   # combos
   l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
-  l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10', 'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined']
   l_cut_sels = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
+  l_cut_sels = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10', 'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined']
   #resolved-finalSR_AND_intermediate-finalSR_combined','boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined'] 
   #l_cut_sels = ['resolved-finalSRNNlow_AND_resolved-finalSRNN_combined', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined','resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined','boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
   ###
@@ -162,7 +162,8 @@ def main():
   #l_cut_sels = ['resolved-finalSRNNQCDTop','resolved-finalSRNN', 'intermediate-finalSRNNQCDTop','intermediate-finalSRNN', 'boosted-finalSRNNQCDTop','boosted-finalSRNN']
  
   #l_zCols = ['chiSq', 'chiSqSyst1pc']
-  l_zCols = ['chiSqSyst1pc']
+  #l_zCols = ['chiSqSyst1pc']
+  l_zCols = ['chiSqSyst0p5pc']
   
   IsLogY = False
   
@@ -182,6 +183,7 @@ def main():
     'chiSqSyst1pc'      : '#chi^{2}',
     'sum_chiSq'         : '#chi^{2}',
     'sum_chiSqSyst1pc'  : '#chi^{2}',
+    'sum_chiSqSyst0p5pc' : '#chi^{2}',
   }
 
   d_in_data = {}
@@ -252,8 +254,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     else:
       xl1, yl1 = 0.48, 0.50
 
-  if 'lam10' in l_cut_sels[0]:
-    xl1 = 0.23 
+  #if 'lam10' in l_cut_sels[0]:
+  #  xl1 = 0.23 
 
   if legend_outside_plot:
     xl1 = 0.6
@@ -422,6 +424,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
 
   if 'chiSqSyst1pc' in zCol:
     syst_txt = '1% systematics'
+  elif 'chiSqSyst0p5pc' in zCol:
+    syst_txt = '0.5% systematics'
   elif 'chiSq' in zCol and 'pc' not in zCol:
     syst_txt = '0% systematics'
   else:
@@ -468,8 +472,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       label_x = 0.135
     else:
       label_x = 0.55
-      if 'lam10' in l_cut_sels[0]:
-        label_x = 0.3
+      #if 'lam10' in l_cut_sels[0]:
+      #  label_x = 0.3
 
 
     if do_ktop:
