@@ -14,7 +14,7 @@ The main files are as follows:
 ## Automated production of paper plots from ntuples
 Simply run the script ```runMe_for_paper_results.sh```
 to obtain the 1D and 2D chi square plots in ```figs/``` directory for the paper.
-This script shows the sequence of scripts one needs to run.
+Please see this script to see the sequence of scripts one needs to run.
 
 ## Hadding input ROOT files
 
@@ -46,9 +46,7 @@ The code is then run as follows:
 
 Or on the batch:
 
-```cd batch
-python make_batch_scripts.py
-python send_plotting_to_batch.py --doTorque```
+```cd batch ; python make_batch_scripts.py ; python send_plotting_to_batch.py --doTorque```
 
 The output pdf files (and YIELD files for mhh) are stored in the ```figs``` directory.  
 
