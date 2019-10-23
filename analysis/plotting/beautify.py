@@ -68,10 +68,10 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   #  xax.SetTickSize(0.04)  
   # bottom panel
   #else:
-  xax.SetLabelSize(text_size - 7)
-  xax.SetLabelOffset(0.03)
+  xax.SetLabelSize(text_size-7)
+  xax.SetLabelOffset(0.025)
   xax.SetTitleOffset(1.15)
-  xax.SetTickSize(0.08)
+  xax.SetTickSize(0.04)
 
   #xax.SetRangeUser(0,2000) 
   #xax.SetNdivisions(-505) 
@@ -91,7 +91,7 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   yax.SetTitleOffset(1.0) 
   
   yax.SetLabelOffset(0.015)
-  yax.SetLabelSize(text_size - 7)
+  yax.SetLabelSize(text_size-7)
  
   ymax = hist.GetMaximum()
   ymin = hist.GetMinimum()
@@ -103,7 +103,7 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
     if IsLogY:
       if enlargeYaxis:
         ymax = 10 ** 7
-        ymin = 0.1
+        ymin = 0.7
       else:
         #ymax = 3 * 10 ** 4
         #ymin = 0.5

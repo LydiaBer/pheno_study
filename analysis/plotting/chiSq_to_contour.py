@@ -23,6 +23,7 @@ import os, sys, time, argparse, math, datetime, csv
 SQRTS_LUMI = '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}'
   
 interpolate_logy = False
+overlay_points = False
 
 #____________________________________________________________________________
 def main():
@@ -43,7 +44,10 @@ def main():
   # Input/output file names TODO: clumsy, use argparse etc
   # ------------------------------------------------------
   
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR']
+  # resolved + intermediate + boosted
+  l_cut_sels = ['boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined']
+  l_cut_sels = ['boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined']
+  
   l_zCol = ['acceptance',
             'N_sig',
             'N_sig_raw',
@@ -56,10 +60,67 @@ def main():
             'chiSqSyst5pc'
             ]
   
+  l_zCol = ['sum_chiSqSyst1pc']
+
+  l_cut_sels = [
+          'resolved-finalSRNNlam_m20', 
+          'intermediate-finalSRNNlam_m20',    
+          'boosted-finalSRNNlam_m20', 
+          'resolved-finalSRNNlam_m10', 
+          'intermediate-finalSRNNlam_m10',    
+          'boosted-finalSRNNlam_m10',
+          'resolved-finalSRNNlam_m7', 
+          'intermediate-finalSRNNlam_m7',    
+          'boosted-finalSRNNlam_m7',
+          'resolved-finalSRNNlam_m5', 
+          'intermediate-finalSRNNlam_m5',    
+          'boosted-finalSRNNlam_m5', 
+          'resolved-finalSRNNlam_m2', 
+          'intermediate-finalSRNNlam_m2',    
+          'boosted-finalSRNNlam_m2', 
+          'resolved-finalSRNNlam_m1', 
+          'intermediate-finalSRNNlam_m1',    
+          'boosted-finalSRNNlam_m1',
+          'resolved-finalSRNNlam0p5', 
+          'intermediate-finalSRNNlam0p5',    
+          'boosted-finalSRNNlam0p5', 
+          'resolved-finalSRNN', 
+          'intermediate-finalSRNN',    
+          'boosted-finalSRNN',
+          'resolved-finalSRNNlam2', 
+          'intermediate-finalSRNNlam2',    
+          'boosted-finalSRNNlam2',
+          'resolved-finalSRNNlam3', 
+          'intermediate-finalSRNNlam3',    
+          'boosted-finalSRNNlam3', 
+          'resolved-finalSRNNlam5', 
+          'intermediate-finalSRNNlam5',    
+          'boosted-finalSRNNlam5', 
+          'resolved-finalSRNNlam7', 
+          'intermediate-finalSRNNlam7',    
+          'boosted-finalSRNNlam7', 
+          'resolved-finalSRNNlam10', 
+          'intermediate-finalSRNNlam10',    
+          'boosted-finalSRNNlam10', 
+          'resolved-finalSRNNlam20', 
+          'intermediate-finalSRNNlam20',    
+          'boosted-finalSRNNlam20'
+  ]
+  
+  l_cut_sels = [
+                'resolved-finalSR',        'intermediate-finalSR',        'boosted-finalSR',
+                'resolved-finalSRNN',      'intermediate-finalSRNN',      'boosted-finalSRNN',
+                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10',
+                'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined',
+                'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined'
+                ]
+
+  l_zCol = ['chiSqSyst1pc']
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
   # ------------------------------------------------------
-  zThreshold = 1e-9
+  #zThreshold = 1e-9
+  zThreshold = 1.
              
   # ------------------------------------------------------
   # Set column headers of in_file CSV we want to plot
@@ -73,9 +134,10 @@ def main():
     'SoverSqrtB'        : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B}'},
     'SoverSqrtBSyst1pc' : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B + (1%B)^{2}}'},
     'SoverSqrtBSyst5pc' : {'zMin':0.1,   'zMax':10,  'palette':'kBird', 'tlatex':'S / #sqrt{B + (5%B)^{2}}'},
-    'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} = (S #minus S_{SM})^{2} / B'},
-    'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
-    'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
+    'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},# = (S #minus S_{SM})^{2} / B'},
+    'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
+    'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
+    'sum_chiSqSyst1pc'  : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
   }
 
   xCol, yCol = 'SlfCoup', 'TopYuk'
@@ -83,7 +145,11 @@ def main():
   for cut_sel in l_cut_sels:
     for zCol in l_zCol: 
 
-      in_file = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
+      if 'combine' in cut_sel: 
+        in_file = 'data/CHISQ_loose_preselection_{0}_{1}.csv'.format(cut_sel, zCol)
+        zCol = 'sum_' + zCol
+      else:
+        in_file = 'data/CHISQ_loose_preselection_{0}.csv'.format(cut_sel)
       out_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_{1}.csv'.format(cut_sel, zCol)
       
       # ------------------------------------------------------
@@ -116,7 +182,7 @@ def main():
       # ------------------------------------------------------
       # Extract the contour and put it into a TGraph (1D)
       # ------------------------------------------------------
-      tgraph_cont = contour_from_graph( tg2d , zThreshold )
+      tgraph_cont   = contour_from_graph( tg2d , zThreshold )
       n_pts = tgraph_cont.GetN()
       
       # ------------------------------------------------------
@@ -131,7 +197,8 @@ def main():
           out_x = x
           out_y = y
           f_out.write( '{0:.4f},{1:.4f}\n'.format(out_x, out_y) )
-          #print('x: {0}, y: {1}, mN1: {2}'.format(out_x, out_y, mN1))
+          #print('x: {0}, y: {1}'.format(out_x, out_y))
+     
       # ------------------------------------------------------
 
       # ------------------------------------------------------
@@ -165,16 +232,19 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   hist = tg2d.GetHistogram()
   #hist.Draw('CONTZ')
   hist.Draw('COLZ')
-  hist.GetXaxis().SetRangeUser(-30,6000)
-  hist.GetYaxis().SetRangeUser(-30,1000)
+  #hist.GetXaxis().SetRangeUser(-30,6000)
+  #hist.GetYaxis().SetRangeUser(-30,1000)
+  hist.GetXaxis().SetRangeUser(-20,20)
+  #hist.GetXaxis().SetRangeUser(-5,8)
+  hist.GetYaxis().SetRangeUser(0.5,1.5)
   #hist.Draw('COLZ')
   #hist.Draw('CONT4Z LIST')
   tgraph_cont.Draw('same')
   tgraph_cont.SetLineColor(kGray+3)
-
+  
   process = 'hh #rightarrow 4b'
-  xtitle = '#kappa_{#lambda} = #lambda_{hhh} / #lambda_{hhh}^{SM}'
-  ytitle = '#kappa_{top} = #it{y}_{top} / #it{y}_{top}^{SM}'
+  xtitle = '#kappa(#lambda_{hhh})'
+  ytitle = '#kappa(#it{y}_{top})'
   ztitle = d_axis_tlatex[zCol]['tlatex']
   zMin = d_axis_tlatex[zCol]['zMin']
   zMax = d_axis_tlatex[zCol]['zMax']
@@ -189,57 +259,86 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   #-------------------------------------------------
   # Plot points on top
   #-------------------------------------------------
-  tg = TGraph()
-  tg_excl = TGraph()
-  for count, ( x_val, y_val, z_val ) in enumerate( zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) ) :
-    # Make a separate TGraph for points above desired threshold
-    if float(z_val) > zThreshold: 
-      tg_excl.SetPoint(count, float(x_val), float(y_val) )
-    else:         
-      tg.SetPoint(     count, float(x_val), float(y_val) )
-      
-  #-------------------------------------------------
-  # Format the excluded points differently from the not excluded ones
-  #-------------------------------------------------
-  tg.SetMarkerStyle(20)
-  tg.SetMarkerSize(0.8)
-  tg.SetMarkerColor(kGray+2)
-  tg.Draw('P same') 
-  
-  tg_excl.SetMarkerStyle(21)
-  tg_excl.SetMarkerSize(0.8)
-  tg_excl.SetMarkerColor(kOrange+2)
-  tg_excl.Draw('P same') 
+  if overlay_points:
+    tg = TGraph()
+    tg_excl = TGraph()
+    for count, ( x_val, y_val, z_val ) in enumerate( zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) ) :
+      # Make a separate TGraph for points above desired threshold
+      if float(z_val) > zThreshold: 
+        tg_excl.SetPoint(count, float(x_val), float(y_val) )
+      else:         
+        tg.SetPoint(     count, float(x_val), float(y_val) )
+        
+    #-------------------------------------------------
+    # Format the excluded points differently from the not excluded ones
+    #-------------------------------------------------
+    tg.SetMarkerStyle(20)
+    tg.SetMarkerSize(0.8)
+    tg.SetMarkerColor(kGray+2)
+    tg.Draw('P same') 
+    
+    tg_excl.SetMarkerStyle(21)
+    tg_excl.SetMarkerSize(0.8)
+    tg_excl.SetMarkerColor(kOrange+2)
+    tg_excl.Draw('P same') 
 
-  #-------------------------------------------------
-  # Draw values as text for points
-  #-------------------------------------------------
-  for x_val, y_val, z_val in zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) :
-    myText( float(x_val), float(y_val), '{0:.3g}'.format( float(z_val) ), 0.01, kBlack, 0, False)
+    #-------------------------------------------------
+    # Draw values as text for points
+    #-------------------------------------------------
+    for x_val, y_val, z_val in zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) :
+      myText( float(x_val), float(y_val), '{0:.3g}'.format( float(z_val) ), 0.01, kBlack, 0, False)
   
-  #-------------------------------------------------
-  # Construct and add plots to legend
-  #-------------------------------------------------
-  xl1=0.22
-  yl1=0.71
-  xl2=xl1+0.15
-  yl2=yl1-0.15
-  leg = TLegend(xl1,yl1,xl2,yl2)
-  leg.SetBorderSize(0)
-  leg.SetTextFont(132)
-  leg.SetTextSize(0.04)
-  leg.SetNColumns(1)
+    #-------------------------------------------------
+    # Construct and add plots to legend
+    #-------------------------------------------------
+    xl1=0.22
+    yl1=0.71
+    xl2=xl1+0.15
+    yl2=yl1-0.15
+    leg = TLegend(xl1,yl1,xl2,yl2)
+    leg.SetBorderSize(0)
+    leg.SetTextFont(132)
+    leg.SetTextSize(0.04)
+    leg.SetNColumns(1)
 
-  leg.AddEntry(tgraph_cont, 'Z = 2',    'l')
-  leg.AddEntry(tg,          'Z #leq 2', 'p')
-  leg.AddEntry(tg_excl,     'Z > 2',    'p')
+    leg.AddEntry(tgraph_cont, 'Z = 2',    'l')
+    leg.AddEntry(tg,          'Z #leq 2', 'p')
+    leg.AddEntry(tg_excl,     'Z > 2',    'p')
 
-  #leg.Draw('same')
-  
+    #leg.Draw('same')
+    
   # Annotating text to add to top
-  cut_name = cut_sel.split('-')
-  cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1] 
-  myText(0.18, 0.91, SQRTS_LUMI + ', {0}, {1}'.format(process, cut_txt), 0.040, kBlack, 0, True)
+  #cut_name = cut_sel.split('-')
+  #cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1]
+ 
+  if zCol == 'chiSq':
+    syst_txt = ', #zeta_{b} = 0'
+  if 'chiSqSyst1pc' in zCol:
+    syst_txt = ', #zeta_{b} = 0.01'
+  else:
+    syst_txt = ''
+
+  if 'resolved' in out_file:
+    analysis = 'Resolved'
+  if 'intermediate' in out_file:
+    analysis = 'Intermediate'
+  if 'boosted' in out_file:
+    analysis = 'Boosted'
+  if 'combined' in out_file:
+    analysis = 'Combined'
+
+  if 'SRNN' in out_file:
+    analysis += ' DNN'
+    # Add some text to bookkeep which DNN training we're using
+    klambda = cut_sel.split('SRNN')[1].replace('lam', 'DNN trained on #kappa(#lambda_{hhh}) = ').replace('_m', '#minus')
+    print cut_sel, cut_sel.split('SRNN'), klambda
+    if not klambda: klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
+    myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
+  else:
+    analysis += ' Baseline'
+
+  
+  myText(0.18, 0.91, SQRTS_LUMI + ', {0}{1}, {2}'.format(process, syst_txt, analysis), 0.040, kBlack, 0, True)
   
   #-------------------------------------------------
   # Palette (Z axis colourful legend)
@@ -249,7 +348,7 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   paletteAxis.SetX2NDC(0.84)
   paletteAxis.SetY1NDC(0.19)
   paletteAxis.SetY2NDC(0.88) 
-  
+ 
   can1.SetLogz()
 
   can1.SaveAs( out_file )
@@ -267,8 +366,24 @@ def csv_to_graph( d_csv, xCol, yCol, zCol, zMin=0.001, interpolate_logy=False ):
   tg = TGraph2D()
 
   count = 0 
- 
+
+  # -----------------------------------------------------------------------------
+  # Add dummy points to close contour in kappa(ytop) vs kappa(lambda_hhh) plane
+  # -----------------------------------------------------------------------------
+  # kappa(lambda_hhh)
+  l_dummy_x = [-25., 0., 25., -25., 0., 25.]
+  # kappa(ytop)
+  l_dummy_y = [0., 0., 0., 2., 2., 2.]
+  # chiSq
+  l_dummy_z = [200., 20., 200., 200., 20., 200.]
+
+  d_csv[xCol] += l_dummy_x 
+  d_csv[yCol] += l_dummy_y 
+  d_csv[zCol] += l_dummy_z 
+
+  # -------------------------------------------
   # Loop over points in CSV and plot them 
+  # -------------------------------------------
   for count, ( x_val, y_val, z_val ) in enumerate( zip( d_csv[xCol], d_csv[yCol], d_csv[zCol] ) ) :
     if interpolate_logy:
       y_val = math.log10( float( y_val ) )
@@ -300,29 +415,24 @@ def contour_from_graph( tg2d, level_val=1.64458 ):
   
   gr0 = ROOT.TGraph()
   h = hist.Clone()
-  #h.Print()
-  h.GetYaxis().SetRangeUser(-30,30)
-  h.GetXaxis().SetRangeUser(0,2)
-  gr = gr0.Clone(h.GetName())
+  h.GetXaxis().SetRangeUser(-30,30)
+  h.GetYaxis().SetRangeUser(0,2)
   h.SetContour( 1 )
   
-  # Get the contour whose value corresponds to 1.64458 (Zsignificance for CLs=0.05)
+  gr = gr0.Clone(h.GetName())
+  
+  # Get the contour whose value corresponds to level_val
   h.SetContourLevel( 0, level_val )
   
   h.Draw("CONT LIST")
   h.SetDirectory(0)
   ROOT.gPad.Update()
   contours = ROOT.gROOT.GetListOfSpecials().FindObject("contours")
-  #print contours
   list = contours[0]
-  #list.Print()
   gr = list[0]
-  #gr.Print()
-  #grTmp = ROOT.TGraph()
   for k in xrange(list.GetSize()):
     if gr.GetN() < list[k].GetN(): gr = list[k]
   gr.SetName(hist.GetName())
-  #print gr
   return gr;
  
 

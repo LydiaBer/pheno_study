@@ -26,7 +26,9 @@ def get_sample_paths(dir = ''):
   #TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
   #TOPPATH = '/data/atlas/atlasdata/beresford/jrf/hh4b_pheno/pheno_study/lydia-dev/pheno_study/analysis/outputs' 
   #TOPPATH = '/home/jesseliu/pheno/fcc/data/samples/14TeV/2019mar18/all_merged_delphes/ntuples_2019mar25'
-  TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
+  #TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples'
+  #TOPPATH = '/data/atlas/atlasdata/beresford/jrf/hh4b_pheno/lydia-dev/pheno_study/analysis/outputs/150719'
+  TOPPATH = '/data/atlas/atlasdata/DiHiggsPheno/ntuples/'
 
   # Path to ntuples 
   bkg_path  = TOPPATH + '/' + dir
@@ -78,7 +80,6 @@ def get_samples_to_plot(analysis = ''):
                   'loose_ptj1_200_to_500_2b2j',
                   'loose_ptj1_20_to_200_2b2j',
                  ]
-
     l_samp_sig = [
                  #'loose_noGenFilt_4b',
                  #'loose_ptj1_20_to_200_4b',
@@ -86,6 +87,9 @@ def get_samples_to_plot(analysis = ''):
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0', 
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0', 
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0', 
     ]
 
 
@@ -277,6 +281,26 @@ def configure_samples():
     'loose_ptj1_500_to_1000_4b'         :{'type':'bkg', 'leg':'4b 500-1000',      'f_color':myLightBlue},
     'loose_ptj1_1000_to_infty_4b'       :{'type':'bkg', 'leg':'4b 1000-#infty',   'f_color':myLighterBlue},
 
+    # Colour merging of samples
+    'loose_noGenFilt_ttbar':{'type':'bkg', 'leg':'t#bar{t}+t#bar{t}b#bar{b}',  'f_color':myMediumGreen},    
+    'loose_noGenFilt_ttbb' :{'type':'bkg', 'leg':'t#bar{t}+b#bar{b}',          'f_color':myMediumGreen},    
+    
+    'loose_noGenFilt_tth'  :{'type':'bkg', 'leg':'t#bar{t}h+b#bar{b}h', 'f_color':myMediumOrange},    
+    'loose_noGenFilt_bbh'  :{'type':'bkg', 'leg':'b#bar{b}h',           'f_color':myMediumOrange},    
+    'loose_noGenFilt_zz'   :{'type':'bkg', 'leg':'ZZ',                  'f_color':myLightOrange},    
+    'loose_noGenFilt_zh'   :{'type':'bkg', 'leg':'Zh+Wh',               'f_color':myLighterOrange},    
+    'loose_noGenFilt_wh'   :{'type':'bkg', 'leg':'Wh',                  'f_color':myLighterOrange},    
+  
+    'loose_ptj1_20_to_200_2b2j'         :{'type':'bkg', 'leg':'2b2j',             'f_color':myLightBlue},
+    'loose_ptj1_200_to_500_2b2j'        :{'type':'bkg', 'leg':'2b2j 200-500',     'f_color':myLightBlue},
+    'loose_ptj1_500_to_1000_2b2j'       :{'type':'bkg', 'leg':'2b2j 500-1000',    'f_color':myLightBlue},
+    'loose_ptj1_1000_to_infty_2b2j'     :{'type':'bkg', 'leg':'2b2j 1000-#infty', 'f_color':myLightBlue},
+
+    'loose_ptj1_20_to_200_4b'           :{'type':'bkg', 'leg':'4b',               'f_color':myMediumBlue},
+    'loose_ptj1_200_to_500_4b'          :{'type':'bkg', 'leg':'4b 200-500',       'f_color':myMediumBlue},
+    'loose_ptj1_500_to_1000_4b'         :{'type':'bkg', 'leg':'4b 500-1000',      'f_color':myMediumBlue},
+    'loose_ptj1_1000_to_infty_4b'       :{'type':'bkg', 'leg':'4b 1000-#infty',   'f_color':myMediumBlue},
+
     'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
     'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'hh #kappa(#lambda_{hhh}) = 1','l_color': kRed+2 },
     'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'hh #kappa(#lambda_{hhh}) = 2','l_color': kAzure+1},
@@ -292,7 +316,7 @@ def configure_samples():
     'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
 
     'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
-    #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1','l_color':kRed }, 
+    'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.1','l_color':kRed }, 
     'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
      
     #------------------------------------

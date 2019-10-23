@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 '''
 
-Welcome to plot.py
+Welcome to plot.py for 4b Pheno studies
 
-Plotting script from Jesse Liu modified for HH4b pheno
-
-From: /data/atlas/atlasdata/jesseliu/atlas/susy/compressed_ew/atlas-susy-ew/various_higgsinofitter/r21/v2_3/HiggsinoFitter/plotting
-and /home/jesseliu/pheno/fcc/PhenoSim/analyse/conventional/hh4b/plotting
+Plotting script by Lydia Beresford and Jesse Liu
 
 * This is a script to efficiently make 1-dimensional plots from ntuples 
 * Configure various aspects in other files
@@ -26,10 +23,10 @@ from ROOT import *
 
 import time 
 import os, sys, time, argparse
-
 from math       import sqrt
 from random     import gauss
 from array      import array
+
 from xsecs      import *
 from cuts       import *
 from samples    import *
@@ -42,21 +39,24 @@ from beautify   import *
 # Global settings
 
 # Labels
-GROUP_status = '#bf{#it{Pheno4b}} Internal'
+GROUP_status = ''
 NTUP_status = ""#Samples: 13 Sep 2018"
 ENERGY_status = '14 TeV'
 
 # text size as percentage
-text_size = 0.035
+text_size = 0.045
 
 # When lots of samples, put leg outside plot so less crowded
-legend_outside_plot = True
+legend_outside_plot = False
+# Whether to show yields in legend for validation purposes
+show_yields_in_leg = False
+# Show slices in legend for validation purposes
+show_legend_slices = False
 
 # Do b-tag weighting rather than cutting away events
 # Impose 4 b-tags as weight rather than cutting away events 
 # (TODO: do 2 or 3-tag as options)
 do_BTagWeight = True
-
 #
 #--------------------------------------------------
 
@@ -70,25 +70,97 @@ def main():
   #dir = 'jesse_linked_delphes' # directory input files to plot are in
   #dir = 'compare_shape_280119_cross_check_jesse_linked_delphes_ATLAScuts'
   #dir = '280119' # directory input files to plot are in
+  #dir = 'original_full_stats'
   dir = '150719'
+  dir = '150719/merged_nn_score_ntuples'
 
   ### ATLAS analysis xcheck
   l_vars     = ['m_hh']     # corresponds to variable in variables.py
-  l_samples = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
-  l_sig_regs = ['signal']   # gets specific region from input ROOT file
+  l_samples  = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
+  l_sig_regs = ['preselection']   # gets specific region from input ROOT file
   cut_sel    = ['ntag4']     # corresponds to set of cuts in cuts.py 
   ###
 
   ### Loose analysis plotting
-  #l_vars     = ['m_hh','pT_h1']
-  l_vars     = ['h1_Pt']
-  l_vars     = ['m_hh']
-  l_samples  = ['loose','loose_kl','loose_kt']
+  l_vars     = ['m_hh', 'h1_Pt','nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
+  l_vars     = ['h1_M', 'h2_M', 'h2_Pt', 'pT_hh']
   l_samples  = ['loose']
-  l_sig_regs = ['preselection'] 
+  
+  l_vars = [
+            'nnscore_SlfCoup_m20.0_sig',
+            'nnscore_SlfCoup_m10.0_sig',
+            'nnscore_SlfCoup_m7.0_sig',
+            'nnscore_SlfCoup_m5.0_sig',
+            'nnscore_SlfCoup_m2.0_sig',
+            'nnscore_SlfCoup_m1.0_sig',
+            'nnscore_SlfCoup_m0.5_sig',
+            'nnscore_SlfCoup_0.5_sig',
+            'nnscore_SlfCoup_1.0_sig',
+            'nnscore_SlfCoup_2.0_sig',
+            'nnscore_SlfCoup_3.0_sig',
+            'nnscore_SlfCoup_5.0_sig',
+            'nnscore_SlfCoup_7.0_sig',
+            'nnscore_SlfCoup_10.0_sig',
+            'nnscore_SlfCoup_20.0_sig']
+
   l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
   l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR', 'resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
+  
+  l_vars     = ['m_hh']
+  l_cut_sels = [
+          'resolved-finalSRNNlam_m20', 
+          'intermediate-finalSRNNlam_m20',    
+          'boosted-finalSRNNlam_m20', 
+          'resolved-finalSRNNlam_m10', 
+          'intermediate-finalSRNNlam_m10',    
+          'boosted-finalSRNNlam_m10',
+          'resolved-finalSRNNlam_m7', 
+          'intermediate-finalSRNNlam_m7',    
+          'boosted-finalSRNNlam_m7',
+          'resolved-finalSRNNlam_m5', 
+          'intermediate-finalSRNNlam_m5',    
+          'boosted-finalSRNNlam_m5', 
+          'resolved-finalSRNNlam_m2', 
+          'intermediate-finalSRNNlam_m2',    
+          'boosted-finalSRNNlam_m2', 
+          'resolved-finalSRNNlam_m1', 
+          'intermediate-finalSRNNlam_m1',    
+          'boosted-finalSRNNlam_m1',
+          'resolved-finalSRNNlam_m0p5', 
+          'intermediate-finalSRNNlam_m0p5',    
+          'boosted-finalSRNNlam_m0p5', 
+          'resolved-finalSRNNlam0p5', 
+          'intermediate-finalSRNNlam0p5',    
+          'boosted-finalSRNNlam0p5', 
+          'resolved-finalSRNN', 
+          'intermediate-finalSRNN',    
+          'boosted-finalSRNN',
+          'resolved-finalSRNNlam2', 
+          'intermediate-finalSRNNlam2',    
+          'boosted-finalSRNNlam2',
+          'resolved-finalSRNNlam3', 
+          'intermediate-finalSRNNlam3',    
+          'boosted-finalSRNNlam3', 
+          'resolved-finalSRNNlam5', 
+          'intermediate-finalSRNNlam5',    
+          'boosted-finalSRNNlam5', 
+          'resolved-finalSRNNlam7', 
+          'intermediate-finalSRNNlam7',    
+          'boosted-finalSRNNlam7', 
+          'resolved-finalSRNNlam10', 
+          'intermediate-finalSRNNlam10',    
+          'boosted-finalSRNNlam10', 
+          'resolved-finalSRNNlam20', 
+          'intermediate-finalSRNNlam20',    
+          'boosted-finalSRNNlam20'
+  ]
+  
+  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR',
+                'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN',
+                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10','boosted-finalSRNNlam10',
+               ] 
+  
   ###
 
   lumi    =  3000.0 #24.3 
@@ -97,7 +169,7 @@ def main():
   UnitNorm = False
   IsLogY   = True
 
-  annotate_text = 'Pileup 0'#, No k-factors'
+  annotate_text = ''#, No k-factors'
   savedir = os.getcwd()+'/figs'+"/"+dir
 
 
@@ -210,7 +282,7 @@ def calc_selections(var, yield_var, dir, savedir, analysis, lumi, save_name, sig
   d_samp = configure_samples()
   #
   # Get dictionary of histogram configurations from variables.py
-  d_vars = configure_vars()
+  d_vars = configure_vars(cut_sel)
   
   cut_string, l_cuts = configure_cuts(cut_sel) 
   #
@@ -377,9 +449,9 @@ def calc_selections(var, yield_var, dir, savedir, analysis, lumi, save_name, sig
     d_bkg_leg['samp1'] = mk_leg(0.64, 0.38, 0.88, 0.90, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
   else:
     # Legend for signals
-    leg = mk_leg(0.57, 0.77, 0.95, 0.82, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
+    leg = mk_leg(0.57, 0.70, 0.95, 0.91, cut_sel, l_sampOther, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.045)
     # Legend for backgrounds
-    d_bkg_leg['samp1'] = mk_leg(0.57, 0.35, 0.95, 0.75, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.028)
+    d_bkg_leg['samp1'] = mk_leg(0.77, 0.40, 0.93, 0.69, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.045, Ncols=1)
   #d_bkg_leg['samp1'] = mk_leg(0.57, 0.28, 0.95, 0.7, cut_sel, l_samp_bkg, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.03)
 
   print('==============================================')
@@ -400,7 +472,10 @@ def calc_selections(var, yield_var, dir, savedir, analysis, lumi, save_name, sig
     h_mcErr.SetMarkerColorAlpha(kWhite, 0)
     h_mcErr.SetMarkerSize(0)
     #h_mcErr.SetMarkerColorAlpha(kWhite, 0)
-    leg.AddEntry(h_mcErr, 'Bkg ({0:.3g}, {1})'.format(nTotBkg, int(nTotBkgRaw)), 'lf')
+    if show_yields_in_leg:
+      leg.AddEntry(h_mcErr, 'Bkg ({0:.3g}, {1})'.format(nTotBkg, int(nTotBkgRaw)), 'lf')
+    else:
+      leg.AddEntry(h_mcErr, 'Total background')
   # ----------------------------------------------------------------- 
   
   # ----------------------------------------------------------------- 
@@ -503,11 +578,11 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   else:
     gpRight = 0.05
     can  = TCanvas('','',1000,800)
-  gpTop = 0.08
+  gpTop = 0.05
   gpBot = 0.18
   #can  = TCanvas('','',1000,1000)
     
-  d_vars = configure_vars()
+  d_vars = configure_vars(cut_sel)
   
   #==========================================================
   # Build canvas
@@ -595,7 +670,6 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, print_lumi)
 
   gPad.RedrawAxis() 
-  
 
   #==========================================================
   # save everything
@@ -616,30 +690,32 @@ def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, pr
   if legend_outside_plot:
     myText(0.7, 0.92, 'Sample (Weighted, Fraction, Raw) ', 0.03)
   else:
-    myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+    if show_yields_in_leg:
+      myText(0.6, 0.83, 'Sample (Weighted, Fraction, Raw) ', 0.03)
+    else: pass
   #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF, xqcut 30 GeV), ' + NTUP_status, text_size*0.6, kGray+1)
   #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1 (LO xsec, NLOPDF), ' + NTUP_status, text_size*0.6, kGray+1)
-  myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1', text_size*0.6, kGray+1)
+  #myText(0.22, 0.93, 'MadGraph5 2.6.2 + Pythia 8.230 + Delphes 3.4.1', text_size*0.6, kGray+1)
   myText(0.42, 0.84, GROUP_status, text_size*0.8, kBlack)
-  myText(0.18, 0.84, '#sqrt{s}' + ' = {0}, {1:.0f}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
+  myText(0.20, 0.87, '#sqrt{s}' + ' = {0}, {1:.0f}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
   
   analysis = analysis.title()
   cut_name = cut_sel.split('-')
   cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1] 
   if 'preselection' in sig_reg:
-    myText(0.18, 0.80, cut_txt, text_size, kBlack) 
+    myText(0.20, 0.82, cut_txt, text_size, kBlack) 
   if 'signal' in sig_reg:
-    myText(0.18, 0.80, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.20, 0.82, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'control' in sig_reg:
-    myText(0.18, 0.80, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.20, 0.80, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
   if 'sideband' in sig_reg:
-    myText(0.18, 0.80, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
+    myText(0.20, 0.80, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
   
   # Additional annotations
   if not annotate_text == '':
     if do_BTagWeight:
       annotate_text += ', N(b-tag) = 4'
-    myText(0.42, 0.80, annotate_text, text_size*0.8, kGray+2) 
+    myText(0.42, 0.82, annotate_text, text_size*0.8, kGray+2) 
   #
   #---------------------------------------------------------------
   
@@ -674,7 +750,7 @@ def mk_mcErr(hStack, pc_sys, Nbins=100, xmin=0, xmax=100, variable_bin=False, hX
   return h_mcErr
 
 #____________________________________________________________________________
-def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.05) :
+def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_raw, sampSet_type='bkg', txt_size=0.05, Ncols=1) :
   '''
   @l_samp : Constructs legend based on list of samples 
   @nTotBkg : Total background events
@@ -692,7 +768,7 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
   leg = TLegend(xmin,ymin,xmax,ymax)
   leg.SetBorderSize(0)
   leg.SetTextSize(txt_size)
-  leg.SetNColumns(1)
+  leg.SetNColumns(Ncols)
   leg.SetTextFont(132)
 
   # legend markers 
@@ -701,50 +777,62 @@ def mk_leg(xmin, ymin, xmax, ymax, cut_sel, l_samp, d_samp, nTotBkg, d_hists, d_
     'sig'  : 'l',
     }
 
+  # Entries not to show 
+  l_leg_do_not_show = [
+   'loose_ptj1_200_to_500_2b2j'    ,
+   'loose_ptj1_500_to_1000_2b2j'   ,
+   'loose_ptj1_1000_to_infty_2b2j' ,
+   'loose_ptj1_200_to_500_4b'    ,
+   'loose_ptj1_500_to_1000_4b'   ,
+   'loose_ptj1_1000_to_infty_4b' ,
+   'loose_noGenFilt_ttbb',
+   'loose_noGenFilt_bbh',
+   'loose_noGenFilt_wh'
+  ] 
+
   # Need to reverse background order so legend is filled as histogram is stacked
   if sampSet_type == 'bkg':
     l_samp = [x for x in reversed(l_samp)]
   for samp in l_samp: 
-    #print( 'Processing {0}'.format(samp) )
+    #print( 'Processing legend {0}'.format(samp) )
     # obtain sample attributes 
     hist        = d_hists[samp][0]
     sample_type = d_samp[samp]['type']
     leg_entry   = d_samp[samp]['leg']
-    #if "HH" in leg_entry:
-    #  leg_entry = leg_entry+" x100"
     legMk       = d_legMk[sample_type]
-  
-    #print('samp: {0}, type: {1}, legMk: {2}'.format(samp, sample_type, legMk) ) 
-    # calculate the % of each background component and put in legend
-    pc_yield   = 0
-    if sample_type == 'bkg':
-      pc_yield = 0.
-      if nTotBkg >0.:
-        pc_yield = 100 * ( d_yield[samp] / float(nTotBkg) )
-      leg_txt = '{0} ({1:.2g}, {2:.1f}%, {3:.0f})'.format( leg_entry, d_yield[samp], pc_yield, d_raw[samp] )
-    if sample_type == 'sig':
-      leg_txt = '{0} ({1:.2g}, {2:.0f})'.format(leg_entry, d_yield[samp], d_raw[samp])
-
-    leg.AddEntry(hist, leg_txt, legMk)
-    #print('{0}, {1}, {2:.3f}, {3:.3f}%'.format(sig_reg, samp, d_yield[samp], pc_yield) )
     print('{0}, {1}, {2:.3f} +/- {3:.3f}, {4:.0f}'.format(cut_sel, samp, d_yield[samp], d_yieldErr[samp], d_raw[samp]) )
+    
+    if samp not in l_leg_do_not_show:   
+
+      # calculate the % of each background component and put in legend
+      pc_yield   = 0
+      if sample_type == 'bkg':
+        pc_yield = 0.
+        if nTotBkg >0.:
+          pc_yield = 100 * ( d_yield[samp] / float(nTotBkg) )
+        if show_yields_in_leg:
+          leg_txt = '{0} ({1:.2g}, {2:.1f}%, {3:.0f})'.format( leg_entry, d_yield[samp], pc_yield, d_raw[samp] )
+        else:
+          leg_txt = '{0}'.format( leg_entry )
+      if sample_type == 'sig':
+        if show_yields_in_leg:
+          leg_txt = '{0} ({1:.2g}, {2:.0f})'.format(leg_entry, d_yield[samp], d_raw[samp])
+        else:
+          leg_txt = '{0}'.format( leg_entry )
+
+      leg.AddEntry(hist, leg_txt, legMk)
+      #print('{0}, {1}, {2:.3f}, {3:.3f}%'.format(sig_reg, samp, d_yield[samp], pc_yield) )
  
-  
   return leg
     
 #_________________________________________________________________________
 def mkdir(dirPath):
-
   # Makes new directory @dirPath
-
   try:
     os.makedirs(dirPath)
     print 'Successfully made new directory ' + dirPath
   except OSError:
     pass
 
-
- 
 if __name__ == "__main__":
   main()
-
