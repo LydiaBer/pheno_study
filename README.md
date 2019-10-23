@@ -1,5 +1,20 @@
 # Phenomenology Study
 
+## Automated ntuples to paper plots in 3 easy steps
+
+1. Clone the repository:
+```git clone https://github.com/LydiaBer/pheno_study.git```
+
+2. Go into the plotting directory:
+```cd pheno_study/analysis/plotting```
+
+3. Run the automated script and wait for plots to appear in ```figs``` directory:
+```./runMe_for_paper_results.sh```
+
+Enjoy.
+
+## Code structure
+
 This code consists of the following directories:
 
 __delphes__ to perform event reconstruction and detector smearing & efficiencies

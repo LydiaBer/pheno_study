@@ -1,3 +1,16 @@
+## Automated ntuples to paper plots in 3 easy steps
+
+1. Clone the repository:
+```git clone https://github.com/LydiaBer/pheno_study.git```
+
+2. Go into the plotting directory:
+```cd pheno_study/analysis/plotting```
+
+3. Run the automated script and wait for plots to appear in ```figs``` directory:
+```./runMe_for_paper_results.sh```
+
+Enjoy.
+
 # Plotting code
 
 This code takes as input the ROOT files produced by the resolved, intermediate and boosted analysis codes. 
@@ -10,11 +23,6 @@ The main files are as follows:
 3) ```variables.py``` : defines binning and labelling for variables we want to make histograms for.
 4) ```cuts.py```: defines additional cut selections to be applied by specifying ```cut_sel``` in ```plot.py```.
 5) ```beautify.py```: contains additional plotting functions to change plot formatting. 
-
-## Automated production of paper plots from ntuples
-Simply run the script ```runMe_for_paper_results.sh```
-to obtain the 1D and 2D chi square plots in ```figs/``` directory for the paper.
-Please see this script to see the sequence of scripts one needs to run.
 
 ## Hadding input ROOT files
 
