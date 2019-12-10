@@ -60,8 +60,7 @@ def main():
                 'boosted-finalSR',
                 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined'] 
  
-  l_zCols = ['chiSq', 'chiSqSyst1pc']
-  l_zCols = ['chiSqSyst1pc']
+  l_zCols = ['chiSq', 'chiSqSyst0p3pc']
   IsLogY = False
   #l_zCols = ['xsec','acceptance']
   #IsLogY = True
@@ -78,18 +77,18 @@ def main():
   #  'xsec'              : r'xsec [pb]',
   #}
   d_axis_tlatex = {
-    'acceptance'        : 'A #times \epsilon (S / #sigma #times L) [%]',
-    'xsec'              : 'xsec [pb]',
-    'N_sig'             : 'Signal yield',
-    'N_sig_raw'         : 'Raw signal yield',
-    'SoverB'            : 'S / B',
-    'SoverSqrtB'        : 'S / #sqrt{B}',
-    'SoverSqrtBSyst1pc' : 'S / #sqrt{B + (1%B)^{2}}',
-    'SoverSqrtBSyst5pc' : 'S / #sqrt{B + (5%B)^{2}}',
-    'chiSq'             : '#chi^{2} = (S #minus S_{SM})^{2} / B',
-    'chiSqSyst1pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
-    'sum_chiSqSyst1pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
-    'chiSqSyst5pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})',
+    'acceptance'          : 'A #times \epsilon (S / #sigma #times L) [%]',
+    'xsec'                : 'xsec [pb]',
+    'N_sig'               : 'Signal yield',
+    'N_sig_raw'           : 'Raw signal yield',
+    'SoverB'              : 'S / B',
+    'SoverSqrtB'          : 'S / #sqrt{B}',
+    'SoverSqrtBSyst1pc'   : 'S / #sqrt{B + (1%B)^{2}}',
+    'SoverSqrtBSyst0p3pc' : 'S / #sqrt{B + (0.3%B)^{2}}',
+    'chiSq'               : '#chi^{2} = (S #minus S_{SM})^{2} / B',
+    'chiSqSyst0p3pc'      : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (0.3%B)^{2})',
+    'chiSqSyst1pc'        : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})',
+    'chiSqSyst5pc'        : '#chi^{2}_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})',
   }
 
   d_in_data = {}

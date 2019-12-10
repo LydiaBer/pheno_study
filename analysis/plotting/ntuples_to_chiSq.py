@@ -38,6 +38,12 @@ samp_nom = 'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0'
 
 # Do lambda_i vs lambda_j scan
 do_lambda_ij = True
+  
+# b-tagging improvement factor for 4 b-quarks (hh4b signal, 4b bkg) 
+bTagImprove_4b = 1.36
+
+# 2 b-quarks (2b2j, ttbar bkg)
+bTagImprove_2b = 1.17
 
 #____________________________________________________________________________
 def main():
@@ -55,64 +61,70 @@ def main():
   # Signal region (define in cuts.py)
   l_sig_regs = ['preselection'] 
   # Cut selections
-  l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection',
-                'resolved-commonSR',     'intermediate-commonSR',     'boosted-commonSR',
-                'resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR', 
-                'resolved-finalSRNN',      'intermediate-finalSRNN',      'boosted-finalSRNN' ] 
-
   l_cut_sels = [
-          'resolved-finalSRNNlam_m20', 
-          'intermediate-finalSRNNlam_m20',    
-          'boosted-finalSRNNlam_m20', 
-          'resolved-finalSRNNlam_m10', 
-          'intermediate-finalSRNNlam_m10',    
-          'boosted-finalSRNNlam_m10',
-          'resolved-finalSRNNlam_m7', 
-          'intermediate-finalSRNNlam_m7',    
-          'boosted-finalSRNNlam_m7',
-          'resolved-finalSRNNlam_m5', 
-          'intermediate-finalSRNNlam_m5',    
-          'boosted-finalSRNNlam_m5', 
-          'resolved-finalSRNNlam_m2', 
-          'intermediate-finalSRNNlam_m2',    
-          'boosted-finalSRNNlam_m2', 
-          'resolved-finalSRNNlam_m1', 
-          'intermediate-finalSRNNlam_m1',    
-          'boosted-finalSRNNlam_m1',
-          'resolved-finalSRNNlam_m0p5', 
-          'intermediate-finalSRNNlam_m0p5',    
-          'boosted-finalSRNNlam_m0p5', 
-          'resolved-finalSRNNlam0p5', 
-          'intermediate-finalSRNNlam0p5',    
-          'boosted-finalSRNNlam0p5', 
-          'resolved-finalSRNN', 
-          'intermediate-finalSRNN',    
-          'boosted-finalSRNN',
-          'resolved-finalSRNNlam2', 
-          'intermediate-finalSRNNlam2',    
-          'boosted-finalSRNNlam2',
-          'resolved-finalSRNNlam3', 
-          'intermediate-finalSRNNlam3',    
-          'boosted-finalSRNNlam3', 
-          'resolved-finalSRNNlam5', 
-          'intermediate-finalSRNNlam5',    
-          'boosted-finalSRNNlam5', 
-          'resolved-finalSRNNlam7', 
-          'intermediate-finalSRNNlam7',    
-          'boosted-finalSRNNlam7', 
-          'resolved-finalSRNNlam10', 
-          'intermediate-finalSRNNlam10',    
-          'boosted-finalSRNNlam10', 
-          'resolved-finalSRNNlam20', 
-          'intermediate-finalSRNNlam20',    
-          'boosted-finalSRNNlam20'
-  ]
+                # Inclusive analyses (no multibin)
+                'SR-res',
+                'SR-int',
+                'SR-bst',
 
-  l_cut_sels = ['resolved-finalSR',      'intermediate-finalSR',      'boosted-finalSR',
-                'resolved-finalSRNN',    'intermediate-finalSRNN',    'boosted-finalSRNN', 
-                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10',    'boosted-finalSRNNlam10' ] 
-  #================================================
-  
+                # Multibin baseline (no DNN)
+                'SR-res-200mHH250',
+                'SR-res-250mHH300',
+                'SR-res-300mHH350',
+                'SR-res-350mHH400',
+                'SR-res-400mHH500',
+                'SR-res-500mHH',
+                'SR-int-200mHH400',
+                'SR-int-400mHH600',
+                'SR-int-600mHH',
+                'SR-bst-500mHH700',
+                'SR-bst-700mHH900',
+                'SR-bst-900mHH',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 1
+                'SRNN-res-200mHH250-lam1',
+                'SRNN-res-250mHH300-lam1',
+                'SRNN-res-300mHH350-lam1',
+                'SRNN-res-350mHH400-lam1',
+                'SRNN-res-400mHH500-lam1',
+                'SRNN-res-500mHH-lam1',
+                'SRNN-int-200mHH400-lam1',
+                'SRNN-int-400mHH600-lam1',
+                'SRNN-int-600mHH-lam1',
+                'SRNN-bst-500mHH700-lam1',
+                'SRNN-bst-700mHH900-lam1',
+                'SRNN-bst-900mHH-lam1',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 5
+                'SRNN-res-200mHH250-lam5',
+                'SRNN-res-250mHH300-lam5',
+                'SRNN-res-300mHH350-lam5',
+                'SRNN-res-350mHH400-lam5',
+                'SRNN-res-400mHH500-lam5',
+                'SRNN-res-500mHH-lam5',
+                'SRNN-int-200mHH400-lam5',
+                'SRNN-int-400mHH600-lam5',
+                'SRNN-int-600mHH-lam5',
+                'SRNN-bst-500mHH700-lam5',
+                'SRNN-bst-700mHH900-lam5',
+                'SRNN-bst-900mHH-lam5',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 10
+                'SRNN-res-200mHH250-lam10',
+                'SRNN-res-250mHH300-lam10',
+                'SRNN-res-300mHH350-lam10',
+                'SRNN-res-350mHH400-lam10',
+                'SRNN-res-400mHH500-lam10',
+                'SRNN-res-500mHH-lam10',
+                'SRNN-int-200mHH400-lam10',
+                'SRNN-int-400mHH600-lam10',
+                'SRNN-int-600mHH-lam10',
+                'SRNN-bst-500mHH700-lam10',
+                'SRNN-bst-700mHH900-lam10',
+                'SRNN-bst-900mHH-lam10'
+               ]  
+
+
   # -------------------------------------------------------------
   # Argument parser
   parser = argparse.ArgumentParser(description='Analyse background/signal TTrees and make plots.')
@@ -186,8 +198,8 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
   # ---------------------------------------
   with open(save_file, 'w') as f_out:
     header  = 'TopYuk,SlfCoup,N_bkg,N_sig,N_sig_raw,'
-    header += 'SoverB,SoverSqrtB,SoverSqrtBSyst1pc,SoverSqrtBSyst5pc,'
-    header += 'chiSq,chiSqSyst1pc,chiSqSyst0p5pc,acceptance,xsec\n'
+    header += 'SoverB,SoverSqrtB,SoverSqrtBSyst1pc,SoverSqrtBSyst0p3pc,'
+    header += 'chiSq,chiSqSyst1pc,chiSqSyst0p3pc,acceptance,xsec\n'
     f_out.write( header )
 
     for signal in l_sig_list:  
@@ -210,7 +222,7 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
 
     save_file_2d = save_file.replace('CHISQ_', 'CHISQ_2Dlambda_')
     with open(save_file_2d, 'w') as f_out2d:
-      header2d = 'lambda_i,lambda_j,chiSq_ij_Sys1pc,chiSq_ij\n'
+      header2d = 'lambda_i,lambda_j,chiSq_ij_Sys1pc,chiSq_ij_Sys0p3pc,chiSq_ij\n'
       f_out2d.write( header2d )
 
       for signal_i in l_sig_list:
@@ -226,10 +238,11 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
           lambda_j = float( signal_j.split('_')[7].replace('m', '-') )
           
           # Extract chi squares
-          chiSq       = float(long_out.split(',')[9])
-          chiSqSys1pc = float(long_out.split(',')[10])
+          chiSq         = float(long_out.split(',')[9])
+          chiSqSys1pc   = float(long_out.split(',')[10])
+          chiSqSys0p3pc = float(long_out.split(',')[11])
       
-          out_str = '{0:.1f},{1:.1f},{2:.4g},{3:.4g}\n'.format(lambda_i, lambda_j, chiSqSys1pc, chiSq)
+          out_str = '{0:.1f},{1:.1f},{2:.4g},{3:.4g},{4:.4g}\n'.format(lambda_i, lambda_j, chiSqSys1pc, chiSqSys0p3pc, chiSq)
           f_out2d.write(out_str)
 
   print('\n------------------------------------------------------')
@@ -275,15 +288,32 @@ def apply_cuts_weights_to_tree(f, hname, var, lumi, unweighted_cuts='', Nbins=10
   th1 = TH1D('h_sig', "", Nbins, xmin, xmax) 
   ttree = f.Get('preselection')
 
+  # Normalising number of raw events
   N_raw = f.Get('loose_cutflow').GetBinContent(1)
 
+  # Obtain cross-sections
   d_xsecs = configure_xsecs()
   xsec = d_xsecs[hname]
+ 
+  # Hard-coded k-factors and b-tagging improvement factors
+  kfactor = 1.
+  if 'ttbar' in hname:
+    kfactor = 1.4  * bTagImprove_2b # NLO / LO
+  if '2b2j' in hname:
+    kfactor = 1.3  * bTagImprove_2b # NLO / LO
+  if '4b' in hname:
+    kfactor = 1.6  * bTagImprove_4b  # NLO / LO
+  if 'signal_hh' in hname:
+    kfactor = 1.45 * bTagImprove_4b # (NNLO+NNLL) / NLO 
   
+  # Impose 4 b-tags as weight 
   if do_BTagWeight:
-    my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
+    bTagWeight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
   else:
-    my_weight = 1.
+    bTagWeight = 1.
+
+  # Construct weight string
+  my_weight = '{0} * {1}'.format(bTagWeight, kfactor)
 
   cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format( unweighted_cuts, xsec, lumi, my_weight, N_raw ) # Factor of 1000 to convert xsec from ifb to ipb
 
@@ -338,32 +368,42 @@ def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
   N_sig_raw = nRaw 
   print('Signal {0} yield: {1:.3g}, raw: {2}'.format(signal, N_sig, N_sig_raw))
 
-  # ------------------------------------------------------
-  # Calculate purity S / B and significance S / sqrt(B)
-  # ------------------------------------------------------
-  SoverB            = N_sig / N_bkg
-  SoverSqrtB        = N_sig / math.sqrt( N_bkg )
-  SoverSqrtBSyst1pc = N_sig / math.sqrt( N_bkg + (0.01 * N_bkg ) ** 2 )
-  SoverSqrtBSyst5pc = N_sig / math.sqrt( N_bkg + (0.05 * N_bkg ) ** 2 )
-  
-  # ------------------------------------------------------
-  # Calculate the chi squares
-  # ------------------------------------------------------
-  chiSq          = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg )
-  chiSqSyst1pc   = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.01 * N_bkg ) ** 2 )
-  chiSqSyst0p5pc = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.005 * N_bkg ) ** 2 )
-  
-  # ------------------------------------------------------
-  # Calculate acceptance
-  # ------------------------------------------------------
-  acceptance = N_sig / ( xsec * lumi * 1000.)
+  SoverB = 0.
+  SoverSqrtB = 0.
+  SoverSqrtBSyst1pc   = 0.
+  SoverSqrtBSyst0p3pc = 0.
+  chiSq = 0.
+  chiSqSyst1pc = 0.
+  chiSqSyst0p3pc = 0.
+  acceptance = 0.
+
+  if N_bkg > 0.:
+    # ------------------------------------------------------
+    # Calculate purity S / B and significance S / sqrt(B)
+    # ------------------------------------------------------
+    SoverB              = N_sig / N_bkg
+    SoverSqrtB          = N_sig / math.sqrt( N_bkg )
+    SoverSqrtBSyst1pc   = N_sig / math.sqrt( N_bkg + (0.01 * N_bkg ) ** 2 )
+    SoverSqrtBSyst0p3pc = N_sig / math.sqrt( N_bkg + (0.003 * N_bkg ) ** 2 )
+    
+    # ------------------------------------------------------
+    # Calculate the chi squares
+    # ------------------------------------------------------
+    chiSq          = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg )
+    chiSqSyst1pc   = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.01 * N_bkg ) ** 2 )
+    chiSqSyst0p3pc = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.003 * N_bkg ) ** 2 )
+    
+    # ------------------------------------------------------
+    # Calculate acceptance
+    # ------------------------------------------------------
+    acceptance = N_sig / ( xsec * lumi * 1000.)
 
   # ------------------------------------------------------
   # Construct string of values to output
   # ------------------------------------------------------
-  out_str  = '{0},{1},{2:.4g},{3:.4g},{4:.4g},'.format( TopYuk, SlfCoup,      N_bkg,             N_sig, N_sig_raw )
-  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},'.format( SoverB, SoverSqrtB,   SoverSqrtBSyst1pc, SoverSqrtBSyst5pc  )
-  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},{4}'.format( chiSq,  chiSqSyst1pc, chiSqSyst0p5pc, acceptance, xsec )
+  out_str  = '{0},{1},{2:.4g},{3:.4g},{4:.4g},'.format( TopYuk, SlfCoup,         N_bkg,             N_sig, N_sig_raw )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},'.format( SoverB, SoverSqrtB,      SoverSqrtBSyst1pc, SoverSqrtBSyst0p3pc  )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},{4}'.format( chiSq,  chiSqSyst1pc, chiSqSyst0p3pc, acceptance, xsec )
   out_str += '\n'
 
   return out_str

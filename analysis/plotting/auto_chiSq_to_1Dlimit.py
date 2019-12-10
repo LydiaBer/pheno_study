@@ -53,72 +53,33 @@ myDarkBlue       = TColor.GetColor('#08306b')
 myBlack          = TColor.GetColor('#000105')
 
 # cut_sel colour dictionary
-d_cut_sel_colour = {'resolved-finalSR' : myRedPink3,
-                    'intermediate-finalSR' : myRedPink6,
-                    'boosted-finalSR' : myRedPink9,
-                    'resolved-finalSR_AND_intermediate-finalSR_combined' : myRed,
-                    'boosted-finalSR_AND_resolved-finalSR_AND_intermediate-finalSR_combined_combined' : myPink,
-
-                    'resolved-finalSRNNQCD' : myVeryLightBlue,
-                    'intermediate-finalSRNNQCD' : myLightBlue,
-                    'boosted-finalSRNNQCD' : myMediumBlue,
-                    'resolved-finalSRNNQCD_AND_intermediate-finalSRNNQCD_combined' : myDarkBlue,
-                    'boosted-finalSRNNQCD_AND_resolved-finalSRNNQCD_AND_intermediate-finalSRNNQCD_combined_combined' : myBlack,
-
-                    'resolved-finalSRNNQCDTop' : myMediumOrange,
-                    'intermediate-finalSRNNQCDTop' : myDarkOrange,
-                    'boosted-finalSRNNQCDTop' : myDarkerOrange,
-                    'resolved-finalSRNNQCDTop_AND_intermediate-finalSRNNQCDTop_combined' : myBrown,
-                    'boosted-finalSRNNQCDTop_AND_resolved-finalSRNNQCDTop_AND_intermediate-finalSRNNQCDTop_combined_combined' : myYellow,
+d_cut_sel_colour = {
+                    'SR_res_multibin_combined' : myPink,
+                    'SR_int_multibin_combined' : myMediumPurple,
+                    'SR_bst_multibin_combined' : myDarkPurple,
+                    'SR_all_multibin_combined' : myMediumBlue,
                     
-                    #'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined': myLightPurple,
-                    #'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined': myMediumPurple,
-                    #'boosted-finalSRNNlow_AND_boosted-finalSRNN_combined': myDarkPurple, 
-
-                    'resolved-finalSRNN' : myDarkPurple,
-                    'intermediate-finalSRNN' : myMediumPurple,
-                    'boosted-finalSRNN' : myLightPurple,
-                    #'resolved-finalSRNN_AND_intermediate-finalSRNN_combined' : myVeryDarkPurple,
-                    'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined': myMediumBlue,
-                    'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined': myMediumBlue,
-                    'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined' : myMediumBlue,
-                    #boosted-finalSRNN_AND_resolved-finalSRNN_AND_intermediate-finalSRNN_combined_combined' : myGrey,
-
-                    'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined' : myBrightGreen,
-                    'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined' : myMediumGreen,
-                    'boosted-finalSRNNlow_AND_boosted-finalSRNN_combined' : myDarkGreen,
-                    'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined' : myMediumBlue,
-                    'boosted-finalSRNNlow_AND_boosted-finalSRNN_combined_AND_resolved-finalSRNNlow_AND_resolved-finalSRNN_combined_AND_intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined_combined_combined' : myRed,
-
-
-                    'resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined' : myBrightGreen,
-                    'intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined' : myMediumGreen,
-                    'boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined' : myDarkGreen,
-                    'resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined' : myMediumBlue,
-                    'boosted-finalSRNNlam10low_AND_boosted-finalSRNNlam10_combined_AND_resolved-finalSRNNlam10low_AND_resolved-finalSRNNlam10_combined_AND_intermediate-finalSRNNlam10low_AND_intermediate-finalSRNNlam10_combined_combined_combined' : myRed,
-
-                    'resolved-finalSRN$lam' : myDarkerOrange,
-                    'intermediate-finalSRNNlam' : myDarkOrange,
-                    'boosted-finalSRNNlam' : myMediumOrange,
+                    'SRNN_res_multibin_lam1_combined' : myPink,
+                    'SRNN_int_multibin_lam1_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lam1_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lam1_combined' : myMediumBlue,
                     
-                    'resolved-finalSRNNlamm5' : myDarkerOrange,
-                    'intermediate-finalSRNNlamm5' : myDarkOrange,
-                    'boosted-finalSRNNlamm5' : myMediumOrange,
+                    'SRNN_res_multibin_lam5_combined' : myPink,
+                    'SRNN_int_multibin_lam5_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lam5_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lam5_combined' : myMediumBlue,
                     
-                    'resolved-finalSRNNlam10' : myDarkerOrange,
-                    'intermediate-finalSRNNlam10' : myDarkOrange,
-                    'boosted-finalSRNNlam10' : myMediumOrange,
-                    
-                    'resolved-finalSRNNlam10' : myDarkPurple,
-                    'intermediate-finalSRNNlam10' : myMediumPurple,
-                    'boosted-finalSRNNlam10' : myLightPurple,
+                    'SRNN_res_multibin_lam10_combined' : myPink,
+                    'SRNN_int_multibin_lam10_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lam10_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lam10_combined' : myMediumBlue,
                    }
 
 # Labels
 SQRTS_LUMI = '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}'
 
 # Switch to true to zoom in on x-axis 
-zoom_in = False
+zoom_in = True
 
 #____________________________________________________________________________
 def main():
@@ -134,20 +95,28 @@ def main():
   legend_outside_plot = False
  
   # Cut selections
-  # all step by step improvements 
-  ###
-  #l_cut_sels = ['resolved-finalSR','resolved-finalSRNNQCD', 'resolved-finalSRNNQCDTop','resolved-finalSRNN', 'resolved-finalSRNNlow_AND_resolved-finalSRNN_combined']
-  #l_cut_sels = ['intermediate-finalSR','intermediate-finalSRNNQCD', 'intermediate-finalSRNNQCDTop','intermediate-finalSRNN', 'intermediate-finalSRNNlow_AND_intermediate-finalSRNN_combined']
-  #l_cut_sels = ['boosted-finalSR','boosted-finalSRNNQCD', 'boosted-finalSRNNQCDTop','boosted-finalSRNN', 'boosted-finalSRNNlow_AND_boosted-finalSRNN_combined']
-
-  # combos
   d_SRsets = {}
-  d_SRsets['SRbase']    = ['resolved-finalSR', 'intermediate-finalSR', 'boosted-finalSR', 'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined']
-  d_SRsets['SRNN']      = ['resolved-finalSRNN', 'intermediate-finalSRNN', 'boosted-finalSRNN', 'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
-  d_SRsets['SRNNlam10'] = ['resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10', 'boosted-finalSRNNlam10', 'resolved-finalSRNNlam10_intermediate-finalSRNNlam10_boosted-finalSRNNlam10_combined']
- 
-  l_zCols = ['chiSqSyst1pc', 'chiSqSyst0p5pc', 'chiSq']
+  d_SRsets['baseline']   = ['SR_res_multibin_combined', 
+                            'SR_int_multibin_combined', 
+                            'SR_bst_multibin_combined', 
+                            'SR_all_multibin_combined']
+
+  d_SRsets['SRNN_lam1']  = ['SRNN_res_multibin_lam1_combined', 
+                            'SRNN_int_multibin_lam1_combined', 
+                            'SRNN_bst_multibin_lam1_combined', 
+                            'SRNN_all_multibin_lam1_combined']
   
+  d_SRsets['SRNN_lam5']  = ['SRNN_res_multibin_lam5_combined', 
+                            'SRNN_int_multibin_lam5_combined', 
+                            'SRNN_bst_multibin_lam5_combined', 
+                            'SRNN_all_multibin_lam5_combined']
+  
+  d_SRsets['SRNN_lam10'] = ['SRNN_res_multibin_lam10_combined', 
+                            'SRNN_int_multibin_lam10_combined', 
+                            'SRNN_bst_multibin_lam10_combined', 
+                            'SRNN_all_multibin_lam10_combined']
+  
+  l_zCols = ['chiSqSyst0p3pc', 'chiSq']
   IsLogY = False
 
   d_axis_tlatex = {
@@ -159,10 +128,12 @@ def main():
     'SoverSqrtB'        : 'S / #sqrt{B}',
     'SoverSqrtBSyst1pc' : 'S / #sqrt{B + (1%B)^{2}}',
     'chiSq'             : '#chi^{2}',
+    'chiSqSyst0p3pc'    : '#chi^{2}',
     'chiSqSyst1pc'      : '#chi^{2}',
     'sum_chiSq'         : '#chi^{2}',
     'sum_chiSqSyst1pc'  : '#chi^{2}',
     'sum_chiSqSyst0p5pc' : '#chi^{2}',
+    'sum_chiSqSyst0p3pc' : '#chi^{2}',
   }
 
   d_in_data = {}
@@ -176,7 +147,7 @@ def main():
       if do_ktop:
         out_file = 'figs/limit1d_TopYuk_vary_SlfCoup_1p0_{0}_{1}'.format(cut_sel_out_name, zCol)
       else: 
-        out_file = 'figs/limit1d_TopYuk_1p0_SlfCoup_vary_{0}_{1}'.format(cut_sel_out_name, zCol)
+        out_file = 'figs/limit1d_TopYuk_1p0_SlfCoup_vary_{0}_{1}'.format(l_cut_sels[-1], zCol)
       
       for cut_sel in l_cut_sels:
         print(cut_sel)
@@ -213,7 +184,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   gpLeft = 0.11
   customise_gPad(top=0.08, bot=0.20, left=gpLeft, right=gpRight)
   
-  # construct legend
+  #------------------------------------------------------
+  # Construct legend
+  #------------------------------------------------------
   #xl1, yl1 = 0.45, 0.68
   #xl2, yl2 = xl1+0.25, yl1+0.20
   extra_space = (0.05*len(l_cut_sels))+(0.03*str(l_cut_sels).count("combined"))
@@ -226,12 +199,12 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       xl1, yl1 = 0.45, 0.5
   elif extra_space > 0.25:
     if zoom_in: 
-      xl1, yl1 = 0.45, 0.54
+      xl1, yl1 = 0.43, 0.38
     else:
-      xl1, yl1 = 0.45, 0.6
+      xl1, yl1 = 0.43, 0.6
   elif extra_space > 0.:
     if zoom_in: 
-      xl1, yl1 = 0.45, 0.54
+      xl1, yl1 = 0.35, 0.54
     else:
       xl1, yl1 = 0.48, 0.50
 
@@ -254,6 +227,24 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   leg.SetFillStyle(0) # transparent
   leg.SetTextSize(0.045)
   leg.SetTextFont(132)
+  
+  # ------------------------------------------------------ 
+  # ATLAS PHYS-PUB-2018-053 constraints
+  # ------------------------------------------------------ 
+  # 0% systematics limits
+  if 'chiSq' in zCol and 'pc' not in zCol:
+    HLLHC_lam1 = -0.5
+    HLLHC_lam2 = 5.0
+  # Use 0.3% systematics limits
+  else:
+    HLLHC_lam1 = -2.5
+    HLLHC_lam2 = 6.5
+  lim_ATL_HLLHC_left  = TBox (-8.2, 0., HLLHC_lam1, 5.)
+  lim_ATL_HLLHC_right = TBox (HLLHC_lam2, 0., 13.5, 5.)
+  lim_ATL_HLLHC_left.SetFillColorAlpha(kGray+1,  0.2)
+  lim_ATL_HLLHC_right.SetFillColorAlpha(kGray+1, 0.2)
+  
+  leg.AddEntry(lim_ATL_HLLHC_left, 'ATLAS 3 ab^{#minus1}', 'f')
   
   #------------------------------------------------------
   # Get and organise data
@@ -278,8 +269,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
 
     if 'combined' in cut_sel:
       print(zCol)
-      zCol = 'sum_' + str(zCol)
-    in_z = [float(i) for i in d_csv[zCol] ]
+      zCol_key = 'sum_' + str(zCol)
+    in_z = [float(i) for i in d_csv[zCol_key] ]
 
     l_SlfCoup_or_TopYuk = []
     l_chiSq   = []
@@ -304,6 +295,10 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       tg.SetPoint(i, x, y)
     d_tgraphs[cut_sel] = tg
   
+  #------------------------------------------------------
+  # Annotating text for plots
+  #------------------------------------------------------
+  
     if 'SRNN' in cut_sel:
       analysis = 'DNN'
     else:
@@ -313,12 +308,14 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       cut_txt = 'Combined '
     elif 'resolved' in cut_sel and 'intermediate' in cut_sel:
       cut_txt = 'Res + Int '
-    elif 'resolved' in cut_sel:
+    elif 'res' in cut_sel:
       cut_txt = 'Resolved '
-    elif 'intermediate' in cut_sel:
+    elif 'int' in cut_sel:
       cut_txt = 'Intermediate '
-    elif 'boosted' in cut_sel:
+    elif 'bst' in cut_sel or 'boosted' in cut_sel:
       cut_txt = 'Boosted '
+    elif 'all' in cut_sel:
+      cut_txt = 'Combined '
     else:
       cut_name = cut_sel.split('-')
       cut_txt = cut_name[0].capitalize()# + ' ' + cut_name[1] 
@@ -337,8 +334,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   
     if 'NN' in cut_sel: 
       if 'lam10' in cut_sel:
-        #cut_txt += ' #lambda_{10} '
         myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 10', 0.035, kGray+2, 0, True)
+      elif 'lam5' in cut_sel:
+        myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 5', 0.035, kGray+2, 0, True)
       else:
         myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 1', 0.035, kGray+2, 0, True)
 
@@ -351,7 +349,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       tg.Draw('PLA')
     else:
       tg.Draw('PL same')
-    
+   
     count+=1
     # ------------------------------------------------------ 
     # Attempt to search x where chiSq = 1, 3.84 points
@@ -405,8 +403,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
 
   if 'chiSqSyst1pc' in zCol:
     syst_txt = '1% systematics'
-  elif 'chiSqSyst0p5pc' in zCol:
-    syst_txt = '0.5% systematics'
+  elif 'chiSqSyst0p3pc' in zCol:
+    syst_txt = '0.3% systematics'
   elif 'chiSq' in zCol and 'pc' not in zCol:
     syst_txt = '0% systematics'
   else:
@@ -435,8 +433,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
         mymax = 1.5
     else:
       if zoom_in:
-        mymin = -10
-        mymax = 10
+        mymin = -8
+        mymax = 13
       else:
         mymin = -20
         mymax = 20
@@ -474,6 +472,11 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   #customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
   customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop)#, 2.8)
   
+
+  lim_ATL_HLLHC_left.Draw('same')
+  lim_ATL_HLLHC_right.Draw('same')
+ 
+
   #==========================================================
   # save everything
   can.cd()
@@ -533,7 +536,7 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
       xax.SetRangeUser(0.5,1.5) 
   else:
     if zoom_in:
-      xax.SetRangeUser(-10,10) 
+      xax.SetRangeUser(-8,13) 
     else:
       xax.SetRangeUser(-20,20) 
       #xax.SetRangeUser(-15,15) 

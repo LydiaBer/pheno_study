@@ -89,7 +89,8 @@ def get_samples_to_plot(analysis = ''):
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0', 
                  #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
                  #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
-                 #'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0', 
     ]
 
 
