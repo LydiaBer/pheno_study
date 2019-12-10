@@ -35,24 +35,31 @@ def main():
   # ------------------------------------------------------
   
   l_contours = [
-  'boosted-finalSR',
-  'intermediate-finalSR', 
-  'resolved-finalSR', 
-  'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined',
-  'boosted-finalSRNN',
-  'intermediate-finalSRNN', 
-  'resolved-finalSRNN', 
-  'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined']
+      'SR_res_multibin_combined', 
+      'SR_int_multibin_combined', 
+      'SR_bst_multibin_combined', 
+      'SR_all_multibin_combined',
+
+      'SRNN_res_multibin_lam1_combined', 
+      'SRNN_int_multibin_lam1_combined', 
+      'SRNN_bst_multibin_lam1_combined', 
+      'SRNN_all_multibin_lam1_combined',
+
+      #'SRNN_all_multibin_lam5_combined',
+      #'SRNN_all_multibin_lam10_combined'
+  ]
   
   d_tlatex = {
-    'resolved-finalSR'       : 'Resolved',
-    'intermediate-finalSR'   : 'Intermediate',
-    'boosted-finalSR'        : 'Boosted',
-    'resolved-finalSRNN'     : 'Resolved',
-    'intermediate-finalSRNN' : 'Intermediate',
-    'boosted-finalSRNN'      : 'Boosted',
-    'resolved-finalSR_intermediate-finalSR_boosted-finalSR_combined'       : 'Combined',
-    'resolved-finalSRNN_intermediate-finalSRNN_boosted-finalSRNN_combined' : 'Combined'
+    'SR_res_multibin_combined'         : 'Resolved',
+    'SR_int_multibin_combined'         : 'Intermediate',
+    'SR_bst_multibin_combined'         : 'Boosted',
+    'SR_all_multibin_combined'         : 'Combined',
+    'SRNN_res_multibin_lam1_combined'  : 'Resolved',
+    'SRNN_int_multibin_lam1_combined'  : 'Intermediate',
+    'SRNN_bst_multibin_lam1_combined'  : 'Boosted',
+    'SRNN_all_multibin_lam1_combined'  : 'Combined',
+    'SRNN_all_multibin_lam5_combined'  : 'Combined #kappa(#lambda_{hhh}) = 5',
+    'SRNN_all_multibin_lam10_combined' : 'Combined #kappa(#lambda_{hhh}) = 10',
   }
 
   xCol, yCol = 'x', 'y'
@@ -70,7 +77,7 @@ def main():
     
     
     if 'combined' in contour:
-      in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_sum_chiSqSyst1pc.csv'.format(contour)
+      in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_sum_chiSqSyst0p3pc.csv'.format(contour)
     else:
       in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_chiSqSyst1pc.csv'.format(contour)
     print('Reading: {0}'.format(in_file))
@@ -163,9 +170,9 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   #-------------------------------------------------
   # Construct and add plots to legend
   #-------------------------------------------------
-  xl1=0.57
-  yl1=0.23
-  xl2=xl1+0.20
+  xl1=0.26
+  yl1=0.62
+  xl2=xl1+0.15
   yl2=yl1+0.17
   # Blues baseline
   leg = TLegend(xl1,yl1,xl2,yl2)
@@ -218,13 +225,13 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   # Text
   #-------------------------------------------------
   # Extra text
-  top_txt = 'hh #rightarrow 4b, 68% CL contours, 1% systematics'
+  top_txt = 'hh #rightarrow 4b, 68% CL contours, 0.3% systematics'
   # Text at top
   myText(0.18, 0.91, SQRTS_LUMI + ', ' + top_txt, 0.040, kBlack, 0, True)
 
   # Add text to plot interior
-  myText(0.510, 0.41, 'DNN', 0.035, kBlack, 0, True)
-  myText(0.575, 0.41, 'Baseline', 0.035, kBlack, 0, True)
+  myText(0.20, 0.80, 'DNN', 0.035, kBlack, 0, True)
+  myText(0.27, 0.80, 'Baseline', 0.035, kBlack, 0, True)
   myText(0.60, 0.55,  'SM', 0.04, kGray+2, 0, True)
   
   gPad.RedrawAxis()

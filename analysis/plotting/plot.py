@@ -57,6 +57,13 @@ show_legend_slices = False
 # Impose 4 b-tags as weight rather than cutting away events 
 # (TODO: do 2 or 3-tag as options)
 do_BTagWeight = True
+
+# b-tagging improvement factor for 4 b-quarks (hh4b signal, 4b bkg) 
+bTagImprove_4b = 1.36
+
+# 2 b-quarks (2b2j, ttbar bkg)
+bTagImprove_2b = 1.17
+
 #
 #--------------------------------------------------
 
@@ -102,66 +109,84 @@ def main():
             'nnscore_SlfCoup_7.0_sig',
             'nnscore_SlfCoup_10.0_sig',
             'nnscore_SlfCoup_20.0_sig']
-
-  l_cut_sels = ['resolved', 'intermediate' ,'boosted'] 
-  l_cut_sels = ['resolved-commonSR', 'intermediate-commonSR' ,'boosted-commonSR'] 
-  l_cut_sels = ['resolved-preselection', 'intermediate-preselection' ,'boosted-preselection'] 
   
   l_vars     = ['m_hh']
+  
   l_cut_sels = [
-          'resolved-finalSRNNlam_m20', 
-          'intermediate-finalSRNNlam_m20',    
-          'boosted-finalSRNNlam_m20', 
-          'resolved-finalSRNNlam_m10', 
-          'intermediate-finalSRNNlam_m10',    
-          'boosted-finalSRNNlam_m10',
-          'resolved-finalSRNNlam_m7', 
-          'intermediate-finalSRNNlam_m7',    
-          'boosted-finalSRNNlam_m7',
-          'resolved-finalSRNNlam_m5', 
-          'intermediate-finalSRNNlam_m5',    
-          'boosted-finalSRNNlam_m5', 
-          'resolved-finalSRNNlam_m2', 
-          'intermediate-finalSRNNlam_m2',    
-          'boosted-finalSRNNlam_m2', 
-          'resolved-finalSRNNlam_m1', 
-          'intermediate-finalSRNNlam_m1',    
-          'boosted-finalSRNNlam_m1',
-          'resolved-finalSRNNlam_m0p5', 
-          'intermediate-finalSRNNlam_m0p5',    
-          'boosted-finalSRNNlam_m0p5', 
-          'resolved-finalSRNNlam0p5', 
-          'intermediate-finalSRNNlam0p5',    
-          'boosted-finalSRNNlam0p5', 
-          'resolved-finalSRNN', 
-          'intermediate-finalSRNN',    
-          'boosted-finalSRNN',
-          'resolved-finalSRNNlam2', 
-          'intermediate-finalSRNNlam2',    
-          'boosted-finalSRNNlam2',
-          'resolved-finalSRNNlam3', 
-          'intermediate-finalSRNNlam3',    
-          'boosted-finalSRNNlam3', 
-          'resolved-finalSRNNlam5', 
-          'intermediate-finalSRNNlam5',    
-          'boosted-finalSRNNlam5', 
-          'resolved-finalSRNNlam7', 
-          'intermediate-finalSRNNlam7',    
-          'boosted-finalSRNNlam7', 
-          'resolved-finalSRNNlam10', 
-          'intermediate-finalSRNNlam10',    
-          'boosted-finalSRNNlam10', 
-          'resolved-finalSRNNlam20', 
-          'intermediate-finalSRNNlam20',    
-          'boosted-finalSRNNlam20'
+                # Inclusive analyses (no multibin)
+                'SR-res',
+                'SR-int',
+                'SR-bst',
+                
+                'SRNN-res',
+                'SRNN-int',
+                'SRNN-bst',
+
+                # Multibin baseline (no DNN)
+                'SR-res-200mHH250',
+                'SR-res-250mHH300',
+                'SR-res-300mHH350',
+                'SR-res-350mHH400',
+                'SR-res-400mHH500',
+                'SR-res-500mHH',
+                'SR-int-200mHH400',
+                'SR-int-400mHH600',
+                'SR-int-600mHH',
+                'SR-bst-500mHH700',
+                'SR-bst-700mHH900',
+                'SR-bst-900mHH',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 1
+                'SRNN-res-200mHH250-lam1',
+                'SRNN-res-250mHH300-lam1',
+                'SRNN-res-300mHH350-lam1',
+                'SRNN-res-350mHH400-lam1',
+                'SRNN-res-400mHH500-lam1',
+                'SRNN-res-500mHH-lam1',
+                'SRNN-int-200mHH400-lam1',
+                'SRNN-int-400mHH600-lam1',
+                'SRNN-int-600mHH-lam1',
+                'SRNN-bst-500mHH700-lam1',
+                'SRNN-bst-700mHH900-lam1',
+                'SRNN-bst-900mHH-lam1',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 5
+                'SRNN-res-200mHH250-lam5',
+                'SRNN-res-250mHH300-lam5',
+                'SRNN-res-300mHH350-lam5',
+                'SRNN-res-350mHH400-lam5',
+                'SRNN-res-400mHH500-lam5',
+                'SRNN-res-500mHH-lam5',
+                'SRNN-int-200mHH400-lam5',
+                'SRNN-int-400mHH600-lam5',
+                'SRNN-int-600mHH-lam5',
+                'SRNN-bst-500mHH700-lam5',
+                'SRNN-bst-700mHH900-lam5',
+                'SRNN-bst-900mHH-lam5',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 10
+                'SRNN-res-200mHH250-lam10',
+                'SRNN-res-250mHH300-lam10',
+                'SRNN-res-300mHH350-lam10',
+                'SRNN-res-350mHH400-lam10',
+                'SRNN-res-400mHH500-lam10',
+                'SRNN-res-500mHH-lam10',
+                'SRNN-int-200mHH400-lam10',
+                'SRNN-int-400mHH600-lam10',
+                'SRNN-int-600mHH-lam10',
+                'SRNN-bst-500mHH700-lam10',
+                'SRNN-bst-700mHH900-lam10',
+                'SRNN-bst-900mHH-lam10'
+               ]  
+  
+  l_vars     = ['m_hh', 'h1_Pt', 'h2_Pt', 'pT_hh']
+  
+  l_vars     = ['nnscore_SlfCoup_1.0_sig']
+  l_cut_sels = [
+                'SR-res',
+                'SR-int',
+                'SR-bst',
   ]
-  
-  l_cut_sels = ['resolved-finalSR', 'intermediate-finalSR' ,'boosted-finalSR',
-                'resolved-finalSRNN', 'intermediate-finalSRNN','boosted-finalSRNN',
-                'resolved-finalSRNNlam10', 'intermediate-finalSRNNlam10','boosted-finalSRNNlam10',
-               ] 
-  
-  ###
 
   lumi    =  3000.0 #24.3 
   yield_var = "m_hh" # Will plot multiple variables but only want to save yield file for a single variable
@@ -516,17 +541,34 @@ def tree_get_th1f(f, hname, var, sig_reg, unweighted_cuts='', Nbins=100, xmin=0,
  
   h_AfterCut.Sumw2()
   
+  # Normalising number of raw events
   N_raw = f.Get('loose_cutflow').GetBinContent(1)
 
+  # Obtain cross-sections
   d_xsecs = configure_xsecs()
   xsec = d_xsecs[hname]
-  
-  # Impose 4 b-tags as weight (TODO: do 2 or 3-tag as options)
-  if do_BTagWeight:
-    my_weight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
-  else:
-    my_weight = 1.
 
+  # Hard-coded k-factors and b-tagging improvement factors
+  kfactor = 1.
+  if 'ttbar' in hname:
+    kfactor = 1.4  * bTagImprove_2b # NLO / LO
+  if '2b2j' in hname:
+    kfactor = 1.3  * bTagImprove_2b # NLO / LO
+  if '4b' in hname:
+    kfactor = 1.6  * bTagImprove_4b  # NLO / LO
+  if 'signal_hh' in hname:
+    kfactor = 1.45 * bTagImprove_4b # (NNLO+NNLL) / NLO
+  
+  # Impose 4 b-tags as weight 
+  if do_BTagWeight:
+    bTagWeight = 'h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'
+  else:
+    bTagWeight = 1.
+
+  # Construct weight string
+  my_weight = '{0} * {1}'.format(bTagWeight, kfactor)
+
+  # Construct final TCut string
   cuts = '( ({0}) * (1000 * {1} * {2} * {3}) ) / {4}'.format( unweighted_cuts, xsec, lumifb, my_weight, N_raw ) # Factor of 1000 to convert xsec from ifb to ipb
   
   print('---------------------------------')
@@ -700,16 +742,16 @@ def add_text_to_plot(analysis, sig_reg, cut_sel, lumi, l_cuts, annotate_text, pr
   myText(0.20, 0.87, '#sqrt{s}' + ' = {0}, {1:.0f}'.format(ENERGY_status, lumi) + ' fb^{#minus1}', text_size, kBlack)
   
   analysis = analysis.title()
-  cut_name = cut_sel.split('-')
-  cut_txt = cut_name[0].capitalize() + ' ' + cut_name[1] 
+  if 'res' in cut_sel:
+    cut_txt = cut_sel.replace('-res', ' Resolved')
+  if 'int' in cut_sel:
+    cut_txt = cut_sel.replace('-int', ' Intermediate')
+  if 'bst' in cut_sel or 'boosted' in cut_sel:
+    cut_txt = cut_sel.replace('-bst', ' Boosted')
+
+  print(cut_txt) 
   if 'preselection' in sig_reg:
     myText(0.20, 0.82, cut_txt, text_size, kBlack) 
-  if 'signal' in sig_reg:
-    myText(0.20, 0.82, "SR "+analysis+" "+cut_sel, text_size, kBlack) 
-  if 'control' in sig_reg:
-    myText(0.20, 0.80, "CR "+analysis+" "+cut_sel, text_size, kBlack) 
-  if 'sideband' in sig_reg:
-    myText(0.20, 0.80, "SB "+analysis+" "+cut_sel, text_size, kBlack) 
   
   # Additional annotations
   if not annotate_text == '':

@@ -171,15 +171,15 @@ def configure_vars(cut_sel):
   } # end of d_vars = {} dictionary
 
   # analysis specific binning and ranges 
-  if 'resolved' in cut_sel:
+  if 'res' in cut_sel:
     d_vars['m_hh']   = {'tlatex':'#it{m}_{hh}'               ,'units':'GeV','hXNbins':50,'hXmin':100,'hXmax':1100}
     d_vars['h1_Pt']  = {'tlatex':'#it{p}_{T}(h_{1}^{cand})'  ,'units':'GeV','hXNbins':25,'hXmin':0, 'hXmax' :500}
     d_vars['h2_Pt']  = {'tlatex':'#it{p}_{T}(h_{2}^{cand})'  ,'units':'GeV','hXNbins':25,'hXmin':0, 'hXmax' :500}
-  if 'intermediate' in cut_sel:
+  if 'int' in cut_sel:
     d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins':40,'hXmin':200,'hXmax':1800}
     d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})' ,'units':'GeV','hXNbins':20,'hXmin':200,'hXmax':1000}
     d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':20,'hXmin':0,  'hXmax':800}
-  if 'boosted' in cut_sel:
+  if 'bst' in cut_sel or 'boosted' in cut_sel:
     d_vars['m_hh']    = {'tlatex':'#it{m}_{hh}'              ,'units':'GeV','hXNbins':50,'hXmin':200,'hXmax':2700}
     d_vars['h1_Pt']   = {'tlatex':'#it{p}_{T}(h_{1}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':200,'hXmax':1700}
     d_vars['h2_Pt']   = {'tlatex':'#it{p}_{T}(h_{2}^{cand})' ,'units':'GeV','hXNbins':30,'hXmin':200,'hXmax':1700}

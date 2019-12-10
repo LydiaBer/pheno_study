@@ -31,40 +31,200 @@ def main():
   my_dir = 'loose_preselection' 
   #
   # ------------------------------------------------------
-  # Input SRs to combine
-  l_SR        = ['resolved-finalSR','intermediate-finalSR','boosted-finalSR']
-  l_SRNN      = ['resolved-finalSRNN','intermediate-finalSRNN','boosted-finalSRNN']
-  l_SRNNlam10 = ['resolved-finalSRNNlam10','intermediate-finalSRNNlam10','boosted-finalSRNNlam10']
   #
   # Column header whose value we want to combine
   #
-  l_to_sum_vars = ['chiSq', 'chiSqSyst0p5pc', 'chiSqSyst1pc']
+  l_to_sum_vars = ['chiSq', 'chiSqSyst0p3pc']#, 'chiSqSyst1pc']
+ 
+  d_SR_sets = {
+    # Inclusive baseline 
+    'SR'        : ['SR-res',
+                   'SR-int',
+                   'SR-bst'],
 
-  for var in l_to_sum_vars:
-    combine_set_of_SRs( l_SR,        var, my_dir )
-    combine_set_of_SRs( l_SRNN,      var, my_dir )
-    combine_set_of_SRs( l_SRNNlam10, var, my_dir )
+    # Multibin baseline (no DNN)
+    'SR_res_multibin' : [
+                'SR-res-200mHH250',
+                'SR-res-250mHH300',
+                'SR-res-300mHH350',
+                'SR-res-350mHH400',
+                'SR-res-400mHH500',
+                'SR-res-500mHH',
+    ],
+                
+    'SR_int_multibin' : [
+                'SR-int-200mHH400',
+                'SR-int-400mHH600',
+                'SR-int-600mHH',
+    ],
+                
+    'SR_bst_multibin' : [
+                'SR-bst-500mHH700',
+                'SR-bst-700mHH900',
+                'SR-bst-900mHH',
+               ],
+
+    'SR_all_multibin' : [
+                'SR-res-200mHH250',
+                'SR-res-250mHH300',
+                'SR-res-300mHH350',
+                'SR-res-350mHH400',
+                'SR-res-400mHH500',
+                'SR-res-500mHH',
+                
+                'SR-int-200mHH400',
+                'SR-int-400mHH600',
+                'SR-int-600mHH',
+                
+                'SR-bst-500mHH700',
+                'SR-bst-700mHH900',
+                'SR-bst-900mHH',
+               ],
+                
+    # Multibin baseline with DNN cut trained on k(lambda)=1
+    'SRNN_res_multibin_lam1' : [
+                'SRNN-res-200mHH250-lam1',
+                'SRNN-res-250mHH300-lam1',
+                'SRNN-res-300mHH350-lam1',
+                'SRNN-res-350mHH400-lam1',
+                'SRNN-res-400mHH500-lam1',
+                'SRNN-res-500mHH-lam1',
+    ],
+                
+    'SRNN_int_multibin_lam1' : [
+                'SRNN-int-200mHH400-lam1',
+                'SRNN-int-400mHH600-lam1',
+                'SRNN-int-600mHH-lam1',
+    ],
+
+    'SRNN_bst_multibin_lam1' : [
+                'SRNN-bst-500mHH700-lam1',
+                'SRNN-bst-700mHH900-lam1',
+                'SRNN-bst-900mHH-lam1', 
+                ],
+    
+    
+    'SRNN_all_multibin_lam1' : [
+                'SRNN-res-200mHH250-lam1',
+                'SRNN-res-250mHH300-lam1',
+                'SRNN-res-300mHH350-lam1',
+                'SRNN-res-350mHH400-lam1',
+                'SRNN-res-400mHH500-lam1',
+                'SRNN-res-500mHH-lam1',
+
+                'SRNN-int-200mHH400-lam1',
+                'SRNN-int-400mHH600-lam1',
+                'SRNN-int-600mHH-lam1',
+
+                'SRNN-bst-500mHH700-lam1',
+                'SRNN-bst-700mHH900-lam1',
+                'SRNN-bst-900mHH-lam1', 
+                ],
+
+    # Multibin baseline with DNN cut trained on k(lambda)=5
+    'SRNN_res_multibin_lam5' : [
+                'SRNN-res-200mHH250-lam5',
+                'SRNN-res-250mHH300-lam5',
+                'SRNN-res-300mHH350-lam5',
+                'SRNN-res-350mHH400-lam5',
+                'SRNN-res-400mHH500-lam5',
+                'SRNN-res-500mHH-lam5',
+    ],
+                
+    'SRNN_int_multibin_lam5' : [
+                'SRNN-int-200mHH400-lam5',
+                'SRNN-int-400mHH600-lam5',
+                'SRNN-int-600mHH-lam5',
+    ],
+
+    'SRNN_bst_multibin_lam5' : [
+                'SRNN-bst-500mHH700-lam5',
+                'SRNN-bst-700mHH900-lam5',
+                'SRNN-bst-900mHH-lam5', 
+                ],
+    
+    
+    'SRNN_all_multibin_lam5' : [
+                'SRNN-res-200mHH250-lam5',
+                'SRNN-res-250mHH300-lam5',
+                'SRNN-res-300mHH350-lam5',
+                'SRNN-res-350mHH400-lam5',
+                'SRNN-res-400mHH500-lam5',
+                'SRNN-res-500mHH-lam5',
+
+                'SRNN-int-200mHH400-lam5',
+                'SRNN-int-400mHH600-lam5',
+                'SRNN-int-600mHH-lam5',
+
+                'SRNN-bst-500mHH700-lam5',
+                'SRNN-bst-700mHH900-lam5',
+                'SRNN-bst-900mHH-lam5', 
+                ],
+
+    # Multibin baseline with DNN cut trained on k(lambda)=10
+    'SRNN_res_multibin_lam10' : [
+                'SRNN-res-200mHH250-lam10',
+                'SRNN-res-250mHH300-lam10',
+                'SRNN-res-300mHH350-lam10',
+                'SRNN-res-350mHH400-lam10',
+                'SRNN-res-400mHH500-lam10',
+                'SRNN-res-500mHH-lam10',
+    ],
+                
+    'SRNN_int_multibin_lam10' : [
+                'SRNN-int-200mHH400-lam10',
+                'SRNN-int-400mHH600-lam10',
+                'SRNN-int-600mHH-lam10',
+    ],
+
+    'SRNN_bst_multibin_lam10' : [
+                'SRNN-bst-500mHH700-lam10',
+                'SRNN-bst-700mHH900-lam10',
+                'SRNN-bst-900mHH-lam10', 
+                ],
+    
+    
+    'SRNN_all_multibin_lam10' : [
+                'SRNN-res-200mHH250-lam10',
+                'SRNN-res-250mHH300-lam10',
+                'SRNN-res-300mHH350-lam10',
+                'SRNN-res-350mHH400-lam10',
+                'SRNN-res-400mHH500-lam10',
+                'SRNN-res-500mHH-lam10',
+
+                'SRNN-int-200mHH400-lam10',
+                'SRNN-int-400mHH600-lam10',
+                'SRNN-int-600mHH-lam10',
+
+                'SRNN-bst-500mHH700-lam10',
+                'SRNN-bst-700mHH900-lam10',
+                'SRNN-bst-900mHH-lam10', 
+                ]
+  }
+
+  for SR_set in d_SR_sets:
+    combine_set_of_SRs( SR_set, d_SR_sets, 'chiSq_ij_Sys0p3pc', my_dir, True )
+    for var in l_to_sum_vars:    
+      combine_set_of_SRs( SR_set, d_SR_sets, var, my_dir )
   
-  combine_set_of_SRs( l_SR,        'chiSq_ij_Sys1pc', my_dir, True )
-  combine_set_of_SRs( l_SRNN,      'chiSq_ij_Sys1pc', my_dir, True )
-  combine_set_of_SRs( l_SRNNlam10, 'chiSq_ij_Sys1pc', my_dir, True )
-
 #____________________________________________________________________________
-def combine_set_of_SRs(l_SRs, to_sum_var, my_dir, do_2dlambda=False):
+def combine_set_of_SRs(SR_set, d_SR_sets, to_sum_var, my_dir, do_2dlambda=False):
   
   # Join SRs as the combined name output
   if do_2dlambda:
-    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(my_dir, '_'.join(l_SRs), to_sum_var)
+    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(my_dir, SR_set, to_sum_var)
   else:
-    out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(my_dir, '_'.join(l_SRs), to_sum_var)
+    #out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(my_dir, '_'.join(l_SRs), to_sum_var)
+    out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(my_dir, SR_set, to_sum_var)
 
   #
   # Columns to delete in new dataframe 
   l_del = ['N_bkg','N_sig','N_sig_raw',
-    'SoverB','SoverSqrtB','SoverSqrtBSyst1pc','SoverSqrtBSyst5pc',
-    'chiSq','chiSqSyst1pc','chiSqSyst0p5pc','acceptance','xsec'] 
-  #  
-  # ------------------------------------------------------
+    'SoverB','SoverSqrtB','SoverSqrtBSyst1pc','SoverSqrtBSyst0p3pc',
+    'chiSq','chiSqSyst1pc','chiSqSyst0p3pc','acceptance','xsec'] 
+  
+  # Get the list of SRs to combine
+  l_SRs = d_SR_sets[SR_set]
   
   print('-----------------------------------\n')
   print('List of SRs to combine:')
