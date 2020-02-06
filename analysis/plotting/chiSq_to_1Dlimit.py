@@ -185,6 +185,17 @@ def main():
                             'SRNN_bst_multibin_lam7_combined', 
                             'SRNN_all_multibin_lam7_combined']
 
+  ''' 
+  # No systematics case
+  l_zCols = ['chiSq']
+  d_SRsets = {}
+
+  d_SRsets['baseline']   = ['SR_res_multibin_combined', 
+                            'SR_int_multibin_combined', 
+                            'SR_bst_multibin_combined', 
+                            'SR_all_multibin_combined']
+
+  '''
   '''
   d_SRsets = {}
   d_SRsets['overlay']   = [

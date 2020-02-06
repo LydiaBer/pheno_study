@@ -203,8 +203,50 @@ def main():
                 'SRNN-bst-800mHH-lam7:chiSqSyst5pc', 
                 ],
   }
+  '''
+  # No syst combinations
+  chiSqLabel = 'chiSq'
+    
+  d_SRvar_sets = {
 
+    # Multibin baseline (no DNN)
+    'SR_res_multibin' : [
+                'SR-res-200mHH250:chiSq',
+                'SR-res-250mHH300:chiSq',
+                'SR-res-300mHH350:chiSq',
+                'SR-res-350mHH400:chiSq',
+                'SR-res-400mHH500:chiSq',
+                'SR-res-500mHH:chiSq',
+    ],
 
+    'SR_int_multibin' : [
+                'SR-int-200mHH500:chiSq',
+                'SR-int-500mHH600:chiSq',
+                'SR-int-600mHH:chiSq',
+    ],
+                
+    'SR_bst_multibin' : [
+                'SR-bst-500mHH800:chiSq',
+                'SR-bst-800mHH:chiSq',
+               ],
+
+    'SR_all_multibin' : [
+                'SR-res-200mHH250:chiSq',
+                'SR-res-250mHH300:chiSq',
+                'SR-res-300mHH350:chiSq',
+                'SR-res-350mHH400:chiSq',
+                'SR-res-400mHH500:chiSq',
+                'SR-res-500mHH:chiSq',
+                
+                'SR-int-200mHH500:chiSq',
+                'SR-int-500mHH600:chiSq',
+                'SR-int-600mHH:chiSq',
+                
+                'SR-bst-500mHH800:chiSq',
+                'SR-bst-800mHH:chiSq',
+               ],
+   }
+  '''
   for SRvar_set in d_SRvar_sets:
     # TODO combine_set_of_SRs( SRvar_set, d_SRvar_sets, 'chiSq_ij_Sys0p3pc', my_dir, chiSqLabel, True )
     combine_set_of_SRs( SRvar_set, d_SRvar_sets, my_dir, chiSqLabel)

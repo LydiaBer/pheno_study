@@ -15,14 +15,15 @@
 # Run over all signals, compare with bkg yields from plot.py to make chiSq, S/B etc
 ./ntuples_to_chiSq.py
 
-# Combine the chiSq 
+# Combine the chiSq
+# NOTE need to run twice, once for no syst, once for systematics, need to open file and comment out accordingly 
 ./combine_chiSq.py
 
 # Make chiSq_ij vs lambda_i vs lambda_j info
 ./chiSq_2dlambda_discrPowerMatrix.py
 
 # Make the 1d chiSq plots
-# NOTE need to run three times, once for limits and twice for acceptance one for klam one for ktop, need to open file and comment out/set True/False accordingly
+# NOTE need to run four times, once for limits (syst and no syst) and twice for acceptance one for klam one for ktop, need to open file and comment out/set True/False accordingly
 # set zoom_in to false for acceptance plots
 ./chiSq_to_1Dlimit.py
 
