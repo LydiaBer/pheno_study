@@ -41,7 +41,7 @@ def main():
   # ------------------------------------------------------
   
   # ------------------------------------------------------
-  # Input/output file names TODO: clumsy, use argparse etc
+  # Input/output file names 
   # ------------------------------------------------------
   
   # resolved + intermediate + boosted
@@ -57,7 +57,8 @@ def main():
             'chiSqSyst5pc'
             ]
   
-  l_zCol = ['sum_chiSqSyst1pc']
+  #l_zCol = ['sum_chiSqSyst0p3pc']
+  #l_zCol = ['sum_chiSqSyst1pc']
   
   l_cut_sels = [
                 'SR_res_multibin_combined', 
@@ -75,13 +76,14 @@ def main():
                 'SRNN_bst_multibin_lam5_combined', 
                 'SRNN_all_multibin_lam5_combined',
 
-                'SRNN_res_multibin_lam10_combined', 
-                'SRNN_int_multibin_lam10_combined', 
-                'SRNN_bst_multibin_lam10_combined', 
-                'SRNN_all_multibin_lam10_combined',
+                'SRNN_res_multibin_lam7_combined', 
+                'SRNN_int_multibin_lam7_combined', 
+                'SRNN_bst_multibin_lam7_combined', 
+                'SRNN_all_multibin_lam7_combined',
                 ]
 
-  l_zCol = ['sum_chiSqSyst0p3pc']
+  l_zCol = ['sum_chiSqSystMix']
+
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
   # ------------------------------------------------------
@@ -103,7 +105,8 @@ def main():
     'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},# = (S #minus S_{SM})^{2} / B'},
     'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
     'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
-    'sum_chiSqSyst0p3pc'  : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
+    'sum_chiSqSyst0p3pc' : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
+    'sum_chiSqSystMix'   : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
   }
 
   xCol, yCol = 'SlfCoup', 'TopYuk'
@@ -301,8 +304,8 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
       klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
     if 'lam5' in cut_sel: 
       klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 5'
-    if 'lam10' in cut_sel: 
-      klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 10'
+    if 'lam7' in cut_sel: 
+      klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 7'
     myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
   else:
     analysis += ' Baseline'

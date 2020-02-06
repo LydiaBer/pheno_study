@@ -33,7 +33,7 @@ def main():
   # ------------------------------------------------------
   # Input/output file names TODO: clumsy, use argparse etc
   # ------------------------------------------------------
-  
+  '''
   l_contours = [
       'SR_res_multibin_combined', 
       'SR_int_multibin_combined', 
@@ -44,11 +44,23 @@ def main():
       'SRNN_int_multibin_lam1_combined', 
       'SRNN_bst_multibin_lam1_combined', 
       'SRNN_all_multibin_lam1_combined',
-
-      #'SRNN_all_multibin_lam5_combined',
-      #'SRNN_all_multibin_lam10_combined'
   ]
+  save_name = 'figs/summary_contours_2d_lam1.pdf'
+  '''
   
+  l_contours = [
+      'SR_res_multibin_combined', 
+      'SR_int_multibin_combined', 
+      'SR_bst_multibin_combined', 
+      'SR_all_multibin_combined',
+
+      'SRNN_res_multibin_lam5_combined', 
+      'SRNN_int_multibin_lam5_combined', 
+      'SRNN_bst_multibin_lam5_combined', 
+      'SRNN_all_multibin_lam5_combined',
+  ]
+  save_name = 'figs/summary_contours_2d_lam5.pdf'
+ 
   d_tlatex = {
     'SR_res_multibin_combined'         : 'Resolved',
     'SR_int_multibin_combined'         : 'Intermediate',
@@ -59,11 +71,10 @@ def main():
     'SRNN_bst_multibin_lam1_combined'  : 'Boosted',
     'SRNN_all_multibin_lam1_combined'  : 'Combined',
     'SRNN_all_multibin_lam5_combined'  : 'Combined #kappa(#lambda_{hhh}) = 5',
-    'SRNN_all_multibin_lam10_combined' : 'Combined #kappa(#lambda_{hhh}) = 10',
+    'SRNN_all_multibin_lam7_combined' : 'Combined #kappa(#lambda_{hhh}) = 7',
   }
 
   xCol, yCol = 'x', 'y'
-  save_name = 'figs/summary_contours_2d.pdf'
     
   print( '--------------------------------------------------------------' )
   print( '\nWelcome to contours_to_summary.py\n' )
@@ -75,11 +86,10 @@ def main():
 
   for contour in l_contours:
     
-    
     if 'combined' in contour:
-      in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_sum_chiSqSyst0p3pc.csv'.format(contour)
+      in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_sum_chiSqSystMix.csv'.format(contour)
     else:
-      in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_chiSqSyst1pc.csv'.format(contour)
+      in_file = 'contours/limit2d_{0}_SlfCoup_TopYuk_chiSqSystMix.csv'.format(contour)
     print('Reading: {0}'.format(in_file))
     # ------------------------------------------------------
     # First Convert the csv into lists 
@@ -171,7 +181,8 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   # Construct and add plots to legend
   #-------------------------------------------------
   xl1=0.26
-  yl1=0.62
+  #yl1=0.62
+  yl1=0.45
   xl2=xl1+0.15
   yl2=yl1+0.17
   # Blues baseline
@@ -214,6 +225,16 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
     if 'combined' in contour:
       tg.SetLineWidth(5)
 
+    # Add some text to bookkeep which DNN training we're using
+    if 'SRNN' in contour:
+      if 'lam1' in contour: 
+        klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
+      if 'lam5' in contour: 
+        klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 5'
+      if 'lam7' in contour: 
+        klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 7'
+      myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
+
   customise_gPad()
   
   # Draw annotating objects
@@ -225,13 +246,16 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   # Text
   #-------------------------------------------------
   # Extra text
-  top_txt = 'hh #rightarrow 4b, 68% CL contours, 0.3% systematics'
+  #top_txt = 'hh #rightarrow 4b, 68% CL contours, 0.3% systematics'
+  top_txt = 'hh #rightarrow 4b, 68% CL contours'
   # Text at top
   myText(0.18, 0.91, SQRTS_LUMI + ', ' + top_txt, 0.040, kBlack, 0, True)
 
   # Add text to plot interior
-  myText(0.20, 0.80, 'DNN', 0.035, kBlack, 0, True)
-  myText(0.27, 0.80, 'Baseline', 0.035, kBlack, 0, True)
+  #myText(0.20, 0.80, 'DNN', 0.035, kBlack, 0, True)
+  #myText(0.27, 0.80, 'Baseline', 0.035, kBlack, 0, True)
+  myText(0.20, 0.63, 'DNN', 0.035, kBlack, 0, True)
+  myText(0.27, 0.63, 'Baseline', 0.035, kBlack, 0, True)
   myText(0.60, 0.55,  'SM', 0.04, kGray+2, 0, True)
   
   gPad.RedrawAxis()
