@@ -81,19 +81,181 @@ def main():
   dir = '150719'
   dir = '150719/merged_nn_score_ntuples'
 
-  ### ATLAS analysis xcheck
-  l_vars     = ['m_hh']     # corresponds to variable in variables.py
-  l_samples  = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
-  l_sig_regs = ['preselection']   # gets specific region from input ROOT file
-  cut_sel    = ['ntag4']     # corresponds to set of cuts in cuts.py 
-  ###
-
   ### Loose analysis plotting
-  l_vars     = ['m_hh', 'h1_Pt','nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
-  l_vars     = ['h1_M', 'h2_M', 'h2_Pt', 'pT_hh']
   l_samples  = ['loose']
   
-  l_vars = [
+  l_sig_regs = ['preselection']   # gets specific region from input ROOT file
+  '''
+  # plots for paper
+  l_vars     = ['m_hh', 'h1_M', 'h2_M', 'h1_Pt', 'h2_Pt', 'pT_hh', 'nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_5.0_sig'] #, 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
+  
+  
+  l_cut_sels = [
+                # Inclusive analyses (no multibin)
+                'SR-res',
+                'SR-int',
+                'SR-bst',
+  ]
+  '''
+ 
+  # computes rest of yields for paper limits  
+  l_vars     = ['m_hh']
+  
+  l_cut_sels = [
+                # Inclusive analyses (no multibin)
+                'SRNN-res-lam1',
+                'SRNN-int-lam1',
+                'SRNN-bst-lam1',
+ 
+                'SRNN-res-lam5',
+                'SRNN-int-lam5',
+                'SRNN-bst-lam5',
+ 
+                # Multibin baseline (no DNN)
+                'SR-res-200mHH250',
+                'SR-res-250mHH300',
+                'SR-res-300mHH350',
+                'SR-res-350mHH400',
+                'SR-res-400mHH500',
+                'SR-res-500mHH',
+                'SR-int-200mHH500',
+                'SR-int-500mHH600',
+                'SR-int-600mHH',
+                'SR-bst-500mHH800',
+                'SR-bst-800mHH',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 1
+                'SRNN-res-200mHH250-lam1',
+                'SRNN-res-250mHH300-lam1',
+                'SRNN-res-300mHH350-lam1',
+                'SRNN-res-350mHH400-lam1',
+                'SRNN-res-400mHH500-lam1',
+                'SRNN-res-500mHH-lam1',
+                'SRNN-int-200mHH500-lam1',
+                'SRNN-int-500mHH600-lam1',
+                'SRNN-int-600mHH-lam1',
+                'SRNN-bst-500mHH800-lam1',
+                'SRNN-bst-800mHH-lam1',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 5
+                'SRNN-res-200mHH250-lam5',
+                'SRNN-res-250mHH300-lam5',
+                'SRNN-res-300mHH350-lam5',
+                'SRNN-res-350mHH400-lam5',
+                'SRNN-res-400mHH500-lam5',
+                'SRNN-res-500mHH-lam5',
+                'SRNN-int-200mHH500-lam5',
+                'SRNN-int-500mHH600-lam5',
+                'SRNN-int-600mHH-lam5',
+                'SRNN-bst-500mHH800-lam5',
+                'SRNN-bst-800mHH-lam5',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 7
+                'SRNN-res-200mHH250-lam7',
+                'SRNN-res-250mHH300-lam7',
+                'SRNN-res-300mHH350-lam7',
+                'SRNN-res-350mHH400-lam7',
+                'SRNN-res-400mHH500-lam7',
+                'SRNN-res-500mHH-lam7',
+                'SRNN-int-200mHH500-lam7',
+                'SRNN-int-500mHH600-lam7',
+                'SRNN-int-600mHH-lam7',
+                'SRNN-bst-500mHH800-lam7',
+                'SRNN-bst-800mHH-lam7',
+               ] 
+
+  '''
+  # computes yields for additional limits  
+  l_cut_sels = [
+                # Inclusive analyses (no multibin)
+                'SRNN-res-lam7',
+                'SRNN-int-lam7',
+                'SRNN-bst-lam7',
+ 
+                'SRNN-res-lam10',
+                'SRNN-int-lam10',
+                'SRNN-bst-lam10',
+
+                'SRNN-res-lamM1',
+                'SRNN-int-lamM1',
+                'SRNN-bst-lamM1',
+
+                'SRNN-res-lamM2',
+                'SRNN-int-lamM2',
+                'SRNN-bst-lamM2',
+
+                'SRNN-res-lamM5',
+                'SRNN-int-lamM5',
+                'SRNN-bst-lamM5',
+ 
+                # Multibin baseline with DNN cut trained on k(lambda) = 7
+                'SRNN-res-200mHH250-lam7',
+                'SRNN-res-250mHH300-lam7',
+                'SRNN-res-300mHH350-lam7',
+                'SRNN-res-350mHH400-lam7',
+                'SRNN-res-400mHH500-lam7',
+                'SRNN-res-500mHH-lam7',
+                'SRNN-int-200mHH500-lam7',
+                'SRNN-int-500mHH600-lam7',
+                'SRNN-int-600mHH-lam7',
+                'SRNN-bst-500mHH800-lam7',
+                'SRNN-bst-800mHH-lam7',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 10
+                'SRNN-res-200mHH250-lam10',
+                'SRNN-res-250mHH300-lam10',
+                'SRNN-res-300mHH350-lam10',
+                'SRNN-res-350mHH400-lam10',
+                'SRNN-res-400mHH500-lam10',
+                'SRNN-res-500mHH-lam10',
+                'SRNN-int-200mHH500-lam10',
+                'SRNN-int-500mHH600-lam10',
+                'SRNN-int-600mHH-lam10',
+                'SRNN-bst-500mHH800-lam10',
+                'SRNN-bst-800mHH-lam10',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = -1
+                'SRNN-res-200mHH250-lamM1',
+                'SRNN-res-250mHH300-lamM1',
+                'SRNN-res-300mHH350-lamM1',
+                'SRNN-res-350mHH400-lamM1',
+                'SRNN-res-400mHH500-lamM1',
+                'SRNN-res-500mHH-lamM1',
+                'SRNN-int-200mHH500-lamM1',
+                'SRNN-int-500mHH600-lamM1',
+                'SRNN-int-600mHH-lamM1',
+                'SRNN-bst-500mHH800-lamM1',
+                'SRNN-bst-800mHH-lamM1',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = -2
+                'SRNN-res-200mHH250-lamM2',
+                'SRNN-res-250mHH300-lamM2',
+                'SRNN-res-300mHH350-lamM2',
+                'SRNN-res-350mHH400-lamM2',
+                'SRNN-res-400mHH500-lamM2',
+                'SRNN-res-500mHH-lamM2',
+                'SRNN-int-200mHH500-lamM2',
+                'SRNN-int-500mHH600-lamM2',
+                'SRNN-int-600mHH-lamM2',
+                'SRNN-bst-500mHH800-lamM2',
+                'SRNN-bst-800mHH-lamM2',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = -5
+                'SRNN-res-200mHH250-lamM5',
+                'SRNN-res-250mHH300-lamM5',
+                'SRNN-res-300mHH350-lamM5',
+                'SRNN-res-350mHH400-lamM5',
+                'SRNN-res-400mHH500-lamM5',
+                'SRNN-res-500mHH-lamM5',
+                'SRNN-int-200mHH500-lamM5',
+                'SRNN-int-500mHH600-lamM5',
+                'SRNN-int-600mHH-lamM5',
+                'SRNN-bst-500mHH800-lamM5',
+                'SRNN-bst-800mHH-lamM5',
+               ] 
+  ''' 
+  # additional score distributions
+  '''l_vars = [
             'nnscore_SlfCoup_m20.0_sig',
             'nnscore_SlfCoup_m10.0_sig',
             'nnscore_SlfCoup_m7.0_sig',
@@ -109,84 +271,12 @@ def main():
             'nnscore_SlfCoup_7.0_sig',
             'nnscore_SlfCoup_10.0_sig',
             'nnscore_SlfCoup_20.0_sig']
-  
-  l_vars     = ['m_hh']
-  
-  l_cut_sels = [
-                # Inclusive analyses (no multibin)
-                'SR-res',
-                'SR-int',
-                'SR-bst',
-                
-                'SRNN-res',
-                'SRNN-int',
-                'SRNN-bst',
-
-                # Multibin baseline (no DNN)
-                'SR-res-200mHH250',
-                'SR-res-250mHH300',
-                'SR-res-300mHH350',
-                'SR-res-350mHH400',
-                'SR-res-400mHH500',
-                'SR-res-500mHH',
-                'SR-int-200mHH400',
-                'SR-int-400mHH600',
-                'SR-int-600mHH',
-                'SR-bst-500mHH700',
-                'SR-bst-700mHH900',
-                'SR-bst-900mHH',
-
-                # Multibin baseline with DNN cut trained on k(lambda) = 1
-                'SRNN-res-200mHH250-lam1',
-                'SRNN-res-250mHH300-lam1',
-                'SRNN-res-300mHH350-lam1',
-                'SRNN-res-350mHH400-lam1',
-                'SRNN-res-400mHH500-lam1',
-                'SRNN-res-500mHH-lam1',
-                'SRNN-int-200mHH400-lam1',
-                'SRNN-int-400mHH600-lam1',
-                'SRNN-int-600mHH-lam1',
-                'SRNN-bst-500mHH700-lam1',
-                'SRNN-bst-700mHH900-lam1',
-                'SRNN-bst-900mHH-lam1',
-
-                # Multibin baseline with DNN cut trained on k(lambda) = 5
-                'SRNN-res-200mHH250-lam5',
-                'SRNN-res-250mHH300-lam5',
-                'SRNN-res-300mHH350-lam5',
-                'SRNN-res-350mHH400-lam5',
-                'SRNN-res-400mHH500-lam5',
-                'SRNN-res-500mHH-lam5',
-                'SRNN-int-200mHH400-lam5',
-                'SRNN-int-400mHH600-lam5',
-                'SRNN-int-600mHH-lam5',
-                'SRNN-bst-500mHH700-lam5',
-                'SRNN-bst-700mHH900-lam5',
-                'SRNN-bst-900mHH-lam5',
-
-                # Multibin baseline with DNN cut trained on k(lambda) = 10
-                'SRNN-res-200mHH250-lam10',
-                'SRNN-res-250mHH300-lam10',
-                'SRNN-res-300mHH350-lam10',
-                'SRNN-res-350mHH400-lam10',
-                'SRNN-res-400mHH500-lam10',
-                'SRNN-res-500mHH-lam10',
-                'SRNN-int-200mHH400-lam10',
-                'SRNN-int-400mHH600-lam10',
-                'SRNN-int-600mHH-lam10',
-                'SRNN-bst-500mHH700-lam10',
-                'SRNN-bst-700mHH900-lam10',
-                'SRNN-bst-900mHH-lam10'
-               ]  
-  
-  l_vars     = ['m_hh', 'h1_Pt', 'h2_Pt', 'pT_hh']
-  
-  l_vars     = ['nnscore_SlfCoup_1.0_sig']
-  l_cut_sels = [
-                'SR-res',
-                'SR-int',
-                'SR-bst',
-  ]
+  '''
+  ### ATLAS analysis xcheck (old)
+  #l_vars     = ['m_hh']     # corresponds to variable in variables.py
+  #l_samples  = ['resolved'] #,'resolved_kl','resolved_kt','boosted','boosted_kl','boosted_kt'] # corresponds to sets of files in samples.py 
+  #cut_sel    = ['ntag4']     # corresponds to set of cuts in cuts.py 
+  ###
 
   lumi    =  3000.0 #24.3 
   yield_var = "m_hh" # Will plot multiple variables but only want to save yield file for a single variable
@@ -194,12 +284,8 @@ def main():
   UnitNorm = False
   IsLogY   = True
 
-  annotate_text = ''#, No k-factors'
+  annotate_text = ''
   savedir = os.getcwd()+'/figs'+"/"+dir
-
-
-  # TODO do in xsecs.py file K-factors xsec NNLO / xsec LO 
-  #'noGenFilt_signal_hh_loop_sm_trackJetBTag' : 2.26, # 36.69/16.244 from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH
 
   #================================================
   

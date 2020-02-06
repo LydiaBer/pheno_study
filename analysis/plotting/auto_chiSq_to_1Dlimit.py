@@ -30,6 +30,8 @@ myRedPink6      = TColor.GetColor('#e7298a')
 myRedPink9      = TColor.GetColor('#980043')
 myRed           = TColor.GetColor('#ef3b2c')
 myPink          = TColor.GetColor('#ef7ae0')
+myMediumPink    = TColor.GetColor('#fcc5c0')
+myDarkPink      = TColor.GetColor('#dd3497')
 
 # Purples Greys
 myLightPurple    = TColor.GetColor('#dadaeb')
@@ -54,6 +56,46 @@ myBlack          = TColor.GetColor('#000105')
 
 # cut_sel colour dictionary
 d_cut_sel_colour = {
+                    'SR-res' : myPink, 
+                    'SR-int' : myMediumPurple,
+                    'SR-bst' : myDarkPurple,
+                    'SR_combined' : myMediumBlue,
+
+                    'SRNN-res-lam1' : myPink, 
+                    'SRNN-int-lam1' : myMediumPurple,
+                    'SRNN-bst-lam1' : myDarkPurple,
+                    'SRNN-lam1_combined' : myMediumBlue,
+
+                    'SRNN-res-lam5' : myPink, 
+                    'SRNN-int-lam5' : myMediumPurple,
+                    'SRNN-bst-lam5' : myDarkPurple,
+                    'SRNN-lam5_combined' : myMediumBlue,
+
+                    'SRNN-res-lam7' : myPink, 
+                    'SRNN-int-lam7' : myMediumPurple,
+                    'SRNN-bst-lam7' : myDarkPurple,
+                    'SRNN-lam7_combined' : myMediumBlue,
+
+                    'SRNN-res-lam10' : myPink, 
+                    'SRNN-int-lam10' : myMediumPurple,
+                    'SRNN-bst-lam10' : myDarkPurple,
+                    'SRNN-lam10_combined' : myMediumBlue,
+
+                    'SRNN-res-lamM1' : myPink, 
+                    'SRNN-int-lamM1' : myMediumPurple,
+                    'SRNN-bst-lamM1' : myDarkPurple,
+                    'SRNN-lamM1_combined' : myMediumBlue,
+
+                    'SRNN-res-lamM2' : myPink, 
+                    'SRNN-int-lamM2' : myMediumPurple,
+                    'SRNN-bst-lamM2' : myDarkPurple,
+                    'SRNN-lamM2_combined' : myMediumBlue,
+
+                    'SRNN-res-lamM5' : myPink, 
+                    'SRNN-int-lamM5' : myMediumPurple,
+                    'SRNN-bst-lamM5' : myDarkPurple,
+                    'SRNN-lamM5_combined' : myMediumBlue,
+
                     'SR_res_multibin_combined' : myPink,
                     'SR_int_multibin_combined' : myMediumPurple,
                     'SR_bst_multibin_combined' : myDarkPurple,
@@ -69,10 +111,30 @@ d_cut_sel_colour = {
                     'SRNN_bst_multibin_lam5_combined' : myDarkPurple,
                     'SRNN_all_multibin_lam5_combined' : myMediumBlue,
                     
+                    'SRNN_res_multibin_lam7_combined' : myPink,
+                    'SRNN_int_multibin_lam7_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lam7_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lam7_combined' : myMediumBlue,
+
                     'SRNN_res_multibin_lam10_combined' : myPink,
                     'SRNN_int_multibin_lam10_combined' : myMediumPurple,
                     'SRNN_bst_multibin_lam10_combined' : myDarkPurple,
                     'SRNN_all_multibin_lam10_combined' : myMediumBlue,
+                    
+                    'SRNN_res_multibin_lamM1_combined' : myPink,
+                    'SRNN_int_multibin_lamM1_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lamM1_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lamM1_combined' : myMediumBlue,
+                    
+                    'SRNN_res_multibin_lamM2_combined' : myPink,
+                    'SRNN_int_multibin_lamM2_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lamM2_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lamM2_combined' : myMediumBlue,
+                    
+                    'SRNN_res_multibin_lamM5_combined' : myPink,
+                    'SRNN_int_multibin_lamM5_combined' : myMediumPurple,
+                    'SRNN_bst_multibin_lamM5_combined' : myDarkPurple,
+                    'SRNN_all_multibin_lamM5_combined' : myMediumBlue,
                    }
 
 # Labels
@@ -93,9 +155,16 @@ def main():
  
   # When lots of samples, put leg outside plot so less crowded
   legend_outside_plot = False
- 
+
+  # chi^2 plots
+  #l_zCols = ['chiSqSyst0p3pc', 'chiSqSyst1pc', 'chiSq']
+  l_zCols = ['chiSqSystMix']
+
+  IsLogY = False
+
   # Cut selections
   d_SRsets = {}
+
   d_SRsets['baseline']   = ['SR_res_multibin_combined', 
                             'SR_int_multibin_combined', 
                             'SR_bst_multibin_combined', 
@@ -110,30 +179,53 @@ def main():
                             'SRNN_int_multibin_lam5_combined', 
                             'SRNN_bst_multibin_lam5_combined', 
                             'SRNN_all_multibin_lam5_combined']
-  
-  d_SRsets['SRNN_lam10'] = ['SRNN_res_multibin_lam10_combined', 
-                            'SRNN_int_multibin_lam10_combined', 
-                            'SRNN_bst_multibin_lam10_combined', 
-                            'SRNN_all_multibin_lam10_combined']
-  
-  l_zCols = ['chiSqSyst0p3pc', 'chiSq']
-  IsLogY = False
+
+  d_SRsets['SRNN_lam7']  = ['SRNN_res_multibin_lam7_combined', 
+                            'SRNN_int_multibin_lam7_combined', 
+                            'SRNN_bst_multibin_lam7_combined', 
+                            'SRNN_all_multibin_lam7_combined']
+
+  '''
+  d_SRsets = {}
+  d_SRsets['overlay']   = [
+                           'SRNN_res_multibin_lam1_combined', 
+                           'SRNN_res_multibin_lam5_combined', 
+                           'SRNN_res_multibin_lam7_combined', 
+                           'SRNN_res_multibin_lam10_combined', 
+                           'SRNN_res_multibin_lamM1_combined', 
+                           'SRNN_res_multibin_lamM2_combined', 
+                           'SRNN_res_multibin_lamM5_combined'] 
+  '''
+
+  # acceptance plots, set zoom_in to False
+  '''
+  l_zCols = ['acceptance']
+
+  IsLogY = True
+
+  d_SRsets = {}
+  d_SRsets['baseline-no-mhh-binning']   = ['SR-res', 
+                                           'SR-int', 
+                                           'SR-bst']
+  '''
 
   d_axis_tlatex = {
-    'acceptance'        : 'A #times \epsilon (S / #sigma #times L) [%]',
-    'xsec'              : 'xsec [pb]',
-    'N_sig'             : 'Signal yield',
-    'N_sig_raw'         : 'Raw signal yield',
-    'SoverB'            : 'S / B',
-    'SoverSqrtB'        : 'S / #sqrt{B}',
-    'SoverSqrtBSyst1pc' : 'S / #sqrt{B + (1%B)^{2}}',
-    'chiSq'             : '#chi^{2}',
-    'chiSqSyst0p3pc'    : '#chi^{2}',
-    'chiSqSyst1pc'      : '#chi^{2}',
-    'sum_chiSq'         : '#chi^{2}',
-    'sum_chiSqSyst1pc'  : '#chi^{2}',
+    'acceptance'         : 'A #times \epsilon (S / #sigma #times L) [%]',
+    'xsec'               : 'xsec [pb]',
+    'N_sig'              : 'Signal yield',
+    'N_sig_raw'          : 'Raw signal yield',
+    'SoverB'             : 'S / B',
+    'SoverSqrtB'         : 'S / #sqrt{B}',
+    'SoverSqrtBSyst1pc'  : 'S / #sqrt{B + (1%B)^{2}}',
+    'chiSq'              : '#chi^{2}',
+    'chiSqSyst0p3pc'     : '#chi^{2}',
+    'chiSqSyst1pc'       : '#chi^{2}',
+    'chiSqSystMix'       : '#chi^{2}',
+    'sum_chiSq'          : '#chi^{2}',
+    'sum_chiSqSyst1pc'   : '#chi^{2}',
     'sum_chiSqSyst0p5pc' : '#chi^{2}',
     'sum_chiSqSyst0p3pc' : '#chi^{2}',
+    'sum_chiSqSystMix'   : '#chi^{2}',
   }
 
   d_in_data = {}
@@ -165,7 +257,6 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
 
   print( d_in_data )
 
-  # TODO remove l_colours = [myDarkBlue, myDarkGreen, myMediumOrange, myMediumPurple, myMediumPink ]
   l_widths  = [5]*10 
   if legend_outside_plot:
     gpRight = 0.4
@@ -181,7 +272,10 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   # Build canvas   
 
   #gpLeft = 0.21
-  gpLeft = 0.11
+  if 'acceptance' in zCol:
+    gpLeft = 0.15
+  else:
+    gpLeft = 0.11
   customise_gPad(top=0.08, bot=0.20, left=gpLeft, right=gpRight)
   
   #------------------------------------------------------
@@ -214,8 +308,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   if legend_outside_plot:
     xl1 = 0.6
 
-  if zCol == 'acceptance':
-    xl1 = 0.25
+  if zCol == 'acceptance' and not legend_outside_plot:
+    xl1 = 0.22
+    yl1 = 0.68
 
   xl2, yl2 = xl1+0.20, yl1+extra_space
 
@@ -231,20 +326,22 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   # ------------------------------------------------------ 
   # ATLAS PHYS-PUB-2018-053 constraints
   # ------------------------------------------------------ 
-  # 0% systematics limits
-  if 'chiSq' in zCol and 'pc' not in zCol:
-    HLLHC_lam1 = -0.5
-    HLLHC_lam2 = 5.0
-  # Use 0.3% systematics limits
-  else:
-    HLLHC_lam1 = -2.5
-    HLLHC_lam2 = 6.5
-  lim_ATL_HLLHC_left  = TBox (-8.2, 0., HLLHC_lam1, 5.)
-  lim_ATL_HLLHC_right = TBox (HLLHC_lam2, 0., 13.5, 5.)
-  lim_ATL_HLLHC_left.SetFillColorAlpha(kGray+1,  0.2)
-  lim_ATL_HLLHC_right.SetFillColorAlpha(kGray+1, 0.2)
   
-  leg.AddEntry(lim_ATL_HLLHC_left, 'ATLAS 3 ab^{#minus1}', 'f')
+  if 'acceptance' not in zCol:
+    # 0% systematics limits
+    if 'chiSq' in zCol and 'Syst' not in zCol:
+      HLLHC_lam1 = -0.5
+      HLLHC_lam2 = 5.0
+    # Use 0.3% systematics limits
+    else:
+      HLLHC_lam1 = -2.5
+      HLLHC_lam2 = 6.5
+    lim_ATL_HLLHC_left  = TBox (-8.2, 0., HLLHC_lam1, 5.)
+    lim_ATL_HLLHC_right = TBox (HLLHC_lam2, 0., 13.5, 5.)
+    lim_ATL_HLLHC_left.SetFillColorAlpha(kGray+1,  0.2)
+    lim_ATL_HLLHC_right.SetFillColorAlpha(kGray+1, 0.2)
+  
+    leg.AddEntry(lim_ATL_HLLHC_left, 'ATLAS 3 ab^{#minus1}', 'f')
   
   #------------------------------------------------------
   # Get and organise data
@@ -270,6 +367,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     if 'combined' in cut_sel:
       print(zCol)
       zCol_key = 'sum_' + str(zCol)
+    else:
+      zCol_key = str(zCol)
     in_z = [float(i) for i in d_csv[zCol_key] ]
 
     l_SlfCoup_or_TopYuk = []
@@ -279,7 +378,7 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       if y == 1.0: 
         l_SlfCoup_or_TopYuk.append(x)
         if zCol == 'acceptance':
-          l_chiSq.append(z*300) # convert to percentage and x3 to compare to ATLAS (us inclusive, them 4b i.e. 1/0.33 = 3)
+          l_chiSq.append(z*100) # convert to percentage # To compare to ATLAS need to also x3 (us inclusive, them 4b i.e. 1/0.33 = 3)
         else:
           l_chiSq.append(z)
         #l_chiSq.append(z)
@@ -402,22 +501,23 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   ytitle = d_axis_tlatex[zCol]
 
   if 'chiSqSyst1pc' in zCol:
-    syst_txt = '1% systematics'
+    syst_txt = ', 1% systematics'
   elif 'chiSqSyst0p3pc' in zCol:
-    syst_txt = '0.3% systematics'
-  elif 'chiSq' in zCol and 'pc' not in zCol:
-    syst_txt = '0% systematics'
+    syst_txt = ', 0.3% systematics'
+  elif 'chiSq' in zCol and 'Syst' not in zCol:
+    syst_txt = ', 0% systematics'
   else:
     syst_txt = ''
 
     
   if legend_outside_plot:
-    myText(0.2, 0.95, SQRTS_LUMI + ', {0}, {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
+    myText(0.2, 0.95, SQRTS_LUMI + ', {0} {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
   else:
-    myText(0.11, 0.95, SQRTS_LUMI + ', {0}, {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
-
-  #customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
-  customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop)#, 2.8)
+    if 'acceptance' in zCol:
+      myText(0.15, 0.95, SQRTS_LUMI + ', {0} {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
+    else: 
+      myText(0.11, 0.95, SQRTS_LUMI + ', {0} {1}, {2}, {3}'.format('hh #rightarrow 4b',syst_txt, analysis, fixed_coupling), 0.04, kBlack, 0, True)
+  customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop, zCol = zCol)
 
   xax = d_tgraphs[l_cut_sels[0]].GetXaxis()
   xmin = xax.GetXmin()
@@ -469,12 +569,11 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       myText(label_x, 0.77, '95% CL', 0.037, kGray+1, 0, True)
   
   gPad.RedrawAxis() 
-  #customise_axes(d_tgraphs['resolved-finalSR'], xtitle, ytitle, 2.8, IsLogY)
-  customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop)#, 2.8)
+  customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop, zCol = zCol)
   
-
-  lim_ATL_HLLHC_left.Draw('same')
-  lim_ATL_HLLHC_right.Draw('same')
+  if 'acceptance' not in zCol:
+    lim_ATL_HLLHC_left.Draw('same')
+    lim_ATL_HLLHC_right.Draw('same')
  
 
   #==========================================================
@@ -502,7 +601,7 @@ def csv_to_lists(csv_file):
   return data
 
 #____________________________________________________________________________
-def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeYaxis=False, doktop=False):
+def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeYaxis=False, doktop=False, zCol = 'chiSqSyst0p3pc'):
 
   # set a universal text size
   text_size = 0.06
@@ -556,7 +655,10 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   yax.SetTitle(ytitle)
   yax.SetTitleSize(text_size*1.2)
   #yax.SetTitleOffset(1.3) 
-  yax.SetTitleOffset(0.7) 
+  if 'acceptance' in zCol:
+    yax.SetTitleOffset(1.0) 
+  else:
+    yax.SetTitleOffset(0.7) 
   
   yax.SetLabelOffset(0.015)
   yax.SetLabelSize(text_size)
@@ -570,7 +672,7 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
     hist.SetMaximum(ymax)
     hist.SetMinimum(ymin)
     hist.SetMaximum(10)
-    hist.SetMinimum(0.01)
+    hist.SetMinimum(0.005)
   if not IsLogY:
     if doktop:
       hist.SetMaximum(1.5)
@@ -578,6 +680,10 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
       hist.SetMaximum(5)
     hist.SetMinimum(0.0)
     #hist.SetMaximum(ymax*scaleFactor) 
+  if 'A #times \epsilon' in ytitle:
+    hist.SetMinimum(5E-3)
+    hist.SetMaximum(10.0) 
+    yax.SetNdivisions(205)
 
   gPad.SetTicky()
 

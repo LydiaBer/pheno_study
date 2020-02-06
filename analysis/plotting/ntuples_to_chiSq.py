@@ -66,6 +66,14 @@ def main():
                 'SR-res',
                 'SR-int',
                 'SR-bst',
+ 
+                'SRNN-res-lam1',
+                'SRNN-int-lam1',
+                'SRNN-bst-lam1',             
+
+                'SRNN-res-lam5',
+                'SRNN-int-lam5',
+                'SRNN-bst-lam5',             
 
                 # Multibin baseline (no DNN)
                 'SR-res-200mHH250',
@@ -74,12 +82,11 @@ def main():
                 'SR-res-350mHH400',
                 'SR-res-400mHH500',
                 'SR-res-500mHH',
-                'SR-int-200mHH400',
-                'SR-int-400mHH600',
+                'SR-int-200mHH500',
+                'SR-int-500mHH600',
                 'SR-int-600mHH',
-                'SR-bst-500mHH700',
-                'SR-bst-700mHH900',
-                'SR-bst-900mHH',
+                'SR-bst-500mHH800',
+                'SR-bst-800mHH',
 
                 # Multibin baseline with DNN cut trained on k(lambda) = 1
                 'SRNN-res-200mHH250-lam1',
@@ -88,12 +95,11 @@ def main():
                 'SRNN-res-350mHH400-lam1',
                 'SRNN-res-400mHH500-lam1',
                 'SRNN-res-500mHH-lam1',
-                'SRNN-int-200mHH400-lam1',
-                'SRNN-int-400mHH600-lam1',
+                'SRNN-int-200mHH500-lam1',
+                'SRNN-int-500mHH600-lam1',
                 'SRNN-int-600mHH-lam1',
-                'SRNN-bst-500mHH700-lam1',
-                'SRNN-bst-700mHH900-lam1',
-                'SRNN-bst-900mHH-lam1',
+                'SRNN-bst-500mHH800-lam1',
+                'SRNN-bst-800mHH-lam1',
 
                 # Multibin baseline with DNN cut trained on k(lambda) = 5
                 'SRNN-res-200mHH250-lam5',
@@ -102,12 +108,62 @@ def main():
                 'SRNN-res-350mHH400-lam5',
                 'SRNN-res-400mHH500-lam5',
                 'SRNN-res-500mHH-lam5',
-                'SRNN-int-200mHH400-lam5',
-                'SRNN-int-400mHH600-lam5',
+                'SRNN-int-200mHH500-lam5',
+                'SRNN-int-500mHH600-lam5',
                 'SRNN-int-600mHH-lam5',
-                'SRNN-bst-500mHH700-lam5',
-                'SRNN-bst-700mHH900-lam5',
-                'SRNN-bst-900mHH-lam5',
+                'SRNN-bst-500mHH800-lam5',
+                'SRNN-bst-800mHH-lam5',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 7
+                'SRNN-res-200mHH250-lam7',
+                'SRNN-res-250mHH300-lam7',
+                'SRNN-res-300mHH350-lam7',
+                'SRNN-res-350mHH400-lam7',
+                'SRNN-res-400mHH500-lam7',
+                'SRNN-res-500mHH-lam7',
+                'SRNN-int-200mHH500-lam7',
+                'SRNN-int-500mHH600-lam7',
+                'SRNN-int-600mHH-lam7',
+                'SRNN-bst-500mHH800-lam7',
+                'SRNN-bst-800mHH-lam7',
+               ]  
+
+  '''
+  # Cut selections for additional limits
+  l_cut_sels = [
+                # Inclusive analyses (no multibin)
+                'SRNN-res-lam7',
+                'SRNN-int-lam7',
+                'SRNN-bst-lam7',
+
+                'SRNN-res-lam10',
+                'SRNN-int-lam10',
+                'SRNN-bst-lam10',             
+
+                'SRNN-res-lamM1',
+                'SRNN-int-lamM1',
+                'SRNN-bst-lamM1',
+
+                'SRNN-res-lamM2',
+                'SRNN-int-lamM2',
+                'SRNN-bst-lamM2',
+
+                'SRNN-res-lamM5',
+                'SRNN-int-lamM5',
+                'SRNN-bst-lamM5',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = 7
+                'SRNN-res-200mHH250-lam7',
+                'SRNN-res-250mHH300-lam7',
+                'SRNN-res-300mHH350-lam7',
+                'SRNN-res-350mHH400-lam7',
+                'SRNN-res-400mHH500-lam7',
+                'SRNN-res-500mHH-lam7',
+                'SRNN-int-200mHH500-lam7',
+                'SRNN-int-500mHH600-lam7',
+                'SRNN-int-600mHH-lam7',
+                'SRNN-bst-500mHH800-lam7',
+                'SRNN-bst-800mHH-lam7',
 
                 # Multibin baseline with DNN cut trained on k(lambda) = 10
                 'SRNN-res-200mHH250-lam10',
@@ -116,14 +172,52 @@ def main():
                 'SRNN-res-350mHH400-lam10',
                 'SRNN-res-400mHH500-lam10',
                 'SRNN-res-500mHH-lam10',
-                'SRNN-int-200mHH400-lam10',
-                'SRNN-int-400mHH600-lam10',
+                'SRNN-int-200mHH500-lam10',
+                'SRNN-int-500mHH600-lam10',
                 'SRNN-int-600mHH-lam10',
-                'SRNN-bst-500mHH700-lam10',
-                'SRNN-bst-700mHH900-lam10',
-                'SRNN-bst-900mHH-lam10'
-               ]  
+                'SRNN-bst-500mHH800-lam10',
+                'SRNN-bst-800mHH-lam10',
 
+                # Multibin baseline with DNN cut trained on k(lambda) = -1
+                'SRNN-res-200mHH250-lamM1',
+                'SRNN-res-250mHH300-lamM1',
+                'SRNN-res-300mHH350-lamM1',
+                'SRNN-res-350mHH400-lamM1',
+                'SRNN-res-400mHH500-lamM1',
+                'SRNN-res-500mHH-lamM1',
+                'SRNN-int-200mHH500-lamM1',
+                'SRNN-int-500mHH600-lamM1',
+                'SRNN-int-600mHH-lamM1',
+                'SRNN-bst-500mHH800-lamM1',
+                'SRNN-bst-800mHH-lamM1',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = -2
+                'SRNN-res-200mHH250-lamM2',
+                'SRNN-res-250mHH300-lamM2',
+                'SRNN-res-300mHH350-lamM2',
+                'SRNN-res-350mHH400-lamM2',
+                'SRNN-res-400mHH500-lamM2',
+                'SRNN-res-500mHH-lamM2',
+                'SRNN-int-200mHH500-lamM2',
+                'SRNN-int-500mHH600-lamM2',
+                'SRNN-int-600mHH-lamM2',
+                'SRNN-bst-500mHH800-lamM2',
+                'SRNN-bst-800mHH-lamM2',
+
+                # Multibin baseline with DNN cut trained on k(lambda) = -5
+                'SRNN-res-200mHH250-lamM5',
+                'SRNN-res-250mHH300-lamM5',
+                'SRNN-res-300mHH350-lamM5',
+                'SRNN-res-350mHH400-lamM5',
+                'SRNN-res-400mHH500-lamM5',
+                'SRNN-res-500mHH-lamM5',
+                'SRNN-int-200mHH500-lamM5',
+                'SRNN-int-500mHH600-lamM5',
+                'SRNN-int-600mHH-lamM5',
+                'SRNN-bst-500mHH800-lamM5',
+                'SRNN-bst-800mHH-lamM5',
+               ]  
+  '''
 
   # -------------------------------------------------------------
   # Argument parser
@@ -198,8 +292,8 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
   # ---------------------------------------
   with open(save_file, 'w') as f_out:
     header  = 'TopYuk,SlfCoup,N_bkg,N_sig,N_sig_raw,'
-    header += 'SoverB,SoverSqrtB,SoverSqrtBSyst1pc,SoverSqrtBSyst0p3pc,'
-    header += 'chiSq,chiSqSyst1pc,chiSqSyst0p3pc,acceptance,xsec\n'
+    header += 'SoverB,SoverSqrtB,SoverSqrtBSyst5pc,SoverSqrtBSyst2pc,SoverSqrtBSyst1p5pc,SoverSqrtBSyst1pc,SoverSqrtBSyst0p3pc,'
+    header += 'chiSq,chiSqSyst5pc,chiSqSyst2pc,chiSqSyst1p5pc,chiSqSyst1pc,chiSqSyst0p3pc,acceptance,xsec\n'
     f_out.write( header )
 
     for signal in l_sig_list:  
@@ -222,7 +316,7 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
 
     save_file_2d = save_file.replace('CHISQ_', 'CHISQ_2Dlambda_')
     with open(save_file_2d, 'w') as f_out2d:
-      header2d = 'lambda_i,lambda_j,chiSq_ij_Sys1pc,chiSq_ij_Sys0p3pc,chiSq_ij\n'
+      header2d = 'lambda_i,lambda_j,chiSq_ij_Sys5pc,chiSq_ij_Sys2pc,chiSq_ij_Sys1p5pc,chiSq_ij_Sys1pc,chiSq_ij_Sys0p3pc,chiSq_ij\n'
       f_out2d.write( header2d )
 
       for signal_i in l_sig_list:
@@ -238,11 +332,14 @@ def do_selection( yield_file, save_file, lumi, sig_reg, cut_sel, samp_nom):
           lambda_j = float( signal_j.split('_')[7].replace('m', '-') )
           
           # Extract chi squares
-          chiSq         = float(long_out.split(',')[9])
-          chiSqSys1pc   = float(long_out.split(',')[10])
-          chiSqSys0p3pc = float(long_out.split(',')[11])
+          chiSq         = float(long_out.split(',')[12])
+          chiSqSys5pc   = float(long_out.split(',')[13])
+          chiSqSys2pc   = float(long_out.split(',')[14])
+          chiSqSys1p5pc = float(long_out.split(',')[15])
+          chiSqSys1pc   = float(long_out.split(',')[16])
+          chiSqSys0p3pc = float(long_out.split(',')[17])
       
-          out_str = '{0:.1f},{1:.1f},{2:.4g},{3:.4g},{4:.4g}\n'.format(lambda_i, lambda_j, chiSqSys1pc, chiSqSys0p3pc, chiSq)
+          out_str = '{0:.1f},{1:.1f},{2:.4g},{3:.4g},{4:.4g},{5:.4g},{6:.4g},{7:.4g}\n'.format(lambda_i, lambda_j, chiSqSys5pc, chiSqSys2pc, chiSqSys1p5pc, chiSqSys1pc, chiSqSys0p3pc, chiSq)
           f_out2d.write(out_str)
 
   print('\n------------------------------------------------------')
@@ -370,9 +467,15 @@ def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
 
   SoverB = 0.
   SoverSqrtB = 0.
+  SoverSqrtBSyst5pc   = 0.
+  SoverSqrtBSyst2pc   = 0.
+  SoverSqrtBSyst1p5pc   = 0.
   SoverSqrtBSyst1pc   = 0.
   SoverSqrtBSyst0p3pc = 0.
   chiSq = 0.
+  chiSqSyst5pc = 0.
+  chiSqSyst2pc = 0.
+  chiSqSyst1p5pc = 0.
   chiSqSyst1pc = 0.
   chiSqSyst0p3pc = 0.
   acceptance = 0.
@@ -383,6 +486,9 @@ def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
     # ------------------------------------------------------
     SoverB              = N_sig / N_bkg
     SoverSqrtB          = N_sig / math.sqrt( N_bkg )
+    SoverSqrtBSyst5pc   = N_sig / math.sqrt( N_bkg + (0.05 * N_bkg ) ** 2 )
+    SoverSqrtBSyst2pc   = N_sig / math.sqrt( N_bkg + (0.02 * N_bkg ) ** 2 )
+    SoverSqrtBSyst1p5pc = N_sig / math.sqrt( N_bkg + (0.015 * N_bkg ) ** 2 )
     SoverSqrtBSyst1pc   = N_sig / math.sqrt( N_bkg + (0.01 * N_bkg ) ** 2 )
     SoverSqrtBSyst0p3pc = N_sig / math.sqrt( N_bkg + (0.003 * N_bkg ) ** 2 )
     
@@ -390,6 +496,9 @@ def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
     # Calculate the chi squares
     # ------------------------------------------------------
     chiSq          = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg )
+    chiSqSyst5pc   = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.05 * N_bkg ) ** 2 )
+    chiSqSyst2pc   = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.02 * N_bkg ) ** 2 )
+    chiSqSyst1p5pc = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.015 * N_bkg ) ** 2 )
     chiSqSyst1pc   = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.01 * N_bkg ) ** 2 )
     chiSqSyst0p3pc = ( N_sig - N_sig_nom ) ** 2 / ( N_bkg + (0.003 * N_bkg ) ** 2 )
     
@@ -402,8 +511,8 @@ def compute_chiSq( f_out, signal, lumi, var, unweighted_cuts, N_bkg, N_sig_nom )
   # Construct string of values to output
   # ------------------------------------------------------
   out_str  = '{0},{1},{2:.4g},{3:.4g},{4:.4g},'.format( TopYuk, SlfCoup,         N_bkg,             N_sig, N_sig_raw )
-  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},'.format( SoverB, SoverSqrtB,      SoverSqrtBSyst1pc, SoverSqrtBSyst0p3pc  )
-  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},{4}'.format( chiSq,  chiSqSyst1pc, chiSqSyst0p3pc, acceptance, xsec )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},{4:.4g},{5:.4g},{6:.4g},'.format( SoverB, SoverSqrtB, SoverSqrtBSyst5pc, SoverSqrtBSyst2pc, SoverSqrtBSyst1p5pc, SoverSqrtBSyst1pc, SoverSqrtBSyst0p3pc  )
+  out_str += '{0:.4g},{1:.4g},{2:.4g},{3:.4g},{4:.4g},{5:.4g},{6:.4g},{7:.4g}'.format( chiSq, chiSqSyst5pc, chiSqSyst2pc, chiSqSyst1p5pc, chiSqSyst1pc, chiSqSyst0p3pc, acceptance, xsec )
   out_str += '\n'
 
   return out_str

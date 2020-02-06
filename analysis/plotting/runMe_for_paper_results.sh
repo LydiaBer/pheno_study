@@ -16,12 +16,14 @@
 ./ntuples_to_chiSq.py
 
 # Combine the chiSq 
-./combine_chiSq.py
+./auto_combine_chiSq.py
 
 # Make chiSq_ij vs lambda_i vs lambda_j info
 ./chiSq_2dlambda_discrPowerMatrix.py
 
 # Make the 1d chiSq plots
+# NOTE need to run three times, once for limits and twice for acceptance one for klam one for ktop, need to open file and comment out/set True/False accordingly
+# set zoom_in to false for acceptance plots
 ./auto_chiSq_to_1Dlimit.py
 
 # Make the 2d contour plots of chiSq
