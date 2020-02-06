@@ -85,8 +85,9 @@ def main():
   l_samples  = ['loose']
   
   l_sig_regs = ['preselection']   # gets specific region from input ROOT file
-  '''
+
   # plots for paper
+  '''
   l_vars     = ['m_hh', 'h1_M', 'h2_M', 'h1_Pt', 'h2_Pt', 'pT_hh', 'nnscore_SlfCoup_1.0_sig', 'nnscore_SlfCoup_5.0_sig'] #, 'nnscore_SlfCoup_1.0_top', 'nnscore_SlfCoup_1.0_qcd']
   
   
@@ -751,6 +752,8 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
   elif binWidth >= 1:
     ytitle = 'Events / {0:.0f} {1}'.format(binWidth, binUnits)
   enlargeYaxis = True
+  if 'nnscore' in var:
+    enlargeYaxisEvenMore = True
 
   #=============================================================
   # draw and decorate
@@ -759,7 +762,7 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
     if UnitNorm and h_bkg.Integral() > 0.:
       h_bkg.Scale(1.0/h_bkg.Integral()) 
     h_bkg.Draw('hist')
-    customise_axes(h_bkg, xtitle, ytitle, 1.5, IsLogY, enlargeYaxis)
+    customise_axes(h_bkg, xtitle, ytitle, 1.5, IsLogY, enlargeYaxis, enlargeYaxisEvenMore)
 
   # draw signal samples
   for samp in d_hsig:
@@ -776,7 +779,7 @@ def plot_selections(var, h_bkg, d_hsig, h_mcErr, leg, l_bkg_leg, d_bkg_leg, lumi
     if UnitNorm and d_hsig[samp].Integral() > 0.:
       d_hsig[samp].Scale(1.0/d_hsig[samp].Integral())
     d_hsig[samp].Draw('hist same') #e2 = error coloured band
-    customise_axes(d_hsig[samp], xtitle, ytitle, 1.5, IsLogY, enlargeYaxis)
+    customise_axes(d_hsig[samp], xtitle, ytitle, 1.5, IsLogY, enlargeYaxis, enlargeYaxisEvenMore)
 
   # Clone the total background histogram to draw the line if bkg samples not empty
   if nTotBkg > 0.:

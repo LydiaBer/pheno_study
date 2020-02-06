@@ -41,7 +41,7 @@ def customise_gPad(top=0.03, bot=0.15, left=0.17, right=0.08):
   gPad.Update()
   
 #____________________________________________________________________________
-def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeYaxis=False):
+def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeYaxis=False, enlargeYaxisEvenMore = False):
   # set a universal text size
   #text_size = 0.055
   text_size = 45
@@ -101,7 +101,10 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   if 'Events' in ytitle:
     yax.SetNdivisions(505) 
     if IsLogY:
-      if enlargeYaxis:
+      if enlargeYaxisEvenMore:
+        ymax = 12 ** 7
+        ymin = 0.7
+      elif enlargeYaxis:
         ymax = 10 ** 7
         ymin = 0.7
       else:
