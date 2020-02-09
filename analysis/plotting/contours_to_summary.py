@@ -70,8 +70,8 @@ def main():
     'SRNN_int_multibin_lam1_combined'  : 'Intermediate',
     'SRNN_bst_multibin_lam1_combined'  : 'Boosted',
     'SRNN_all_multibin_lam1_combined'  : 'Combined',
-    'SRNN_all_multibin_lam5_combined'  : 'Combined #kappa(#lambda_{hhh}) = 5',
-    'SRNN_all_multibin_lam7_combined' : 'Combined #kappa(#lambda_{hhh}) = 7',
+    'SRNN_all_multibin_lam5_combined'  : 'Combined #kappa_{#lambda} = 5',
+    'SRNN_all_multibin_lam7_combined'  : 'Combined #kappa_{#lambda} = 7',
   }
 
   xCol, yCol = 'x', 'y'
@@ -166,8 +166,8 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   tg_dummy.GetXaxis().SetRangeUser(-19,18)
   tg_dummy.GetYaxis().SetRangeUser(0.6,1.4)
   
-  xtitle = '#kappa(#lambda_{hhh})'
-  ytitle = '#kappa(#it{y}_{top})'
+  xtitle = '#kappa_{#lambda}'
+  ytitle = '#kappa_{t}'
   customise_axes(tg_dummy, xtitle, ytitle)
 
   # Marker for SM
@@ -228,11 +228,11 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
     # Add some text to bookkeep which DNN training we're using
     if 'SRNN' in contour:
       if 'lam1' in contour: 
-        klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
+        klambda = 'DNN trained on #kappa_{#lambda} = 1'
       if 'lam5' in contour: 
-        klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 5'
+        klambda = 'DNN trained on #kappa_{#lambda} = 5'
       if 'lam7' in contour: 
-        klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 7'
+        klambda = 'DNN trained on #kappa_{#lambda} = 7'
       myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
 
   customise_gPad()

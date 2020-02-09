@@ -211,8 +211,8 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   tgraph_cont.SetLineColor(kGray+3)
   
   process = 'hh #rightarrow 4b'
-  xtitle = '#kappa(#lambda_{hhh})'
-  ytitle = '#kappa(#it{y}_{top})'
+  xtitle = '#kappa_{#lambda}'
+  ytitle = '#kappa_{t}'
   ztitle = d_axis_tlatex[zCol]['tlatex']
   zMin = d_axis_tlatex[zCol]['zMin']
   zMax = d_axis_tlatex[zCol]['zMax']
@@ -301,11 +301,11 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
     analysis += ' DNN'
     # Add some text to bookkeep which DNN training we're using
     if 'lam1' in cut_sel: 
-      klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 1'
+      klambda = 'DNN trained on #kappa_{#lambda} = 1'
     if 'lam5' in cut_sel: 
-      klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 5'
+      klambda = 'DNN trained on #kappa_{#lambda} = 5'
     if 'lam7' in cut_sel: 
-      klambda = 'DNN trained on #kappa(#lambda_{hhh}) = 7'
+      klambda = 'DNN trained on #kappa_{#lambda} = 7'
     myText(0.07, 0.06, klambda, 0.03, kGray+2, 0, True)
   else:
     analysis += ' Baseline'
