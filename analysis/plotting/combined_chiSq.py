@@ -247,8 +247,9 @@ def main():
                ],
    }
   '''
+  
   for SRvar_set in d_SRvar_sets:
-    # TODO combine_set_of_SRs( SRvar_set, d_SRvar_sets, 'chiSq_ij_Sys0p3pc', my_dir, chiSqLabel, True )
+    combine_set_of_SRs( SRvar_set, d_SRvar_sets, my_dir, chiSqLabel, True )
     combine_set_of_SRs( SRvar_set, d_SRvar_sets, my_dir, chiSqLabel)
   
 #____________________________________________________________________________
@@ -267,8 +268,7 @@ def combine_set_of_SRs(SRvar_set, d_SRvar_sets, my_dir, chiSqLabel, do_2dlambda=
   #SRvar_names = '_'.join(l_SRvars).replace(':','_') 
 
   if do_2dlambda:
-    #TODO 
-    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(my_dir, SR_set, to_sum_var)
+    out_file = 'data/CHISQ_2Dlambda_{0}_{1}_combined_{2}.csv'.format(my_dir, SRvar_set, chiSqLabel)
   else:
     out_file = 'data/CHISQ_{0}_{1}_combined_{2}.csv'.format(my_dir, SRvar_set, chiSqLabel)
   
@@ -289,7 +289,6 @@ def combine_set_of_SRs(SRvar_set, d_SRvar_sets, my_dir, chiSqLabel, do_2dlambda=
 
     # Input CSV file
     if do_2dlambda:
-      # TODO
       in_file = 'data/CHISQ_2Dlambda_{0}_{1}.csv'.format(my_dir, SR)
     else:
       in_file = 'data/CHISQ_{0}_{1}.csv'.format(my_dir,SR)
@@ -319,6 +318,13 @@ def combine_set_of_SRs(SRvar_set, d_SRvar_sets, my_dir, chiSqLabel, do_2dlambda=
     SR  = SRvar.split(":")[0] 
     to_sum_var = SRvar.split(":")[1] 
 
+    if do_2dlambda:
+      if "chiSq" in to_sum_var:
+        if "Syst" in to_sum_var:
+          to_sum_var = to_sum_var.replace("Syst","_ij_Sys")
+        else:
+          to_sum_var = to_sum_var+"_ij"
+    
     new_col_name = SR + '_' + to_sum_var
     combo_df[new_col_name] = d_df[SR][to_sum_var]
 

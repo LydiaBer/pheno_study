@@ -12,6 +12,7 @@ of chiSq(i,j) vs lambda_i vs lambda_j
 import matplotlib as mplt
 mplt.use('Agg') # So we can use without X forwarding
 
+import sys
 import numpy as np
 import math
 import matplotlib.pyplot as plt
@@ -134,24 +135,24 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, zlabel, my_fil
       fig.text(0.17, 0.83, r'$hh \to 4b~\textrm{Neural network analysis}$', color='Black', size=25)
     else:
       fig.text(0.17, 0.83, r'$hh \to 4b~\textrm{Baseline analysis}$', color='Black', size=25)
-    fig.text(0.17, 0.765, r'$0.3\%~\textrm{systematics}$', color='Black', size=25)
+    #fig.text(0.17, 0.65, r'$0.3\%~\textrm{systematics}$', color='Black', size=25)
    
-    if 'combined' in my_file:
-      fig.text(0.17, 0.71, r'$\textrm{Combined categories}$', color='Black', size=25) 
-    elif 'resolved' in my_file:
-      fig.text(0.17, 0.71, r'$\textrm{Resolved~category}$', color='Black', size=25)
-    elif 'intermediate' in my_file:
-      fig.text(0.17, 0.71, r'$\textrm{Intermediate~category}$', color='Black', size=25)
+    if '_all_' in my_file:
+      fig.text(0.17, 0.775, r'$\textrm{Combined categories}$', color='Black', size=25) 
+    elif '_res_' in my_file:
+      fig.text(0.17, 0.775, r'$\textrm{Resolved~category}$', color='Black', size=25)
+    elif '_int_' in my_file:
+      fig.text(0.17, 0.775, r'$\textrm{Intermediate~category}$', color='Black', size=25)
     else:
-      fig.text(0.17, 0.71, r'$\textrm{Boosted~category}$', color='Black', size=25)
+      fig.text(0.17, 0.775, r'$\textrm{Boosted~category}$', color='Black', size=25)
     
     if 'SRNN' in my_file:
       if 'lam10' in my_file:
-        fig.text(0.17, 0.65, r'$\textrm{DNN trained on}~\kappa(\lambda_{hhh}) = 10$', color='Black', size=25)
+        fig.text(0.17, 0.71, r'$\textrm{DNN trained on}~\kappa_{\lambda} = 10$', color='Black', size=25)
       elif 'lam5' in my_file:
-        fig.text(0.17, 0.65, r'$\textrm{DNN trained on}~\kappa(\lambda_{hhh}) = 5$', color='Black', size=25)
+        fig.text(0.17, 0.71, r'$\textrm{DNN trained on}~\kappa_{\lambda} = 5$', color='Black', size=25)
       else:
-        fig.text(0.17, 0.65, r'$\textrm{DNN trained on}~\kappa(\lambda_{hhh}) = 1$', color='Black', size=25)
+        fig.text(0.17, 0.71, r'$\textrm{DNN trained on}~\kappa_{\lambda} = 1$', color='Black', size=25)
     
     plt.tight_layout(pad=0.5)
 
@@ -159,7 +160,7 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, zlabel, my_fil
     # Save as PDF  
     #----------------------------------------------
     mkdir('figs')
-    save_name = 'figs/' + my_file.replace('.csv', '_Sys1pc.pdf') 
+    save_name = 'figs/' + my_file.replace('.csv', '.pdf') 
     plt.savefig(save_name, format='pdf', dpi=150)
 
 #_______________________________________
@@ -175,18 +176,18 @@ def main():
   # Data files to plot
   #----------------------------------------------
   l_files = [
-    'CHISQ_2Dlambda_loose_preselection_SR_res_multibin_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SR_int_multibin_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SR_bst_multibin_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SR_all_multibin_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_res_multibin_lam1_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_int_multibin_lam1_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_bst_multibin_lam1_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_all_multibin_lam1_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_res_multibin_lam5_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_int_multibin_lam5_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_bst_multibin_lam5_combined_chiSq_ij_Sys0p3pc.csv',
-    'CHISQ_2Dlambda_loose_preselection_SRNN_all_multibin_lam5_combined_chiSq_ij_Sys0p3pc.csv',
+    'CHISQ_2Dlambda_loose_preselection_SR_res_multibin_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SR_int_multibin_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SR_bst_multibin_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SR_all_multibin_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_res_multibin_lam1_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_int_multibin_lam1_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_bst_multibin_lam1_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_all_multibin_lam1_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_res_multibin_lam5_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_int_multibin_lam5_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_bst_multibin_lam5_combined_chiSqSystMix.csv',
+    'CHISQ_2Dlambda_loose_preselection_SRNN_all_multibin_lam5_combined_chiSqSystMix.csv',
   ]
 
   for my_file in l_files:
@@ -206,12 +207,20 @@ def main():
     with open( file_loc ) as csvfile:
       myreader = csv.reader(csvfile, delimiter=',')
       previous_lambda = l_lambda[0]
+       
+      # Find index starting sum_ to use later to obtain summed chi2
+      firstrow = next(myreader)  # gets the first line
+      indices = [i for i, s in enumerate(firstrow) if 'sum_' in s]
+      if (len(indices) > 1): sys.exit("More than one sum_ column") 
+      #print(firstrow)
+      #print(indices)
+
       for rownum, row in enumerate(myreader):
+
         if 'lambda_i' in row: continue
         if float( row[0] ) not in l_lambda: continue
         if float( row[1] ) not in l_lambda: continue
-        #print row
-        
+
         # Fill each set of lambda values in a new list
         if not float( row[0] ) == previous_lambda:
           correlation_matrix.append(correlation)
@@ -219,12 +228,13 @@ def main():
         if float(row[0]) > float(row[1]):
           correlation.append(-1.)
         else:
-          correlation.append(float(row[3]))
+          #correlation.append(float(row[3]))
+          index = int(indices[0])
+          correlation.append(float(row[index]))
         if row[0] not in l_varX:
           l_varX.append(float(row[0]))
         if row[1] not in l_varY:
           l_varY.append(float(row[1]))
-
         previous_lambda = float(row[0])
       # add the last correlations to the matrix
       correlation_matrix.append(correlation)
@@ -233,13 +243,12 @@ def main():
     # Convert nested lists into numpy array
     #----------------------------------------------
     data = np.array(correlation_matrix)
-    #print(data)
     
     #----------------------------------------------
     # Axis labels
     #----------------------------------------------
-    xlabel = r'$\kappa(\lambda_{hhh}^i)$'
-    ylabel = r'$\kappa(\lambda_{hhh}^j)$'
+    xlabel = r'$\kappa_{\lambda}^{~i}$'
+    ylabel = r'$\kappa_{\lambda}^{~j}$'
     zlabel = r'$\textrm{Discrimination power}~\chi^2_{ij}$'
     title  = ''
     xticklabels = []
