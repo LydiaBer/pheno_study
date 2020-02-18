@@ -70,63 +70,87 @@ plt.plot([-25.,-25], [-5,-5],'|',ms=0,mew=0,mec=intColor,ls='-',lw=intWidth,colo
 plt.plot([-25,-25.], [-5,-5],'|',ms=0,mew=0,mec=resColor,ls='-',lw=resWidth,color=resColor,label='$\mathrm{Resolved}$')
 plt.plot([-25.,-25.],[-5,-5],'|',ms=0,mew=0,mec=comColor,ls='-',lw=comWidth,color=comColor,label='$\mathrm{Combined}$')
 
-# Baseline, k(ytop) = 0.8, 1% syst
+% 5% systematic
 plt.plot([-25.,25.],  [18.,18.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-19,25.],   [17.8,17.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
-plt.plot([-13.5,17.5],[17.6,17.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved
-plt.plot([-12.,15.5], [17.4,17.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined
-ax.text(-38,17.8,r'$\mathrm{Baseline}~1\%~\mathrm{systematics}$', size='20')
-ax.text(-38,17.1,r'$\kappa(y_\mathrm{top}) = 0.8$', size='14')
+plt.plot([-8.2,15.8], [17.8,17.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-5.5,11.9],[17.6,17.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved
+plt.plot([-4.7,11.6], [17.4,17.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined
+ax.text(-38,17.8,r'5\% syst', size='20')
 
-# Baseline, k(ytop) = 1, 1% syst
-plt.plot([-25.,25.],  [16.,16.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-12.,18.5], [15.8,15.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor)  # Intermediate
-plt.plot([-10.5,16.], [15.6,15.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
-plt.plot([-8.,15.],   [15.4,15.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
-ax.text(-38,15.8,r'$\mathrm{Baseline}~1\%~\mathrm{systematics}$', size='20')
-ax.text(-38,15.1,r'$\kappa(y_\mathrm{top}) = 1$', size='14')
+# 2% syst
+plt.plot([-12.4,25.],  [16.,16.],   '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-4.2,14.4], [15.8,15.8], '|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-2.6,9.7], [15.6,15.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-2.5,9.4],   [15.4,15.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'2\% syst', size='20')
 
-# DNN, k(ytop) = 0.8, 1% syst, trained on k(lambda) = 1
-plt.plot([-11.5,25.],[14.,14.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-8,12.],   [13.8,13.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor)  # Intermediate
-plt.plot([-7,10.5],  [13.6,13.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
-plt.plot([-6,10.5],  [13.4,13.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
-ax.text(-38,13.8,r'$\mathrm{DNN}~1\%~\mathrm{systematics}$', size='20')
-ax.text(-38,13.1,r'$\kappa(y_\mathrm{top}) = 0.8,~\mathrm{trained~on}~\kappa(\lambda_{hhh}) = 1$', size='14')
+# 1.5% syst
+plt.plot([-11.0,25.],[14.,14.],   '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.8,12.6],[13.8,13.8], '|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-2.4,8.9], [13.6,13.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-2.2,8.8],  [13.4,13.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'1.5\% syst', size='20')
 
-# DNN, k(ytop) = 1, 1% syst, trained on k(lambda) = 1
-plt.plot([-11.5,25.],[12.,12.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-4.5,11.], [11.8,11.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor)  # Intermediate
-plt.plot([-4,10.5],  [11.6,11.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
-plt.plot([-3.5,10.],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
-ax.text(-38,11.8,r'$\mathrm{DNN}~1\%~\mathrm{systematics}$', size='20')
-ax.text(-38,11.1,r'$\kappa(y_\mathrm{top}) = 1,~\mathrm{trained~on}~\kappa(\lambda_{hhh}) = 1$', size='14')
+# 1% syst
+plt.plot([-10.1,17.6],[12.,12.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.4,11.4], [11.8,11.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-2.0,8.2],  [11.6,11.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-1.9,8.1],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'1\% syst', size='20')
 
-# DNN, k(ytop) = 1, 1% syst, trained on k(lambda) = 10
-plt.plot([-16,25.], [10.,10.],'|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-4,11.],  [9.8,9.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor)  # Intermediate
-plt.plot([-5,10.],  [9.6,9.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
-plt.plot([-3.5,10.],[9.4,9.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
-ax.text(-38,9.8,r'$\mathrm{DNN}~1\%~\mathrm{systematics}$', size='20')
-ax.text(-38,9.1,r'$\kappa(y_\mathrm{top}) = 1,~\mathrm{trained~on}~\kappa(\lambda_{hhh}) = 10$', size='14')
+# 0.3% syst
+plt.plot([-8.2,13.9],[12.,12.],   '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.1,10.5],[11.8,11.8], '|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-0.97,6.7],[11.6,11.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-0.8,6.6],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'0.3% syst', size='20')
 
-# DNN, k(ytop) = 1, 0.5% syst, trained on k(lambda) = 1
-plt.plot([-10.3,25.],[8.,8.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-3.8,10.6],[7.8,7.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor)  # Intermediate
-plt.plot([-2.6,9.4], [7.6,7.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
-plt.plot([-2.4,9.1], [7.4,7.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
-ax.text(-38,7.8,r'$\mathrm{DNN}~0.5\%~\mathrm{systematics}$', size='20')
-ax.text(-38,7.1,r'$\kappa(y_\mathrm{top}) = 1,~\mathrm{trained~on}~\kappa(\lambda_{hhh}) = 1$', size='14')
+# 0% syst
+plt.plot([-8.0,13.2], [12.,12.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.0,10.4], [11.8,11.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-0.8,6.4],  [11.6,11.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-0.7,6.3],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'0\% syst', size='20')% 5% systematic
+plt.plot([-25.,25.],  [18.,18.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-8.2,15.8], [17.8,17.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-5.5,11.9],[17.6,17.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved
+plt.plot([-4.7,11.6], [17.4,17.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined
+ax.text(-38,17.8,r'5\% syst', size='20')
 
-# DNN, k(ytop) = 1, 0.5% syst, trained on k(lambda) = 10
-plt.plot([-15.8,25.],[6.,6.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
-plt.plot([-3.8,10.8],[5.8,5.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor)  # Intermediate
-plt.plot([-3.4,8.8], [5.6,5.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
-plt.plot([-2.9,8.4], [5.4,5.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
-ax.text(-38,5.8,r'$\mathrm{DNN}~0.5\%~\mathrm{systematics}$', size='20')
-ax.text(-38,5.1,r'$\kappa(y_\mathrm{top}) = 1,~\mathrm{trained~on}~\kappa(\lambda_{hhh}) = 10$', size='14')
+# 2% syst
+plt.plot([-12.4,25.],  [16.,16.],   '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-4.2,14.4], [15.8,15.8], '|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-2.6,9.7], [15.6,15.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-2.5,9.4],   [15.4,15.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'2\% syst', size='20')
 
+# 1.5% syst
+plt.plot([-11.0,25.],[14.,14.],   '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.8,12.6],[13.8,13.8], '|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-2.4,8.9], [13.6,13.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-2.2,8.8],  [13.4,13.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'1.5\% syst', size='20')
 
+# 1% syst
+plt.plot([-10.1,17.6],[12.,12.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.4,11.4], [11.8,11.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-2.0,8.2],  [11.6,11.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-1.9,8.1],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'1\% syst', size='20')
+
+# 0.3% syst
+plt.plot([-8.2,13.9],[12.,12.],   '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.1,10.5],[11.8,11.8], '|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-0.97,6.7],[11.6,11.6], '|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-0.8,6.6],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'0.3% syst', size='20')
+
+# 0% syst
+plt.plot([-8.0,13.2], [12.,12.],  '|',ms=10,mew=3,mec=bstColor,ls='-',lw=bstWidth,color=bstColor) # Boosted
+plt.plot([-3.0,10.4], [11.8,11.8],'|',ms=10,mew=3,mec=intColor,ls='-',lw=intWidth,color=intColor) # Intermediate
+plt.plot([-0.8,6.4],  [11.6,11.6],'|',ms=10,mew=3,mec=resColor,ls='-',lw=resWidth,color=resColor) # Resolved 
+plt.plot([-0.7,6.3],  [11.4,11.4],'|',ms=10,mew=3,mec=comColor,ls='-',lw=comWidth,color=comColor) # Combined  
+ax.text(-38,15.8,r'0\% syst', size='20')
 # Label the range of SMEFT line
 #ax.text(-0.055, 0.25,r'$\Lambda = 140~\mathrm{GeV}$', size='20')
 ax.text(2.5,1.3,r'$\sqrt{s} = 14~\mathrm{TeV},~3000~\mathrm{fb}^{-1}$', size='20')
