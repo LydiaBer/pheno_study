@@ -71,7 +71,7 @@ def main():
     'SRNN_bst_multibin_lam1_combined'  : 'Boosted',
     'SRNN_all_multibin_lam1_combined'  : 'Combined',
     'SRNN_all_multibin_lam5_combined'  : 'Combined #kappa_{#lambda} = 5',
-    'SRNN_all_multibin_lam7_combined'  : 'Combined #kappa_{#lambda} = 7',
+    'SRNN_all_multibin_lam7_combined' : 'Combined #kappa_{#lambda} = 7',
   }
 
   xCol, yCol = 'x', 'y'
@@ -129,29 +129,16 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   myLightOrange   = TColor.GetColor('#fec49f')
   myMediumOrange  = TColor.GetColor('#fe9929')
   myDarkOrange    = TColor.GetColor('#ec7014')
-  myDarkerOrange  = TColor.GetColor('#cc4c02')
-  
-  myDarkRed       = TColor.GetColor('#a50f15')
-
-  # Pinks
-  myLightPink     = TColor.GetColor('#fde0dd')
-  myMediumPink    = TColor.GetColor('#fcc5c0')
-  myDarkPink      = TColor.GetColor('#dd3497')
-
-  # Purples
-  myLightPurple   = TColor.GetColor('#dadaeb')
-  myMediumPurple  = TColor.GetColor('#9e9ac8')
-  myDarkPurple    = TColor.GetColor('#6a51a3')
   
   l_colours = [
-    myLightBlue,
-    myMediumBlue,
     myDarkBlue,
-    myDarkPurple,
-    myLightOrange,
-    myMediumOrange,
-    myDarkRed,
-    myDarkPink
+    myMediumBlue,
+    myLightBlue,
+    myDarkOrange,
+    myDarkBlue,
+    myMediumBlue,
+    myLightBlue,
+    myDarkOrange,
     ]
  
   # Dummy graph as first one 
@@ -163,11 +150,11 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   
   tg_dummy.Draw('AL')
   tg_dummy.SetTitle('')
-  tg_dummy.GetXaxis().SetRangeUser(-19,18)
+  tg_dummy.GetXaxis().SetRangeUser(-19,17)
   tg_dummy.GetYaxis().SetRangeUser(0.6,1.4)
   
   xtitle = '#kappa_{#lambda}'
-  ytitle = '#kappa_{t}'
+  ytitle = '#kappa_{#it{t}}'
   customise_axes(tg_dummy, xtitle, ytitle)
 
   # Marker for SM
@@ -182,8 +169,8 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   #-------------------------------------------------
   xl1=0.26
   #yl1=0.62
-  yl1=0.45
-  xl2=xl1+0.15
+  yl1=0.52
+  xl2=xl1+0.18
   yl2=yl1+0.17
   # Blues baseline
   leg = TLegend(xl1,yl1,xl2,yl2)
@@ -216,14 +203,14 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
       tg.SetLineStyle(2)
       leg.AddEntry(tg, d_tlatex[contour], 'L')
 
-    if 'resolved' in contour:
-      tg.SetLineWidth(4)
-    if 'intermediate' in contour:
-      tg.SetLineWidth(3)
-    if 'boosted' in contour:
-      tg.SetLineWidth(2)
-    if 'combined' in contour:
+    if 'res' in contour:
       tg.SetLineWidth(5)
+    if 'int' in contour:
+      tg.SetLineWidth(5)
+    if 'bst' in contour:
+      tg.SetLineWidth(5)
+    if 'all' in contour:
+      tg.SetLineWidth(3)
 
     # Add some text to bookkeep which DNN training we're using
     if 'SRNN' in contour:
@@ -254,8 +241,8 @@ def mk_plot(l_contours, d_tg, save_name, d_tlatex):
   # Add text to plot interior
   #myText(0.20, 0.80, 'DNN', 0.035, kBlack, 0, True)
   #myText(0.27, 0.80, 'Baseline', 0.035, kBlack, 0, True)
-  myText(0.20, 0.63, 'DNN', 0.035, kBlack, 0, True)
-  myText(0.27, 0.63, 'Baseline', 0.035, kBlack, 0, True)
+  myText(0.20, 0.70, 'DNN', 0.035, kBlack, 0, True)
+  myText(0.27, 0.70, 'Baseline', 0.035, kBlack, 0, True)
   myText(0.60, 0.55,  'SM', 0.04, kGray+2, 0, True)
   
   gPad.RedrawAxis()

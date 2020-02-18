@@ -89,8 +89,7 @@ def get_samples_to_plot(analysis = ''):
                  'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0', 
                  #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0', 
                  #'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0', 
-                 #'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0', 
-                 #'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0', 
+                 #'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0', 
     ]
 
 
@@ -303,89 +302,23 @@ def configure_samples():
     'loose_ptj1_1000_to_infty_4b'       :{'type':'bkg', 'leg':'4b 1000-#infty',   'f_color':myMediumBlue},
 
     'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'hh #kappa(#lambda_{hhh}) = 1','l_color': kRed+2 },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'hh #kappa(#lambda_{hhh}) = 2','l_color': kAzure+1},
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'hh #kappa(#lambda_{hhh}) = 5','l_color': kBlue+2 },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
-    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'#kappa_{#lambda} = 1','l_color': kRed+2 },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'#kappa_{#lambda} = 2','l_color': kAzure+1},
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'#kappa_{#lambda} = 3','l_color':myLightBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'#kappa_{#lambda} = 5','l_color': kBlue+2 },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'#kappa_{#lambda} = 7','l_color':myLightPink },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'#kappa_{#lambda} = 10','l_color':myLightPink },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'#kappa_{#lambda} = #minus1','l_color':myMediumBlue },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'#kappa_{#lambda} = #minus2','l_color':myMediumGreen },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'#kappa_{#lambda} = #minus3','l_color':myMediumOrange },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'#kappa_{#lambda} = #minus5','l_color':kGreen },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'#kappa_{#lambda} = #minus7','l_color':myMediumPurple },
+    'loose_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'#kappa_{#lambda} = #minus10','l_color':myDarkBlue },
 
     'loose_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
     'loose_noGenFilt_signal_hh_TopYuk_1.1_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.1','l_color':kRed }, 
     'loose_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
      
-    #------------------------------------
-    # Resolved ATLAS analysis
-    #------------------------------------
-    
-    'resolved_noGenFilt_signal_hh_loop_sm_trackJetBTag':{'type':'sig','leg':'HH','l_color':kRed+3 },
-
-    'resolved_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'resolved_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
-    'resolved_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
-    'resolved_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
-    'resolved_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
-    'resolved_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
-    'resolved_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
-    'resolved_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
-    'resolved_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
-
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = 1','l_color':kRed },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
-
-    'resolved_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
-    'resolved_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
-
-    #------------------------------------
-    # Boosted ATLAS analysis
-    #------------------------------------
-    
-    'boosted_noGenFilt_signal_hh_loop_sm_trackJetBTag':{'type':'sig','leg':'HH','l_color':kRed+3 },
-
-    'boosted_noGenFilt_bkg_ttbar_trackJetBTag':{'type':'bkg', 'leg':'ttbar', 'f_color':myLightPink},    
-    'boosted_ptj1_20_to_200_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 20-200', 'f_color':myLightBlue},
-    'boosted_ptj1_200_to_500_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 200-500', 'f_color':myLightGreen},
-    'boosted_ptj1_500_to_1000_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 500-1000', 'f_color':myLightOrange},
-    'boosted_ptj1_1000_to_infty_bkg_2b2j':{'type':'bkg', 'leg':'2b2j 1000-infty', 'f_color':myLightPurple},
-    'boosted_ptj1_20_to_200_bkg_4b':{'type':'bkg', 'leg':'4b 20-200', 'f_color':myMediumBlue},
-    'boosted_ptj1_200_to_500_bkg_4b':{'type':'bkg', 'leg':'4b 200-500', 'f_color':myMediumGreen},
-    'boosted_ptj1_500_to_1000_bkg_4b':{'type':'bkg', 'leg':'4b 500-1000', 'f_color':myMediumOrange},
-    'boosted_ptj1_1000_to_infty_bkg_4b':{'type':'bkg', 'leg':'4b 1000-infty', 'f_color':myMediumPurple},
-
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_0.5':{'type':'sig','leg':'HH kl = 0','l_color':kBlue },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_1.0':{'type':'sig','leg':'HH kl = kt = 1','l_color':kRed },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_2.0':{'type':'sig','leg':'HH kl = 2','l_color':myLighterOrange},
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_3.0':{'type':'sig','leg':'HH kl = 3','l_color':myLightBlue },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_5.0':{'type':'sig','leg':'HH kl = 5','l_color':myLightGreen },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_7.0':{'type':'sig','leg':'HH kl = 7','l_color':myLightPink },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_10.0':{'type':'sig','leg':'HH kl = 10','l_color':kBlue},
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m1.0':{'type':'sig','leg':'HH kl = -1','l_color':myMediumBlue },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m2.0':{'type':'sig','leg':'HH kl = -2','l_color':myMediumGreen },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m3.0':{'type':'sig','leg':'HH kl = -3','l_color':myMediumOrange },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m5.0':{'type':'sig','leg':'HH kl = -5','l_color':kGreen },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m7.0':{'type':'sig','leg':'HH kl = -7','l_color':myMediumPurple },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.0_SlfCoup_m10.0':{'type':'sig','leg':'HH kl = -10','l_color':myDarkBlue },
-
-    'boosted_noGenFilt_signal_hh_TopYuk_0.8_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 0.8','l_color':kBlue },
-    'boosted_noGenFilt_signal_hh_TopYuk_1.2_SlfCoup_1.0':{'type':'sig','leg':'HH kt = 1.2','l_color':myLightGreen }, 
-    
     }
   return d_samp
 

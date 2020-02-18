@@ -15,9 +15,11 @@ clean up lots of relics from previous use of this script
 # So Root ignores command line inputs so we can use argparse
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch(1)
 
 from ROOT import *
 import os, sys, time, argparse, math, datetime, csv
+from array import array
 
 #DATE       = '#bf{#it{Pheno 4b}}'
 SQRTS_LUMI = '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}'
@@ -58,7 +60,6 @@ def main():
             ]
   
   #l_zCol = ['sum_chiSqSyst0p3pc']
-  #l_zCol = ['sum_chiSqSyst1pc']
   
   l_cut_sels = [
                 'SR_res_multibin_combined', 
@@ -83,6 +84,11 @@ def main():
                 ]
 
   l_zCol = ['sum_chiSqSystMix']
+  #l_zCol = ['sum_chiSqSyst0p3pc']
+  #l_zCol = ['sum_chiSqSyst1pc']
+  #l_zCol = ['sum_chiSqSyst1p5pc']
+  #l_zCol = ['sum_chiSqSyst2pc']
+  #l_zCol = ['sum_chiSqSyst5pc']
 
   # ------------------------------------------------------
   # Threshold we want to plot excluded vs viable points
@@ -105,8 +111,13 @@ def main():
     'chiSq'             : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},# = (S #minus S_{SM})^{2} / B'},
     'chiSqSyst1pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (1%B)^{2})'},
     'chiSqSyst5pc'      : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},#_{syst} = (S #minus S_{SM})^{2} / (B + (5%B)^{2})'},
-    'sum_chiSqSyst0p3pc' : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
+    'sum_chiSqSyst0p3pc' : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} (0.3% syst)'},
+    'sum_chiSqSyst1pc'   : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} (1% syst)'},
+    'sum_chiSqSyst1p5pc' : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} (1.5% syst)'},
+    'sum_chiSqSyst2pc'   : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} (2% syst)'},
+    'sum_chiSqSyst5pc'   : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} (5% syst)'},
     'sum_chiSqSystMix'   : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2}'},
+    'sum_chiSq'          : {'zMin':0.001, 'zMax':1e3, 'palette':'kTemperatureMap', 'tlatex':'#chi^{2} (0% syst)'},
   }
 
   xCol, yCol = 'SlfCoup', 'TopYuk'
@@ -212,14 +223,14 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   
   process = 'hh #rightarrow 4b'
   xtitle = '#kappa_{#lambda}'
-  ytitle = '#kappa_{t}'
+  ytitle = '#kappa_{#it{t}}'
   ztitle = d_axis_tlatex[zCol]['tlatex']
   zMin = d_axis_tlatex[zCol]['zMin']
   zMax = d_axis_tlatex[zCol]['zMax']
   palette = d_axis_tlatex[zCol]['palette']  
   # Format some text 
   if palette == 'kBird'           : gStyle.SetPalette(kBird)
-  if palette == 'kTemperatureMap' : gStyle.SetPalette(kTemperatureMap)
+  if palette == 'kTemperatureMap' : set_palette() #gStyle.SetPalette(kTemperatureMap)
   if palette == 'kViridis'        : gStyle.SetPalette(kViridis)
   customise_gPad()
   customise_axes(hist, xtitle, ytitle, ztitle, zMin, zMax)
@@ -288,14 +299,14 @@ def draw_contour_with_points(d_csv, out_file, xCol, yCol, zCol, zThreshold, cut_
   else:
     syst_txt = ''
 
-  if 'resolved' in out_file:
-    analysis = 'Resolved'
-  if 'intermediate' in out_file:
-    analysis = 'Intermediate'
-  if 'boosted' in out_file:
-    analysis = 'Boosted'
-  if 'combined' in out_file:
+  if 'all' in out_file:
     analysis = 'Combined'
+  if 'res' in out_file:
+    analysis = 'Resolved'
+  if 'int' in out_file:
+    analysis = 'Intermediate'
+  if 'bst' in out_file:
+    analysis = 'Boosted'
 
   if 'SRNN' in out_file:
     analysis += ' DNN'
@@ -364,8 +375,8 @@ def csv_to_graph( d_csv, xCol, yCol, zCol, zMin=0.001, interpolate_logy=False ):
     tg.SetPoint(count, float(x_val), float(y_val), float(z_val) )  
 
   # Maximise granulairty of the contour interpolation
-  tg.SetNpx(300)
-  tg.SetNpy(100) # for now, use this so slepton contour extends to (183, 180) points say
+  tg.SetNpx(150)
+  tg.SetNpy(150) # for now, use this so slepton contour extends to (183, 180) points say
   # Possibility to draw the contour map
   #can1  = TCanvas('c1','c1',1300,1000)
   #tg.SetTitle('')
@@ -501,6 +512,27 @@ def customise_axes(hist, xtitle, ytitle, ztitle, zmin=0, zmax=1):
   gPad.SetTicky()
 
   gPad.Update()
+
+
+#____________________________________________________________________________
+def set_palette(name='temperature', ncontours=999):
+  '''
+  A custom palette for temperature based on
+  http://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=11
+  '''
+  stops = [0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00]
+  red   = [0.65, 0.84, 0.96, 0.99, 1.00, 1.00, 0.88, 0.67, 0.45, 0.27, 0.19]
+  green = [0.00, 0.19, 0.43, 0.68, 0.90, 1.00, 0.95, 0.85, 0.68, 0.46, 0.21]
+  blue  = [0.15, 0.15, 0.26, 0.38, 0.76, 1.00, 0.97, 0.91, 0.82, 0.71, 0.58]
+
+  s = array('d', stops )
+  r = array('d', reversed(red) )
+  g = array('d', reversed(green) )
+  b = array('d', reversed(blue) )
+
+  npoints = len(s)
+  TColor.CreateGradientColorTable(npoints, s, r, g, b, ncontours)
+  gStyle.SetNumberContours(ncontours)
 
 #__________________________________________
 def csv_to_lists(csv_file):
