@@ -143,6 +143,9 @@ SQRTS_LUMI = '#sqrt{s} = 14 TeV, 3000 fb^{#minus1}'
 # Switch to true to zoom in on x-axis 
 zoom_in = True
 
+# Overlay ATLAS HL-LHC projections
+show_HLLHC_atlas_proj = False
+
 #____________________________________________________________________________
 def main():
 
@@ -208,8 +211,10 @@ def main():
                            'SRNN_res_multibin_lamM5_combined'] 
   '''
 
-  # acceptance plots, set zoom_in to False
+
   '''
+  #----------------------------------------------------------
+  # acceptance plots, set zoom_in to False
   l_zCols = ['acceptance']
 
   IsLogY = True
@@ -218,10 +223,17 @@ def main():
   d_SRsets['baseline-no-mhh-binning']   = ['SR-res', 
                                            'SR-int', 
                                            'SR-bst']
+  d_SRsets['DNN-lam1-no-mhh-binning']   = ['SRNN-res-lam1', 
+                                           'SRNN-int-lam1', 
+                                           'SRNN-bst-lam1']
+  d_SRsets['DNN-lam5-no-mhh-binning']   = ['SRNN-res-lam5', 
+                                           'SRNN-int-lam5', 
+                                           'SRNN-bst-lam5']
+  #----------------------------------------------------------
   '''
 
   d_axis_tlatex = {
-    'acceptance'         : 'A #times \epsilon (S / #sigma #times L) [%]',
+    'acceptance'         : 'A #times #varepsilon',
     'xsec'               : 'xsec [pb]',
     'N_sig'              : 'Signal yield',
     'N_sig_raw'          : 'Raw signal yield',
@@ -304,9 +316,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       xl1, yl1 = 0.45, 0.5
   elif extra_space > 0.25:
     if zoom_in: 
-      xl1, yl1 = 0.43, 0.38
+      xl1, yl1 = 0.42, 0.37
     else:
-      xl1, yl1 = 0.43, 0.6
+      xl1, yl1 = 0.42, 0.6
   elif extra_space > 0.:
     if zoom_in: 
       xl1, yl1 = 0.35, 0.54
@@ -352,7 +364,8 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     lim_ATL_HLLHC_left.SetFillColorAlpha(kGray+1,  0.2)
     lim_ATL_HLLHC_right.SetFillColorAlpha(kGray+1, 0.2)
   
-    leg.AddEntry(lim_ATL_HLLHC_left, 'ATLAS 3 ab^{#minus1}', 'f')
+    if show_HLLHC_atlas_proj:
+      leg.AddEntry(lim_ATL_HLLHC_left, 'ATLAS 3 ab^{#minus1}', 'f')
   
   #------------------------------------------------------
   # Get and organise data
@@ -398,7 +411,11 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     tg.SetMarkerColor(d_cut_sel_colour[cut_sel])
     tg.SetMarkerSize(width)
     tg.SetLineColor(d_cut_sel_colour[cut_sel])
-    tg.SetLineWidth(width)
+    # For combined contour reduce width so we can see it
+    if 'all' in cut_sel:
+      tg.SetLineWidth(width-2)
+    else:
+      tg.SetLineWidth(width)
     tg.SetTitle('')
 
     for i, (x, y) in enumerate( zip( l_SlfCoup_or_TopYuk, l_chiSq) ):
@@ -420,10 +437,13 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
       cut_txt = 'Res + Int '
     elif 'res' in cut_sel:
       cut_txt = 'Resolved '
+      if 'chiSqSystMix' in zCol: cut_txt += '(0.3%)'
     elif 'int' in cut_sel:
       cut_txt = 'Intermediate '
+      if 'chiSqSystMix' in zCol: cut_txt += '(1%)'
     elif 'bst' in cut_sel or 'boosted' in cut_sel:
       cut_txt = 'Boosted '
+      if 'chiSqSystMix' in zCol: cut_txt += '(5%)'
     elif 'all' in cut_sel:
       cut_txt = 'Combined '
     else:
@@ -444,11 +464,11 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   
     if 'NN' in cut_sel: 
       if 'lam10' in cut_sel:
-        myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 10', 0.035, kGray+2, 0, True)
+        myText(0.08, 0.07, 'DNN trained on #kappa_{#lambda} = 10', 0.035, kGray+2, 0, True)
       elif 'lam5' in cut_sel:
-        myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 5', 0.035, kGray+2, 0, True)
+        myText(0.08, 0.07, 'DNN trained on #kappa_{#lambda} = 5', 0.035, kGray+2, 0, True)
       else:
-        myText(0.08, 0.07, 'DNN trained on #kappa(#lambda_{hhh}) = 1', 0.035, kGray+2, 0, True)
+        myText(0.08, 0.07, 'DNN trained on #kappa_{#lambda} = 1', 0.035, kGray+2, 0, True)
 
     leg.AddEntry(tg, cut_txt, 'l')
 
@@ -500,17 +520,19 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
     label_y = 0.84
   
   if do_ktop:
-    fixed_coupling = '#kappa(#lambda_{hhh}) = 1'
+    fixed_coupling = '#kappa_{#lambda} = 1'
   else:
-    fixed_coupling = '#kappa(#it{y}_{top}) = 1'
+    fixed_coupling = '#kappa_{#it{t}} = 1'
 
   if do_ktop:
-    xtitle = '#kappa(#it{y}_{top})'
+    xtitle = '#kappa_{#it{t}}'
   else:
-    xtitle = '#kappa(#lambda_{hhh})'
+    xtitle = '#kappa_{#lambda}'
 
   ytitle = d_axis_tlatex[zCol]
 
+  if 'chiSqSystMix' in zCol: 
+      myText(0.45, 0.69, 'Category (systematic #zeta_{b})', 0.038, kBlack, 0, True)
   if 'chiSqSyst1pc' in zCol:
     syst_txt = ', 1% systematics'
   elif 'chiSqSyst0p3pc' in zCol:
@@ -583,8 +605,9 @@ def make_plot( d_in_data, out_file, l_cut_sels, do_ktop, zCol, d_axis_tlatex, Is
   customise_axes(d_tgraphs[l_cut_sels[0]], xtitle, ytitle, 2.8, IsLogY, doktop = do_ktop, zCol = zCol)
   
   if 'acceptance' not in zCol:
-    lim_ATL_HLLHC_left.Draw('same')
-    lim_ATL_HLLHC_right.Draw('same')
+    if show_HLLHC_atlas_proj:
+      lim_ATL_HLLHC_left.Draw('same')
+      lim_ATL_HLLHC_right.Draw('same')
  
 
   #==========================================================
@@ -640,9 +663,9 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
   #xax.SetRangeUser(-20,20)
 
   if doktop: 
-    if zoom_in:
-      xax.SetRangeUser(-0.2,1.4) 
-    else:
+    #if zoom_in:
+    #  xax.SetRangeUser(-0.2,1.4) 
+    #else:
       xax.SetRangeUser(0.5,1.5) 
   else:
     if zoom_in:
@@ -691,8 +714,8 @@ def customise_axes(hist, xtitle, ytitle, scaleFactor=1.1, IsLogY=False, enlargeY
       hist.SetMaximum(5)
     hist.SetMinimum(0.0)
     #hist.SetMaximum(ymax*scaleFactor) 
-  if 'A #times \epsilon' in ytitle:
-    hist.SetMinimum(5E-3)
+  if 'A #times #varepsilon' in ytitle:
+    hist.SetMinimum(1E-3)
     hist.SetMaximum(10.0) 
     yax.SetNdivisions(205)
 
