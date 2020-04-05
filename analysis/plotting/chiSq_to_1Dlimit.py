@@ -233,7 +233,7 @@ def main():
   '''
 
   d_axis_tlatex = {
-    'acceptance'         : 'A #times #varepsilon',
+    'acceptance'         : 'A #times #varepsilon [%]',
     'xsec'               : 'xsec [pb]',
     'N_sig'              : 'Signal yield',
     'N_sig_raw'          : 'Raw signal yield',
