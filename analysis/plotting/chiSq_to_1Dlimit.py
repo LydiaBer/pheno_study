@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+'''
+Welcome to chiSq_to_1Dlimit.py
+This makes 
+- the acceptance plots (Fig 6): requires uncommenting ACCEPTANCE-BLOCK
+- 1D chi square plots (Fig 11): for the 0% syst case, need to uncomment "# No systematics case" block
+
+Run by doing
+./chiSq_to_1Dlimit.py
+
+'''
 import matplotlib as mplt
 mplt.use('Agg') # So we can use without X forwarding
 import os, sys, math, csv
@@ -214,7 +224,9 @@ def main():
 
   '''
   #----------------------------------------------------------
-  # acceptance plots, set zoom_in to False
+  # ACCEPTANCE-BLOCK
+  # This block of code produces the acceptance plots.
+  # Set zoom_in to False
   l_zCols = ['acceptance']
 
   IsLogY = True

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 '''
-Welcome to optimise1d_.py
+Welcome to plot_lhe.py
+This makes Fig 3 of the paper. 
+
 Plots a signal for multiple selections and signals
 Choice between displaying histograms normalised to cross-section or unnormalised
-And can show S/sqrt(B) histogram in bottom panel with flat systematic uncluded
+
 '''
 
 # So Root ignores command line inputs so we can use argparse
@@ -68,7 +70,7 @@ def main():
     'h1_Pt',
     #'Higgs2Pt',
     #'DiHiggsDeltaEta',
-    #'m_hh',
+    'm_hh',
     ]
 
   # Category 1: Low mass splitting optimised for splitting of 0 - 60 GeV
