@@ -2,8 +2,17 @@
 '''
 
 Welcome to contours_to_summary.py
+This produces Fig 15 summary plot of 68 CL limits in the paper.
 
-  Overlays contours from chiSq_to_contours.py onto a single plot
+This takes the contours of chiSq_to_contours.py
+e.g. contours/limit2d_SRNN_res_multibin_lam5_combined_SlfCoup_TopYuk_chiSqSystMix.csv
+and overlays the resolved, intermediate and boosted categories with their combination
+comparing DNN vs baseline analyses
+
+Run by doing 
+
+source /cvmfs/sft.cern.ch/lcg/views/LCG_94/x86_64-slc6-gcc8-opt/setup.sh
+./contours_to_summary.py
 
 '''
 
@@ -34,6 +43,7 @@ def main():
   # Input/output file names TODO: clumsy, use argparse etc
   # ------------------------------------------------------
   '''
+  # Use this list of contours to make the DNN trained on \klam = 5 version of this plot
   l_contours = [
       'SR_res_multibin_combined', 
       'SR_int_multibin_combined', 
@@ -48,6 +58,7 @@ def main():
   save_name = 'figs/summary_contours_2d_lam1.pdf'
   '''
   
+  # Use this list of contours to make the DNN trained on \klam = 5 version of this plot
   l_contours = [
       'SR_res_multibin_combined', 
       'SR_int_multibin_combined', 

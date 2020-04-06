@@ -85,3 +85,22 @@ The `chiSq_to_contour.py` allows plotting the CSV file into a 2D contour plot fr
 ```python chiSq_to_contour.py```
 The output 1D limit plots are stored in the ```contours``` directory.
 
+## How to make plots in paper
+
+Here we list the figures in the paper and the scripts used to make them. 
+
+* **Figure 2:** 2D cross-section vs kapt vs klam. Run the script `hh4b_extract_xsec.py` (ROOT). This takes as input the cross-section values stored in the file `xsec_14TeV_hh.txt`.
+* **Figure 3:** Parton-level (LHE) mhh and pT(H) distributions vs klam. Run `plot_lhe.py` script (ROOT) in the `lhe` directory to make the plots. Ntuples are made by running over the MadGraph LHE files using `lhe_to_ntuples.py`, which can be assisted by using `run_diHiggs.sh`. Once these ntuples are made, .
+* **Figure 4:** m(hh) resolution plots truth to reco. See `m_hh_resolution` directory.
+* **Figure 5:** Unit normalised signal distributions at reco level. Run the `plot_signal_only.py` script (ROOT). 
+* **Figure 6:** Acceptance x efficiency plots. Run the `chiSq_to_1Dlimit.py` script (ROOT) uncommenting the designated parts of the code to plot acceptance. This takes as input the output files produced by the `ntuples_to_chiSq.py`, which runs over the signal and background ntuples.
+* **Figures 7-9:** Luminosity normalised signal vs background SR distributions. Made using `plot.py` (ROOT), running over the signal and background ntuples.
+* **Figure 10:** SHAP value plots.
+* **Figure 11:** 1D chi-square vs klam plots. Run the `chiSq_to_1Dlimit.py` script (ROOT). This takes as input the output files produced by the `ntuples_to_chiSq.py`, which runs over the signal and background ntuples. 
+* **Figure 12:** 1D 68% CL limits vs background systematics. Run the `summary_1dlimits.py` script (matplotlib). As the input is hard-coded in this script, it should run out of the box once you've sourced right matplotlib/latex dependencies.
+* **Figure 13:** Chi-square(ij) vs klam(i) vs klam(j) discrimination power matrix. Run the `chiSq_2dlambda_discrPowerMatrix.py` script (ROOT).
+* **Figure 14:** Heat map 2D chi-quare vs kapt vs klam plots. Run the `chiSq_to_contour.py` script (ROOT). This takes as input the output files produced by the `ntuples_to_chiSq.py`, which runs over the signal and background ntuples. 
+* **Figure 15:** 2D contour limits overlay summary plot. Run the `contours_to_summary.py` script (ROOT). The input contour files are stored in the `contours/` directory.
+* **Figure 18:** ROC curves for DNN cut. Run `plot_roc_curves.py` script (python).
+* **Figures 21-24:** m(h) and m(hh) vs DNN score correlation plots. Run the `plot_score_vs_mass.py` script (ROOT).
+

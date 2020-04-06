@@ -1,12 +1,19 @@
 #!/usr/bin/env python
-#-----------------------------------------------------------------------
-#
-# Lydia Beresford and Jesse Liu 2019
-#
-# Script to make summary plot of 1D lambda limits
-# Everything is rather ad hoc hard coded manually implemented for now
-#
-#-----------------------------------------------------------------------
+'''
+Welcome to summary_1dlimits.py
+
+This makes the summary plot of 1D lambda limits.
+Everything is rather ad hoc hard coded for now, 
+but that means one can run this script standalone and
+see the numerical values of the limits here.
+
+Source LCG and latex from cvmfs before running:
+
+source /cvmfs/sft.cern.ch/lcg/views/LCG_94/x86_64-slc6-gcc8-opt/setup.sh
+export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2016/bin/x86_64-linux:$PATH
+./summary_1dlimits.py
+
+'''
 
 import os, json, math, csv, argparse, datetime
 from matplotlib import pyplot as plt
