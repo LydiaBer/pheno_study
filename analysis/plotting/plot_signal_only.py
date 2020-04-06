@@ -1,13 +1,25 @@
 #!/usr/bin/env python
 '''
-plot_signalOnly.py is the main script to do the plotting
-This reads the ntuples produced by SusySkimHiggsino
-Makes plots of data vs MC in various variables
+plot_signal_only.py 
+This takes the signal ntuples and produces the plots in Fig 5 of the paper.
+These show unit normalised distributions of the signals at reconstructed level.
+We set doBTagWeight = True in order to select hh -> 4b events
+
 Configure various aspects in
   - cuts.py
   - samples.py
   - variables.py
-One specifies the samples to be plotted at the top of calc_selections() function
+
+Choose the selection to be imposed here:
+  l_SRs = [
+    'all-preselection'
+    ]
+  l_vars = [
+   'n_large_jets',
+   'm_hh'
+  ]
+Specify the signal samples to be plotted here  l_samp = []
+
 '''
 # So Root ignores command line inputs so we can use argparse
 import ROOT
@@ -80,7 +92,7 @@ def main():
     'all-preselection'
     ]
   l_vars = [
-  # 'n_large_jets',
+   'n_large_jets',
    'm_hh'
   ]
   
@@ -177,8 +189,8 @@ def calc_selections(var, add_cuts, lumi, save_name, sig_reg, annotate_text='', t
   myDarkBlue      = TColor.GetColor('#08306b')
   
   myMediumOrange  = TColor.GetColor('#feb24c')
-  myDarkOrange    = TColor.GetColor('#ec7014')
-  myDarkerOrange  = TColor.GetColor('#cc4c02')
+  myDarkOrange    = TColor.GetColor('#f16913')
+  myDarkerOrange  = TColor.GetColor('#a50f15')
   
   l_styles = [1, 1, 1, 2, 1, 1, 1]
   l_colors = [myDarkBlue, myMediumBlue, myLightBlue, kGray+1, myMediumOrange, myDarkOrange, myDarkerOrange]
@@ -194,11 +206,13 @@ def calc_selections(var, add_cuts, lumi, save_name, sig_reg, annotate_text='', t
 
     weighted_lumi = str(lumi)
     if doBTagWeight:
+      weighted_lumi = '{0} * h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'.format(lumi)
+      '''
       if '2b' in sig_reg:
         weighted_lumi = '{0} * h1_j1_BTagWeight * h1_j2_BTagWeight'.format(lumi)
       if '4b' in sig_reg:
         weighted_lumi = '{0} * h1_j1_BTagWeight * h1_j2_BTagWeight * h2_j1_BTagWeight * h2_j2_BTagWeight'.format(lumi)
-
+      '''
     # obtain histogram from file and store to dictionary entry
     d_hists[samp] = tree_get_th1f( d_files[samp], samp, var, cutsAfter, hNbins, hXmin, hXmax, weighted_lumi, variable_bin, hXarray)
 
@@ -222,7 +236,7 @@ def calc_selections(var, add_cuts, lumi, save_name, sig_reg, annotate_text='', t
     format_hist(hist, 3, l_colors[count], l_styles[count], f_color=0)
     Nsignal_count += 1
     l_sig.append(samp) 
-  leg = mk_leg(0.72, 0.45, 0.92, 0.85, sig_reg, l_samp, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_nRaw, sampSet_type='bkg', txt_size=0.05)
+  leg = mk_leg(0.75, 0.40, 0.92, 0.80, sig_reg, l_samp, d_samp, nTotBkg, d_hists, d_yield, d_yieldErr, d_nRaw, sampSet_type='bkg', txt_size=0.05)
    
   #============================================================
   # proceed to plot
@@ -290,8 +304,10 @@ def plot_selections(var, d_hsig, leg, save_name, sig_reg, nTotBkg, l_sig, cutsAf
     ytitle = 'Events / {0:.2f} {1}'.format(binWidth, binUnits)
   elif binWidth >= 1:
     if normalise_unity:
-      #ytitle = 'Fraction of Events / {0:.0f} {1}'.format(binWidth, binUnits)
-      ytitle = 'Fraction of Events'.format(binWidth, binUnits)
+      if 'n_large_jets' in var:
+        ytitle = 'Fraction of Events'.format(binWidth, binUnits)
+      else:
+        ytitle = 'Fraction of Events / {0:.0f} {1}'.format(binWidth, binUnits)
     else:
       ytitle = 'Events / {0:.0f} {1}'.format(binWidth, binUnits)
   enlargeYaxis = False
@@ -310,8 +326,9 @@ def plot_selections(var, d_hsig, leg, save_name, sig_reg, nTotBkg, l_sig, cutsAf
   
   customise_axes(d_hsig[l_sig[0]], xtitle, ytitle, 1.6, IsLogY, enlargeYaxis)
   
-  myText(0.19, 0.84, 'pp #rightarrow hh, #kappa_{#it{t}} = 1, #sqrt{s} = 14 TeV', text_size, kBlack) 
-  myText(0.19, 0.77, 'Reconstructed level, preselection', text_size, kBlack) 
+  myText(0.33, 0.84, 'pp #rightarrow hh, #kappa_{#it{t}} = 1, #sqrt{s} = 14 TeV', text_size, kBlack) 
+  myText(0.33, 0.78, 'Reconstructed level', text_size, kBlack) 
+  myText(0.33, 0.72, 'Preselection with 4 b-tags', text_size, kBlack) 
   if doBTagWeight:
     if '2b' in sig_reg:
       l_2b = ['h1_j1_BTagWeight',
