@@ -25,31 +25,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, auc
 from scipy import interp
 from itertools import cycle
-import random
+import argparse
 
 
-# This program performs a random search to optimize hyperparameters
-# of the NNs used for the resolved, intermediate and boosted channels
 
-# lr = learning rate
-# nds = number of nodes
-# dp = dropout probability
+# This program trains a neural network based on input numpy array files.
+# Output is one trained NN file (nn_*.h5) and one scaler file (scaler_*.sav)
+# per analysis. Optionally also makes plots of the output distributions for the
+# training sample.
 
-def new_model(lr,nds,dp):
+### NOTE this program uses 0.2 of the data as a validation set
 
-  _model = Sequential()
-  _model.add(Dense(nds, activation="relu", input_dim=43))#input_dim should be as long as the branchList given to the NN
-  _model.add(Dropout(dp))
-  _model.add(Dense(nds, activation="relu"))
-  _model.add(Dense(3, activation="softmax")) # output nodes
+parser = argparse.ArgumentParser(description='Train an nn on a specific lambda variation vs bkg.')
+parser.add_argument('--var',type=str, default='1', help='Lambda variation of the signal sample. ex. 1.0, 0.5, m0.5, m2')
+args = parser.parse_args()
 
-  _model.compile(
-          loss='categorical_crossentropy',  # we train 10-way classification
-          optimizer=keras.optimizers.adamax(lr=lr),  # for SGD
-          metrics=['acc']  # report accuracy during training
-          )
-
-  return _model
+var = args.var
 
 def main(argv):
 
@@ -58,11 +49,9 @@ def main(argv):
     trainingDataPath = "."
 
     # Training parameters
-    numEpochs = 10
+    numEpochs = 20
     batchSize = 100
     dropoutFraction = 0.3
-    # number of iterations for random shearch
-    nIterations = 15
     # initial learning rate for adamax
     init_lr = MyDict()
     init_lr["boosted"] = 5e-5
@@ -72,43 +61,104 @@ def main(argv):
     # store parameters of the network in a string
     #param_string = "_w_OPadamaxEP"+str(numEpochs)+"BS"+str(batchSize)+"DO"+str(dropoutFraction).replace(".","")
     # Plot score distributions for the training sample?
-    makePlots = False
+    makePlots = True
     
     target_nevents = 100000
 
     signal_weight = MyDict()
     ttbar_weight = MyDict()
     qcd_weight = MyDict()
+
+    fileListLocation = "../datasets_to_train/new_split_ntuples"
+
+    # Name of the tree we want to use
+    inTreeName = "preselection"
+    
+    # Prefix for the name of the output .npz files
+    outputPrefix = "trainingData_all_jets_"
+    #outputPrefix = "validationData_"
+    
+    #for analysis in ["resolved", "intermediate", "boosted"]:
     for analysis in [ "resolved", "intermediate","boosted"]:
-        param_string = "EP15_LR"+str(init_lr[analysis]).replace("0.","0p")
+        param_string = "_SlfCoup_"+var
         print ("paramters string "+param_string)
 
         print("Starting training for " + analysis)
         # Load the input file and grab the data from it.
         # Label each type of background
         # Calculate weight for each 'target' sample
-        inFile = np.load(trainingDataPath + "/trainingData_all_jets_" + analysis + ".npz")
 
-        signalData = pandas.DataFrame(inFile["sig"])
+        inFile_sig   = fileListLocation + "/signalFiles_" + analysis + "_SlfCoup_"+var+".txt"
+        inFile_4b    = fileListLocation + "/4bFiles_" + analysis + ".txt"
+        inFile_2b2j  = fileListLocation + "/2b2jFiles_" + analysis + ".txt"
+        inFile_ttbar = fileListLocation + "/ttbarFiles_" + analysis + ".txt"
+
+        
+        branchList = ["pT_hh","m_hh",
+                      "nMuon", "nElec",
+                      "h1_M", "h1_Pt", "h1_Eta", "h1_Phi", "h1_j1_j2_dR",
+                      "h2_M", "h2_Pt", "h2_Eta", "h2_Phi", "h2_j1_j2_dR",
+                      "met_Et", "met_Phi", 
+                      "h1_j1_BTag","h1_j2_BTag","h2_j1_BTag","h2_j2_BTag",
+                      "mc_sf"]
+        
+        nFeatures = len(branchList)-1
+        
+        filepaths_sig   = []
+        
+        filepaths_4b    = []
+        filepaths_2b2j  = []
+        filepaths_ttbar = []
+        
+        f = open(inFile_sig,"r")
+        for line in f:
+            filepaths_sig.append(line.rstrip())
+        f.close()
+        
+        f = open(inFile_4b,"r")
+        for line in f:
+            filepaths_4b.append(line.rstrip())
+        f.close()
+        
+        f = open(inFile_2b2j,"r")
+        for line in f:
+            filepaths_2b2j.append(line.rstrip())
+        f.close()
+        
+        f = open(inFile_ttbar,"r")
+        for line in f:
+            filepaths_ttbar.append(line.rstrip())
+        f.close()
+        
+        dat_sig   = root2array(filepaths_sig,   branches=branchList, treename=inTreeName)
+        dat_4b    = root2array(filepaths_4b,    branches=branchList, treename=inTreeName)
+        dat_2b2j  = root2array(filepaths_2b2j,  branches=branchList, treename=inTreeName)
+        dat_ttbar = root2array(filepaths_ttbar, branches=branchList, treename=inTreeName)
+        
+        #np.savez(outputPrefix + analysis + ".npz", sig=dat_sig, bkg_4b=dat_4b, bkg_2b2j=dat_2b2j, bkg_ttbar=dat_ttbar)
+
+
+        signalData = pandas.DataFrame(dat_sig)
         signalData["target"] = 0
         signal_weight[analysis] = target_nevents/len(signalData)
         print(len(signalData),"(",signal_weight[analysis],") signal (weight) events found")
         n_sig = len(signalData)
 
-        backgroundData = pandas.DataFrame(inFile["bkg_4b"])
+        backgroundData = pandas.DataFrame(dat_4b)
         backgroundData["target"] = 1
         print(len(backgroundData), "4b background events found")
 
-        background_2b2j = pandas.DataFrame(inFile["bkg_2b2j"])
+        background_2b2j = pandas.DataFrame(dat_2b2j)
         background_2b2j["target"] = 1
         print(len(background_2b2j), "2b2j background events found")
         backgroundData = backgroundData.append(background_2b2j)
+        print("appended 2b2j to 4b")
 
         qcd_weight[analysis] = target_nevents/len(backgroundData)
         print(len(backgroundData),"(",qcd_weight[analysis], ") qcd (weight) background events found")
         n_qcd = len(backgroundData)
 
-        background_ttbar = pandas.DataFrame(inFile["bkg_ttbar"])
+        background_ttbar = pandas.DataFrame(dat_ttbar)
         background_ttbar["target"] = 2
         ttbar_weight[analysis] = target_nevents/len(background_ttbar)
         print(len(background_ttbar),"(",ttbar_weight[analysis], ") ttbar (weight) background events found")
@@ -162,91 +212,42 @@ def main(argv):
         X_test = classStd1.transform(X_test)
         joblib.dump(classStd1, "scaler_" + analysis + param_string +".sav")
 
+        # Construct the NN architecture
+        model = Sequential()
+        model.add(Dense(200, activation="relu", input_dim=20))#input_dim should be as long as the branchList given to the NN
+        model.add(Dropout(dropoutFraction))
+        model.add(Dense(200, activation="relu"))
+        model.add(Dense(3, activation="softmax")) # output nodes
 
-        # Perform random search to optimize dropout, learning rate and number of nodes
-        max_roc_auc = 0
-        best_lr = 0
-        best_nds = 0
-        best_dp = 0
-        # save which iterations were new best
-        isbest = MyDict()
-        for iteration in range(0,nIterations):
-          isbest[iteration] = False
-          
-          print('Running random search. Iteration ',iteration,' of ',nIterations)
-          # Pick random hyperparameters in a specified range
-          lr = 10**(-random.randint(0,7))
-          nds = 10*(random.randint(10,60))
-          dp = random.uniform(0.1,0.5)
+        model.compile(
+                loss='categorical_crossentropy',  # we train 10-way classification
+                optimizer=keras.optimizers.adamax(lr=init_lr[analysis]),  # for SGD
+                metrics=['acc']  # report accuracy during training
+                )
 
-          # Construct the NN architecture
+        # Train the NN
+        history = model.fit(X_train, y_train, validation_data=(X_test, y_test,evtWeightsVal), epochs=numEpochs, batch_size=batchSize, sample_weight=evtWeightsTrain,verbose=2,shuffle=True)
+        model.save("nn_all_jets_" + analysis + param_string +".h5")
 
-          model = new_model(lr,nds,dp)
-
-          # Train the NN
-          history = model.fit(X_train, y_train, validation_data=(X_test, y_test,evtWeightsVal), epochs=numEpochs, batch_size=batchSize, sample_weight=evtWeightsTrain,verbose=2,shuffle=True)
-          model.save("nn_all_jets_" + analysis + param_string +".h5")
-
-          probTest = model.predict(X_test)
-
-          # Compute ROC curve and ROC area for each class
-          fpr = MyDict()
-          tpr = MyDict()
-          roc_auc = MyDict()
-
-          # Compute micro-average ROC curve and ROC area
-          fpr[iteration]["micro"], tpr[iteration]["micro"], _ = roc_curve(y_test.ravel(), probTest.ravel())
-          roc_auc[iteration]["micro"] = auc(fpr[iteration]["micro"], tpr[iteration]["micro"])
-
-          current_roc_auc = roc_auc[iteration]["micro"]
-          
-          if (current_roc_auc > max_roc_auc):
-            isbest[iteration] = True
-            model.save('rand_search_best_model_'+ analysis +'.h5')
-            max_roc_auc = current_roc_auc
-            best_lr = lr
-            best_nds = nds
-            best_dp = dp
-            print ('Current Best Model is: ',iteration )
-            print ('Current ROC AUC: ',current_roc_auc )
-            print ('Learning rate  =  ',lr)
-            print ('Number of nodes  =  ',nds)
-            print ('Dropout chance  =  ',dp )
-
-          # plot auc and loss 
-          #plt.figure(figsize=(12,8))
-          #plt.plot(history.history['acc'])
-          #plt.plot(history.history['val_acc'])
-          #plt.title(analysis + ', model accuracy')
-          #plt.ylabel('roc_auc')
-          #plt.xlabel('epoch')
-          #plt.legend(['train', 'test'], loc='upper left')
-          #plt.savefig("training/roc_auc_" + analysis +"_"+ str(iteration) +".png")
-  
-          plt.plot(history.history['loss'])
-          plt.plot(history.history['val_loss'])
-          plt.title(analysis + ', model loss')
-          plt.ylabel('loss')
-          plt.xlabel('epoch')
-          plt.legend(['train', 'test'], loc='upper left')
-          plt.figure(figsize=(12,8))
-          plt.plot(history.history['loss'])
-          plt.savefig("training/loss_" + analysis +"_"+ str(iteration) +".png")
-          plt.close()
-
-        print("**********The highest roc_auc for "+ analysis +" is: " + str(max_roc_auc*100) + " with LR =  " + str(best_lr) + ", nNodes =  "+ str(best_nds) +", Dropout = "+ str(best_dp))
-        
+        # plot accuracy and loss 
         plt.figure(figsize=(12,8))
-        colors = cycle(['red', 'blue', 'green','yellow','indigo','turquoise','orange'])
-        lineTypes = cycle(['-', '--', ':', '-.'])
-        for iteration, color, lineType in zip(range(0,nIterations),colors,lineTypes):
-          if isbest[iteration]:
-            plt.plot(fpr[iteration]["micro"], tpr[iteration]["micro"], label='micro-average ROC curve '+str(iteration)+' (area = {0:0.2f})'.format(roc_auc[iteration]["micro"]), color=color, linestyle=lineType, linewidth=2)
-        plt.title(analysis + ', roc_curve')
-        plt.ylabel('False Positive')
-        plt.xlabel('True Positive Rate')
-        plt.legend(loc="lower right")
-        plt.savefig("training/roc_auc_" + analysis +"_all.png")
+        plt.plot(history.history['acc'])
+        plt.plot(history.history['val_acc'])
+        plt.title(analysis + ', model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.savefig("training/acc_" + analysis +"_"+ param_string +".png")
+
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title(analysis + ', model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.figure(figsize=(12,8))
+        plt.plot(history.history['loss'])
+        plt.savefig("training/loss_" + analysis +"_"+ param_string +".png")
 
         # Optionally, plot the output distributions for the training sample.
         if makePlots:
@@ -258,9 +259,14 @@ def main(argv):
             fpr = dict()
             tpr = dict()
             roc_auc = dict()
+            lw = 2
             for i in range(0,3):
               fpr[i], tpr[i], _ = roc_curve(y_test[:, i], probTest[:, i])
               roc_auc[i] = auc(fpr[i], tpr[i])
+
+            # Compute micro-average ROC curve and ROC area
+            fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), probTest.ravel())
+            roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
             # Then compute macro-average ROC curve and ROC area
             # First aggregate all false positive rates
@@ -280,7 +286,9 @@ def main(argv):
             
             # Plot all ROC curves
             plt.figure(figsize=(12,8))
-            plt.plot(fpr["macro"], tpr["macro"], label='macro-average ROC curve (area = {0:0.2f})'.format(roc_auc["macro"]), color='gray', linestyle=':', linewidth=4)
+            #plt.plot(fpr["macro"], tpr["macro"], label='macro-average ROC curve (area = {0:0.2f})'.format(roc_auc["macro"]), color='gray', linestyle=':', linewidth=4)
+            plt.plot(fpr["micro"], tpr["micro"], label='micro-average ROC curve (area = {0:0.2f})'.format(roc_auc["micro"]), color='deeppink', linestyle=':', linewidth=4)
+
             colors = cycle(['red', 'blue', 'green'])
             types = cycle(['sig', 'qcd', 'ttbar'])
             for i, color, typ in zip(range(0,3), colors, types):
@@ -293,6 +301,7 @@ def main(argv):
             plt.ylabel('True Positive Rate')
             plt.title('All ROC curves')
             plt.legend(loc="lower right")
+            plt.savefig("roc_curves__" + analysis +"_"+ param_string +".png")
 
             # Construct discriminant
             scores_train = np.log(probTrain[:,0]/(probTrain[:,1]+probTrain[:,2]))
